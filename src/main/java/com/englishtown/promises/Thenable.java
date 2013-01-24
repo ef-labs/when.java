@@ -9,10 +9,10 @@ import java.lang.*;
  * Time: 1:59 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Thenable<T> {
+public interface Thenable<TResolve, TProgress> {
 
-    public Promise<T> then(
-            Runnable<Promise<T>, T> onFulfilled,
-            Runnable<Promise<T>, Reason<T>> onRejected,
-            Runnable<Void, Promise<T>> onProgress);
+    public Promise<TResolve, TProgress> then(
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<TProgress, TProgress> onProgress);
 }
