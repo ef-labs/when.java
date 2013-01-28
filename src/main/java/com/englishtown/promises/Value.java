@@ -8,5 +8,13 @@ package com.englishtown.promises;
  * To change this template use File | Settings | File Templates.
  */
 class Value<T> {
+
+    public Value() {
+    }
+
+    public Value(T value) {
+        this.value = value;
+    }
+
     public T value;
 }

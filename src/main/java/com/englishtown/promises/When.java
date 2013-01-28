@@ -12,7 +12,10 @@ import java.util.List;
  *
  * @version 1.7.1
  */
-/** @license MIT License (c) copyright B Cavalier & J Hann */
+
+/**
+ * @license MIT License (c) copyright B Cavalier & J Hann
+ */
 public class When<TResolve, TProgress> {
 
 
@@ -28,8 +31,8 @@ public class When<TResolve, TProgress> {
      * @param {function?} [onProgress] callback to be called when progress updates
      *                    are issued for promiseOrValue.
      * @return {com.englishtown.promises.Promise} a new {@link Promise} that will complete with the return
-     * value of callback or errback or the completion value of promiseOrValue if
-     * callback and/or errback is not supplied.
+     *         value of callback or errback or the completion value of promiseOrValue if
+     *         callback and/or errback is not supplied.
      */
     public Promise<TResolve, TProgress> when(
             TResolve value,
@@ -119,7 +122,7 @@ public class When<TResolve, TProgress> {
             // It's not a when.js promise. See if it's a foreign promise or a value.
             // It's a thenable, but we don't know where it came from, so don't trust
             // its implementation entirely.  Introduce a trusted middleman when.js promise
-            final DeferredImpl deferred = defer();
+            final DeferredImpl deferred = deferInner();
 
             // IMPORTANT: This is the only place when.js should ever call .then() on an
             // untrusted promise. Don't expose the return value to the untrusted promise
@@ -127,21 +130,21 @@ public class When<TResolve, TProgress> {
                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                         @Override
                         public Promise<TResolve, TProgress> run(TResolve value) {
-                            deferred.resolve.run(value);
+                            deferred.resolver.resolve(value);
                             return null;
                         }
                     },
                     new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
                         @Override
                         public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
-                            deferred.reject.run(reason);
+                            deferred.resolver.reject(reason);
                             return null;
                         }
                     },
                     new Runnable<TProgress, TProgress>() {
                         @Override
                         public TProgress run(TProgress update) {
-                            deferred.progress.run(update);
+                            deferred.resolver.progress(update);
                             return null;
                         }
                     }
@@ -189,6 +192,7 @@ public class When<TResolve, TProgress> {
          * untrusted.
          *
          * @param {com.englishtown.promises.Thenable}
+         *
          */
         protected PromiseImpl(Thenable<TResolve, TProgress> then) {
             __then = then;
@@ -245,32 +249,18 @@ public class When<TResolve, TProgress> {
          *         - if value is a promise, will fulfill with its value, or reject
          *         with its reason.
          */
-//        public com.englishtown.promises.Promise<TResolve, TProgress> yield(TResolve value) {
-//            return this.then(new com.englishtown.promises.Runnable<TResolve, com.englishtown.promises.Promise<TResolve, TProgress>>() {
-//                @Override
-//                public com.englishtown.promises.Promise<TResolve, TProgress> run(TResolve value) {
-//                    return value;
-//                }
-//            });
+//        public Promise<TResolve, TProgress> yield(TResolve value) {
+//            return this.then(
+//                    new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+//                        @Override
+//                        public Promise<TResolve, TProgress> run(TResolve value) {
+//                            return value;
+//                        }
+//                    },
+//                    null,
+//                    null);
 //        }
-// TODO: Could not implement yield returning a value rather than a promise
-
-        /**
-         * Assumes that this promise will fulfill with an array, and arranges
-         * for the onFulfilled to be called with the array as its argument list
-         * i.e. onFulfilled.spread(undefined, array).
-         * @param {function} onFulfilled function to receive spread arguments
-         * @return {com.englishtown.promises.Promise}
-         */
-//        public com.englishtown.promises.Promise<TResolve, TProgress> spread(com.englishtown.promises.Runnable<TResolve, com.englishtown.promises.Promise<TResolve, TProgress>> onFulfilled) {
-//            return this.then(function(array) {
-//                // array may contain promises, so resolve its contents.
-//                return all(array, function(array) {
-//                    return onFulfilled.apply(undef, array);
-//                });
-//            });
-//        }
-        // TODO: Could not implement spread
+// TODO: Could not implement yield returning a value rather than a promise...
     }
 
     /**
@@ -334,27 +324,60 @@ public class When<TResolve, TProgress> {
         return p;
     }
 
-    // TODO: Extract interfaces for DeferredImpl and Resolver
-    public class DeferredImpl {
+    class DeferredImpl implements Deferred<TResolve, TProgress> {
 
-        protected DeferredImpl() {
-            resolver = new Resolver();
+        protected DeferredImpl(PromiseImpl promise, ResolverImpl resolver) {
+            this.promise = promise;
+            this.resolver = resolver;
         }
 
-        //        public com.englishtown.promises.Thenable<TResolve, TProgress> then;
-        public Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
-        public Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> reject;
-        public Runnable<TProgress, TProgress> progress;
+        public final ResolverImpl resolver;
+        public final PromiseImpl promise;
 
-        public Resolver resolver;
-        public PromiseImpl promise;
+        @Override
+        public Resolver<TResolve, TProgress> getResolver() {
+            return resolver;
+        }
 
+        @Override
+        public Promise<TResolve, TProgress> getPromise() {
+            return promise;
+        }
     }
 
-    public class Resolver {
+    class ResolverImpl implements Resolver<TResolve, TProgress> {
+
         public Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
         public Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> reject;
         public Runnable<TProgress, TProgress> progress;
+
+        public ResolverImpl(
+                Runnable<Promise<TResolve, TProgress>, TResolve> resolve,
+                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> reject,
+                Runnable<TProgress, TProgress> progress) {
+            this.resolve = resolve;
+            this.reject = reject;
+            this.progress = progress;
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> resolve(TResolve value) {
+            return resolve.run(value);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> reject(Reason<TResolve> reason) {
+            return reject.run(reason);
+        }
+
+        @Override
+        public TProgress progress(TProgress update) {
+            return progress.run(update);
+        }
+    }
+
+    public Deferred<TResolve, TProgress> defer() {
+        return deferInner();
     }
 
     /**
@@ -366,13 +389,7 @@ public class When<TResolve, TProgress> {
      *
      * @return {Deferred}
      */
-    public DeferredImpl defer() {
-        DeferredImpl deferred;
-        PromiseImpl promise;
-
-//                , handlers, progressHandlers,
-//                _then, _progress, _resolve;
-
+    private DeferredImpl deferInner() {
 
         final List<Runnable<Void, Promise<TResolve, TProgress>>> handlers = new ArrayList<>();
         final List<Runnable<TProgress, TProgress>> progressHandlers = new ArrayList<>();
@@ -386,7 +403,6 @@ public class When<TResolve, TProgress> {
          * @param {function?} [onRejected] rejection handler
          * @param {function?} [onProgress] progress handler
          */
-        // TODO: Change com.englishtown.promises.Value<TResolve> to take value in constructor?
         final Value<Thenable<TResolve, TProgress>> _then = new Value<>();
         _then.value = new Thenable<TResolve, TProgress>() {
             @Override
@@ -396,7 +412,7 @@ public class When<TResolve, TProgress> {
                     final Runnable<TProgress, TProgress> onProgress) {
 
                 final Value<Runnable<TProgress, TProgress>> progressHandler = new Value<>();
-                final DeferredImpl deferred = defer();
+                final DeferredImpl deferred = deferInner();
 
                 if (onProgress != null) {
                     progressHandler.value = new Runnable<TProgress, TProgress>() {
@@ -404,11 +420,11 @@ public class When<TResolve, TProgress> {
                         public TProgress run(TProgress update) {
                             try {
                                 // Allow progress handler to transform progress event
-                                deferred.progress.run(onProgress.run(update));
+                                deferred.resolver.progress(onProgress.run(update));
 
                             } catch (RuntimeException e) {
                                 // Use caught value as progress
-                                deferred.progress.run(update);
+                                deferred.resolver.progress(update);
                                 // TODO: Could not pass exception through to progress.run(), passing update instead
 
                             }
@@ -420,7 +436,7 @@ public class When<TResolve, TProgress> {
                     progressHandler.value = new Runnable<TProgress, TProgress>() {
                         @Override
                         public TProgress run(TProgress update) {
-                            deferred.progress.run(update);
+                            deferred.resolver.progress(update);
                             return null;
                         }
                     };
@@ -430,7 +446,7 @@ public class When<TResolve, TProgress> {
                     @Override
                     public Void run(Promise<TResolve, TProgress> promise) {
                         promise.then(onFulfilled, onRejected, null)
-                                .then(deferred.resolve, deferred.reject, progressHandler.value);
+                                .then(deferred.resolver.resolve, deferred.resolver.reject, progressHandler.value);
                         return null;
                     }
                 });
@@ -484,8 +500,8 @@ public class When<TResolve, TProgress> {
                         return resolve(value);
                     }
                 };
-                // Make _progress a noop, to disallow progress for the resolved promise.
-                _progress.value = null; // TODO: Replace with noop?
+                // Make _progress null, to disallow progress for the resolved promise.
+                _progress.value = null;
 
                 // Notify handlers
                 processQueue(handlers, p);
@@ -493,7 +509,6 @@ public class When<TResolve, TProgress> {
                 // Free progressHandlers array since we'll never issue progress events
                 progressHandlers.clear();
                 handlers.clear();
-                //progressHandlers = handlers = undef;
 
                 return p;
 
@@ -511,7 +526,7 @@ public class When<TResolve, TProgress> {
          * The promise for the new deferred
          * @type {com.englishtown.promises.Promise}
          */
-        promise = new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        PromiseImpl promise = new PromiseImpl(new Thenable<TResolve, TProgress>() {
             @Override
             public Promise<TResolve, TProgress> then(
                     Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
@@ -521,87 +536,16 @@ public class When<TResolve, TProgress> {
             }
         });
 
+        ResolverImpl resolver = new ResolverImpl(_resolve.value, _reject, _progress.value);
+
         /**
-         * The full Deferred object, with {@link Promise} and {@link Resolver} parts
+         * The full Deferred object, with {@link PromiseImpl} and {@link ResolverImpl}
+         * parts
          * @class Deferred
          * @name Deferred
          */
-        deferred = new DeferredImpl();
-        deferred.resolve = _resolve.value;
-        deferred.reject = _reject;
-        deferred.progress = _progress.value;
-        deferred.promise = promise;
-        deferred.resolver.resolve = _resolve.value;
-        deferred.resolver.reject = _reject;
-        deferred.resolver.progress = _progress.value;
-
-//        {
-//                then:then, // DEPRECATED: use deferred.promise.then
-//                resolve:promiseResolve,
-//                reject:promiseReject,
-//                // TODO: Consider renaming progress() to notify()
-//                progress:promiseProgress,
-//
-//                promise:promise,
-//
-//                resolver:{
-//            resolve:
-//            promiseResolve,
-//                    reject:promiseReject,
-//                    progress:promiseProgress
-//        }
-//        };
-
-        return deferred;
+        return new DeferredImpl(promise, resolver);
     }
-
-    /**
-     * Wrapper to allow _then to be replaced safely
-     *
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @return {com.englishtown.promises.Promise} new promise
-     */
-
-//    function then(onFulfilled, onRejected, onProgress) {
-//        // TODO: Promises/A+ check typeof onFulfilled, onRejected, onProgress
-//        return _then.run(onFulfilled, onRejected, onProgress);
-//    }
-//
-//    /**
-//     * Wrapper to allow _resolve to be replaced
-//     */
-//    function promiseResolve(val) {
-//        return _resolve(val);
-//    }
-//
-//    /**
-//     * Wrapper to allow _reject to be replaced
-//     */
-//    function promiseReject(err) {
-//        return _resolve(rejected(err));
-//    }
-//
-//    /**
-//     * Wrapper to allow _progress to be replaced
-//     */
-//    function promiseProgress(update) {
-//        return _progress(update);
-//    }
-//}
-
-//    /**
-//     * Determines if promiseOrValue is a promise or not.  Uses the feature
-//     * test from http://wiki.commonjs.org/wiki/Promises/A to determine if
-//     * promiseOrValue is a promise.
-//     *
-//     * @param {*} promiseOrValue anything
-//     * @returns {boolean} true if promiseOrValue is a {@link com.englishtown.promises.Promise}
-//     */
-//    function isPromise(promiseOrValue) {
-//        return promiseOrValue && typeof promiseOrValue.then == = 'function';
-//    }
 
 //    /**
 //     * Initiates a competitive race, returning a promise that will resolve when
@@ -635,7 +579,7 @@ public class When<TResolve, TProgress> {
 //            toReject = (len - toResolve) + 1;
 //            reasons =[];
 //
-//            deferred = defer();
+//            deferred = deferInner();
 //
 //            // No items in the input, resolve immediately
 //            if (!toResolve) {
@@ -756,7 +700,7 @@ public class When<TResolve, TProgress> {
 //            // array to avoid array expansions.
 //            toResolve = len = array.length >>> 0;
 //            results =[];
-//            d = defer();
+//            d = deferInner();
 //
 //            if (!toResolve) {
 //                d.resolve(results);
@@ -827,14 +771,18 @@ public class When<TResolve, TProgress> {
      * Ensure that resolution of promiseOrValue will trigger resolver with the
      * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
      *
-     * @param {com.englishtown.promises.Promise} promise
+     * @param {com.englishtown.promises.Promise}
+     *                   promise
      * @param {Object}   resolver
      * @param {function} resolver.resolve
      * @param {function} resolver.reject
      * @param {*}        [resolveValue]
      * @return {com.englishtown.promises.Promise}
      */
-    public Promise<TResolve, TProgress> chain(Promise<TResolve, TProgress> promise, final Resolver resolver, final TResolve resolveValue) {
+    public Promise<TResolve, TProgress> chain(
+            Promise<TResolve, TProgress> promise,
+            final Resolver<TResolve, TProgress> resolver,
+            final TResolve resolveValue) {
 
         return when(
                 promise,
@@ -842,25 +790,26 @@ public class When<TResolve, TProgress> {
                     @Override
                     public Promise<TResolve, TProgress> run(TResolve val) {
                         val = resolveValue != null ? resolveValue : val;
-                        resolver.resolve.run(val);
+                        resolver.resolve(val);
                         return resolve(val);
                     }
                 },
                 new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
                     @Override
                     public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
-                        resolver.reject.run(reason);
+                        resolver.reject(reason);
                         return rejected(reason);
                     }
                 },
-                resolver.progress
+                new Runnable<TProgress, TProgress>() {
+                    @Override
+                    public TProgress run(TProgress value) {
+                        return resolver.progress(value);
+                    }
+                }
         );
 
     }
-
-    //
-    // Utility functions
-    //
 
     /**
      * Apply all functions in queue to value
@@ -874,107 +823,3 @@ public class When<TResolve, TProgress> {
         }
     }
 }
-
-//    /**
-//     * Helper that checks arrayOfCallbacks to ensure that each element is either
-//     * a function, or null or undefined.
-//     *
-//     * @param {number} start index at which to start checking items in arrayOfCallbacks
-//     * @param {Array}  arrayOfCallbacks array to check
-//     * @throws {Error} if any element of arrayOfCallbacks is something other than
-//     *                 a functions, null, or undefined.
-//     * @private
-//     */
-//    function checkCallbacks(start, arrayOfCallbacks) {
-//        // TODO: Promises/A+ update type checking and docs
-//        var arg, i = arrayOfCallbacks.length;
-//
-//        while (i > start) {
-//            arg = arrayOfCallbacks[--i];
-//
-//            if (arg != null && typeof arg != 'function'){
-//                throw new Error('arg ' + i + ' must be a function');
-//            }
-//        }
-//    }
-
-//    /**
-//     * No-Op function used in method replacement
-//     *
-//     * @private
-//     */
-//    function noop() {
-//    }
-
-//slice=[].slice;
-//
-//// ES5 reduce implementation if native not available
-//// See: http://es5.github.com/#x15.4.4.21 as there are many
-//// specifics and edge cases.
-//reduceArray=[].reduce||
-//        function(reduceFunc /*, initialValue */){
-//        /*jshint maxcomplexity: 7*/
-//
-//        // ES5 dictates that reduce.length === 1
-//
-//        // This implementation deviates from ES5 spec in the following ways:
-//        // 1. It does not check if reduceFunc is a Callable
-//
-//        var arr,args,reduced,len,i;
-//
-//i=0;
-//// This generates a jshint warning, despite being valid
-//// "Missing 'new' prefix when invoking a constructor."
-//// See https://github.com/jshint/jshint/issues/392
-//arr=Object(this);
-//len=arr.length>>>0;
-//args=arguments;
-//
-//// If no initialValue, use first item of array (we know length !== 0 here)
-//// and adjust i to start at second item
-//if(args.length<=1){
-//        // Skip to the first real element in the array
-//        for(;;){
-//        if(i in arr){
-//        reduced=arr[i++];
-//break;
-//}
-//
-//        // If we reached the end of the array without finding any real
-//        // elements, it's a TypeError
-//        if(++i>=len){
-//        throw new TypeError();
-//}
-//        }
-//        }else{
-//        // If initialValue provided, use it
-//        reduced=args[1];
-//}
-//
-//        // Do the actual reduce
-//        for(;i<len;++i){
-//        // Skip holes
-//        if(i in arr){
-//        reduced=reduceFunc(reduced,arr[i],i,arr);
-//}
-//        }
-//
-//        return reduced;
-//};
-//
-//function identity(x){
-//        return x;
-//}
-//
-//        return when;
-//});
-//})(typeof define=='function'&&define.amd
-//        ?define
-//        :function(factory){typeof exports==='object'
-//        ?(module.exports=factory())
-//        :(this.when=factory());
-//}
-//        // Boilerplate for AMD, Node, and browser global
-//        );
-//
-//}

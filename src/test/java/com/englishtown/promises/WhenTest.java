@@ -15,14 +15,14 @@ public class WhenTest {
     @Test
     public void testWhen_Value_AllCallbacks() throws Exception {
 
-        final Value<Integer> val = new Value<>();
+        final Value<Integer> val = new Value<>(0);
         When<Integer, String> when = new When<>();
         Promise<Integer, String> promise;
 
         Runnable<Promise<Integer, String>, Integer> onFulfilled = new Runnable<Promise<Integer, String>, Integer>() {
             @Override
             public Promise<Integer, String> run(Integer value) {
-                val.value = value;
+                val.value += value;
                 return null;
             }
         };
@@ -78,21 +78,28 @@ public class WhenTest {
     @Test
     public void testDefer() throws Exception {
 
-        When<Integer, Integer> when = new When<>();
-        When<Integer, Integer>.DeferredImpl deferred = when.defer();
-        final Value<Integer> val = new Value<>();
-        int expected = 10;
+        final When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> deferred = when.defer();
+        final Value<Integer> val = new Value<>(0);
+        int value = 10;
+        int expected = 40;
 
         Runnable<Promise<Integer, Integer>, Integer> onFulfilled = new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
-                val.value = value;
-                return null;
+                val.value += value;
+                //return null;
+                return when.resolve(value);
             }
         };
 
-        deferred.promise.then(onFulfilled, null, null);
-        deferred.resolver.resolve.run(expected);
+        deferred.getPromise()
+                .then(onFulfilled, null, null)
+                .then(onFulfilled, null, null)
+                .then(onFulfilled, null, null)
+                .then(onFulfilled, null, null);
+
+        deferred.getResolver().resolve(value);
 
         assertEquals(expected, val.value.intValue());
 
