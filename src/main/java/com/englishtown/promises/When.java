@@ -104,6 +104,7 @@ public class When<TResolve, TProgress> {
         // It's a value, not a promise.  Create a resolved promise for it.
         return fulfilled(value);
     }
+    // TODO: Don't expose PromiseImpl call type?
 
     public PromiseImpl resolve(Promise<TResolve, TProgress> promise) {
 
@@ -174,7 +175,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
                     public Promise<TResolve, TProgress> run(TResolve value) {
-                        return rejected(new Reason<TResolve>(value, null));
+                        return rejected(new Reason<>(value, null));
                     }
                 },
                 null,
@@ -182,7 +183,7 @@ public class When<TResolve, TProgress> {
     }
     // TODO: Overload and take a value to reject?
 
-    public class PromiseImpl implements Promise<TResolve, TProgress> {
+    class PromiseImpl implements Promise<TResolve, TProgress> {
 
         private Thenable<TResolve, TProgress> __then;
 
@@ -376,8 +377,9 @@ public class When<TResolve, TProgress> {
         }
     }
 
-    public Deferred<TResolve, TProgress> defer() {
-        return deferInner();
+    public static <TResolve, TProgress> Deferred<TResolve, TProgress> defer() {
+        When<TResolve, TProgress> when = new When<>();
+        return when.deferInner();
     }
 
     /**
