@@ -14,6 +14,8 @@ import org.junit.Test;
 public class DeferTest {
 
     private final Object sentinel = new Object();
+    private final Object other = new Object();
+    private final Fail<Object, Object> fail = new Fail<>();
 
     @Test
     public void testResolve_should_fulfill_with_an_immediate_value() {
@@ -21,7 +23,7 @@ public class DeferTest {
         Done<Object, Object> done = new Done<>();
         Deferred<Object, Object> d = When.defer();
 
-        Promise<Object, Object> p = d.getPromise().then(
+        d.getPromise().then(
                 new Runnable<Promise<Object, Object>, Object>() {
                     @Override
                     public Promise<Object, Object> run(Object value) {
@@ -29,7 +31,7 @@ public class DeferTest {
                         return null;
                     }
                 },
-                done.onFail,
+                fail.onFail,
                 null).then(done.onSuccess, done.onFail, null);
 
         d.getResolver().resolve(sentinel);
@@ -40,9 +42,14 @@ public class DeferTest {
     private class FakeResolved<TResolve, TProgress> implements Promise<TResolve, TProgress> {
 
         private TResolve value;
+        private Promise<TResolve, TProgress> promise;
 
         public FakeResolved(TResolve value) {
             this.value = value;
+        }
+
+        public FakeResolved(Promise<TResolve, TProgress> promise) {
+            this.promise = promise;
         }
 
         @Override
@@ -51,21 +58,33 @@ public class DeferTest {
                 Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
                 Runnable<TProgress, TProgress> onProgress) {
 
-            if (onFulfilled != null) {
-                return onFulfilled.run(this.value);
-            } else {
-                return new FakeResolved<>(value);
-            }
+            return (onFulfilled != null ?
+                    onFulfilled.run(this.value) :
+                    new FakeResolved<TResolve, TProgress>(this.value));
+
         }
     }
 
-//    function fakeResolved(val) {
-//        return {
-//                then: function(callback) {
-//            return fakeResolved(callback ? callback(val) : val);
-//        }
-//        };
-//    }
+    private class FakeRejected<TResolve, TProgress> implements Promise<TResolve, TProgress> {
+
+        private Reason<TResolve> reason;
+
+        public FakeRejected(Reason<TResolve> reason) {
+            this.reason = reason;
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(
+                Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                Runnable<TProgress, TProgress> onProgress) {
+
+            return (onRejected != null ?
+                    new FakeResolved<>(onRejected.run(this.reason)) :
+                    new FakeRejected<TResolve, TProgress>(this.reason));
+
+        }
+    }
 
 //    function fakeRejected(reason) {
 //        return {
@@ -75,396 +94,636 @@ public class DeferTest {
 //        };
 //    }
 
+    @Test
+    public void testResolve_should_fulfill_with_fulfilled_promised() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getPromise().then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(value, sentinel);
+                        return null;
+                    }
+                },
+                done.onFail,
+                null).then(done.onSuccess, done.onFail, null);
+
+        d.getResolver().resolve(new FakeResolved<>(sentinel));
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testResolve_should_reject_with_rejected_promise() {
+
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getPromise().then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertEquals(value.data, sentinel);
+                        return null;
+                    }
+                },
+                null).then(done.onSuccess, done.onFail, null);
+
+        Reason<Object> reason = new Reason<>(sentinel, null);
+        d.getResolver().resolve(new FakeRejected<>(reason));
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testResolve_should_return_a_promise_for_the_resolution_value() {
+        final Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getResolver().resolve(sentinel).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(final Object value1) {
+
+                        d.getPromise().then(
+                                new Runnable<Promise<Object, Object>, Object>() {
+                                    @Override
+                                    public Promise<Object, Object> run(Object value2) {
+                                        assertEquals(value1, value2);
+                                        return null;
+                                    }
+
+                                },
+                                null,
+                                null);
+                        return null;
+
+                    }
+                },
+                fail.onFail,
+                null).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testResolve_should_return_a_promise_for_a_promised_resolution_value() {
+
+        When<Object, Object> when = new When<>();
+        final Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getResolver().resolve(when.resolve(sentinel)).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(final Object value1) {
+                        d.getPromise().then(
+                                new Runnable<Promise<Object, Object>, Object>() {
+                                    @Override
+                                    public Promise<Object, Object> run(Object value2) {
+                                        assertEquals(value1, value2);
+                                        return null;
+                                    }
+                                },
+                                null,
+                                null);
+                        return null;
+                    }
+                }
+                ,
+                fail.onFail, null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testResolve_should_return_a_promise_for_a_promised_rejection_value() {
+        final Deferred<Object, Object> d = When.defer();
+        When<Object, Object> when = new When<>();
+        Done<Object, Object> done = new Done<>();
+
+        // Both the returned promise, and the deferred's own promise should
+        // be rejected with the same value
+        d.getResolver().resolve(when.reject(sentinel)).then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(final Reason<Object> value1) {
+                        d.getPromise().then(
+                                fail.onSuccess,
+                                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                                    @Override
+                                    public Promise<Object, Object> run(Reason<Object> value2) {
+                                        assertEquals(value1, value2);
+                                        assertEquals(value1.data, value2.data);
+                                        return null;
+                                    }
+                                },
+                                null);
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testResolve_should_invoke_newly_added_callback_when_already_resolved() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getResolver().resolve(sentinel);
+
+        d.getPromise().then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(value, sentinel);
+                        return null;
+                    }
+                },
+                fail.onFail,
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+
+    @Test
+    public void testReject_should_reject() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+        final Reason<Object> reason = new Reason<>(sentinel, null);
+
+        d.getPromise().then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertEquals(value, reason);
+                        assertEquals(value.data, sentinel);
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        d.getResolver().reject(reason);
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testReject_should_return_a_promise_for_the_rejection_value() {
+        final Deferred<Object, Object> d = When.defer();
+        Reason<Object> reason = new Reason<>(sentinel, null);
+        Done<Object, Object> done = new Done<>();
+
+        // Both the returned promise, and the deferred's own promise should
+        // be rejected with the same value
+        d.getResolver().reject(reason).then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(final Reason<Object> value1) {
+
+                        d.getPromise().then(
+                                fail.onSuccess,
+                                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                                    @Override
+                                    public Promise<Object, Object> run(Reason<Object> value2) {
+                                        assertEquals(value1, value2);
+                                        return null;
+                                    }
+                                },
+                                null
+                        );
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testReject_should_invoke_newly_added_errback_when_already_rejected() {
+        Deferred<Object, Object> d = When.defer();
+        final Reason<Object> reason = new Reason<>(sentinel, null);
+        Done<Object, Object> done = new Done<>();
+
+        d.getResolver().reject(reason);
+
+        d.getPromise().then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertEquals(value, reason);
+                        assertEquals(value.data, sentinel);
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testProgress_should_progress() {
+        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise().then(
+                fail.onSuccess,
+                fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        assertEquals(value, sentinel);
+                        done.success = true;
+                        return value;
+                    }
+                }
+        );
+
+        d.getResolver().progress(sentinel);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testProgress_should_propagate_progress_to_downstream_promises() {
+        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise()
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                return value;
+                            }
+                        }
+                )
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                assertEquals(value, sentinel);
+                                done.success = true;
+                                return null;
+                            }
+                        }
+                );
+
+        d.getResolver().progress(sentinel);
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testProgress_should_propagate_transformed_progress_to_downstream_promises() {
+        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise()
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                return sentinel;
+                            }
+                        }
+                )
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                assertEquals(value, sentinel);
+                                done.success = true;
+                                return null;
+                            }
+                        }
+                );
+
+        d.getResolver().progress(other);
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testProgress_should_propagate_caught_exception_value_as_progress() {
+        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise()
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                throw new RuntimeException();
+                                //throw sentinel;
+                                // TODO: Throw in Java must be an exception, handle this test case somehow
+                            }
+                        }
+                )
+                .then(fail.onSuccess, fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        assertEquals(value, sentinel);
+                        done.success = true;
+                        return null;
+                    }
+                }
+        );
+
+        d.getResolver().progress(other);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void
+    testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_a_resolved_promise_returns_a_promise() {
+
+        final Done<Object, Object> done = new Done<>();
+        Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d2 = When.defer();
+
+        // resolve d BEFORE calling attaching progress handler
+        d.getResolver().resolve(null);
+
+        d.getPromise().then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        return d2.getPromise();
+                    }
+                },
+                null,
+                null
+        ).then(fail.onSuccess, fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        assertEquals(value, sentinel);
+                        done.success = true;
+                        return null;
+                    }
+                }
+        );
+
+        d2.getResolver().progress(sentinel);
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void
+    testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_an_unresolved_promise_returns_a_promise() {
+
+        final Done<Object, Object> done = new Done<>();
+        Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d2 = When.defer();
+
+        d.getPromise().then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        return d2.getPromise();
+                    }
+                },
+                null,
+                null
+        ).then(fail.onSuccess, fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        assertEquals(value, sentinel);
+                        done.success = true;
+                        return null;
+                    }
+                }
+        );
+
+        // resolve d AFTER calling attaching progress handler
+        d.getResolver().resolve(null);
+        d2.getResolver().progress(sentinel);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testProgress_should_forward_progress_when_resolved_with_another_promise() {
+
+        final Done<Object, Object> done = new Done<>();
+        Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d2 = When.defer();
+
+        d.getPromise()
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                return sentinel;
+                            }
+                        }
+                )
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                assertEquals(value, sentinel);
+                                done.success = true;
+                                return null;
+                            }
+                        }
+                );
+
+        d.getResolver().resolve(d2.getPromise());
+        d2.getResolver().progress(null);
+        done.assertSuccess();
+
+    }
+
+
+    @Test
+    public void testProgress_should_allow_resolve_after_progress() {
+        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+
+        final Value<Boolean> progressed = new Value<>(false);
+
+        d.getPromise().then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertTrue(progressed.value);
+                        done.success = true;
+                        return null;
+                    }
+                },
+                fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        progressed.value = true;
+                        return null;
+                    }
+                }
+        );
+
+        d.getResolver().progress(null);
+        d.getResolver().resolve(null);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testProgress_should_allow_reject_after_progress() {
+        Deferred<Object, Object> d = When.defer();
+        final Value<Boolean> progressed = new Value<>(false);
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise().then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertTrue(progressed.value);
+                        done.success = true;
+                        return null;
+                    }
+                },
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        progressed.value = true;
+                        return null;
+                    }
+                }
+        );
+
+        d.getResolver().progress(null);
+        d.getResolver().reject(null);
+        done.assertSuccess();
+    }
+
+
+    @Test
+    public void testDefer_should_return_a_promise_for_passed_in_resolution_value_when_already_resolved() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+
+        d.getResolver().resolve(other);
+
+        d.getResolver().resolve(sentinel).then(new Runnable<Promise<Object, Object>, Object>() {
+            @Override
+            public Promise<Object, Object> run(Object value) {
+                assertEquals(value, sentinel);
+                return null;
+            }
+        }, null, null).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_resolved() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+        final Reason<Object> reason = new Reason<>(sentinel, null);
+
+        d.getResolver().resolve(other);
+
+        d.getResolver().reject(reason).then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertEquals(value, reason);
+                        assertEquals(value.data, sentinel);
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
 //    @Test
-//    public void testResolve_should_fulfill_with_fulfilled_promised() {
+//    public void testDefer_should_return_silently_on_progress_when_already_resolved() {
 //        Deferred<Object, Object> d = When.defer();
 //        Done<Object, Object> done = new Done<>();
 //
-//        d.getPromise().then(
-//                new Runnable<Promise<Object, Object>, Object>() {
-//                    @Override
-//                    public Promise<Object, Object> run(Object value) {
-//                        assertEquals(value, sentinel);
-//                        return null;
-//                    }
-//                },
-//                done.onFail,
-//                null).then(done.onSuccess, done.onFail, null);
+//        d.getResolver().resolve(null);
 //
-//        d.getResolver().resolve(fakeResolved(sentinel));
+//        refute.defined(d.getResolver().progress(null));
 //    }
+    // TODO: Does refute make sense in Java?
 
-//
-//    @Test
-//    public void testResolve_should_reject_with_rejected_promise() {
-//        var d = when.defer();
-//
-//        d.promise.then(
-//                fail,
-//                function(val) {
-//            assert.same(val, sentinel);
-//        }
-//        ).always(done);
-//
-//        d.resolve(fakeRejected(sentinel));
-//    }
-//
-//    @Test
-//    public void testResolve_should_return_a_promise_for_the_resolution_value() {
-//        var d = when.defer();
-//
-//        d.resolve(sentinel).then(
-//                function(returnedPromiseVal) {
-//            d.promise.then(function(val) {
-//                assert.same(returnedPromiseVal, val);
-//            });
-//        },
-//        fail
-//        ).always(done);
-//    }
-//
-//    @Test
-//    public void testResolve_should_return_a_promise_for_a_promised_resolution_value() {
-//        var d = when.defer();
-//
-//        d.resolve(when.resolve(sentinel)).then(
-//                function(returnedPromiseVal) {
-//            d.promise.then(function(val) {
-//                assert.same(returnedPromiseVal, val);
-//            });
-//        },
-//        fail
-//        ).always(done);
-//    }
-//
-//    @Test
-//    public void testResolve_should_return_a_promise_for_a_promised_rejection_value() {
-//        var d = when.defer();
-//
-//        // Both the returned promise, and the deferred's own promise should
-//        // be rejected with the same value
-//        d.resolve(when.reject(sentinel)).then(
-//                fail,
-//                function(returnedPromiseVal) {
-//            d.promise.then(
-//                    fail,
-//                    function(val) {
-//                assert.same(returnedPromiseVal, val);
-//            }
-//            );
-//        }
-//        ).always(done);
-//    }
-//
-//    @Test
-//    public void testResolve_should_invoke_newly_added_callback_when_already_resolved() {
-//        var d = when.defer();
-//
-//        d.resolve(sentinel);
-//
-//        d.promise.then(
-//                function(val) {
-//            assert.same(val, sentinel);
-//            done();
-//        },
-//        fail
-//        ).always(done);
-//    }
-//
-//}
-//
-//
-//    @Test
-//    public void testReject_should_reject() {
-//        var d = when.defer();
-//
-//        d.promise.then(
-//                fail,
-//                function(val) {
-//            assert.same(val, sentinel);
-//        }
-//        ).always(done);
-//
-//        d.reject(sentinel);
-//    }
-//
-//    @Test
-//    public void testReject_should_return_a_promise_for_the_rejection_value() {
-//        var d = when.defer();
-//
-//// Both the returned promise, and the deferred's own promise should
-//// be rejected with the same value
-//        d.reject(sentinel).then(
-//                fail,
-//                function(returnedPromiseVal) {
-//            d.promise.then(
-//                    fail,
-//                    function(val) {
-//                assert.same(returnedPromiseVal, val);
-//            }
-//            );
-//        }
-//        ).always(done);
-//    }
-//
-//    @Test
-//    public void testReject_should_invoke_newly_added_errback_when_already_rejected() {
-//        var d = when.defer();
-//
-//        d.reject(sentinel);
-//
-//        d.promise.then(
-//                fail,
-//                function(val) {
-//            assert.equals(val, sentinel);
-//        }
-//        ).always(done);
-//    }
-//
-//    @Test
-//    public void testProgress_should_progress() {
-//        var d = when.defer();
-//
-//        d.promise.then(
-//                fail,
-//                fail,
-//                function(val) {
-//            assert.same(val, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d.progress(sentinel);
-//    }
-//
-//    @Test
-//    public void testProgress_should_propagate_progress_to_downstream_promises() {
-//        var d = when.defer();
-//
-//        d.promise
-//                .then(fail, fail,
-//                        function(update) {
-//            return update;
-//        }
-//        )
-//        .then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d.progress(sentinel);
-//    }
-//
-//    @Test
-//    public void testProgress_should_propagate_transformed_progress_to_downstream_promises() {
-//        var d = when.defer();
-//
-//        d.promise
-//                .then(fail, fail,
-//                        function() {
-//            return sentinel;
-//        }
-//        )
-//        .then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d.progress(other);
-//    }
-//
-//    @Test
-//    public void testProgress_should_propagate_caught_exception_value_as_progress() {
-//        var d = when.defer();
-//
-//        d.promise
-//                .then(fail, fail,
-//                        function() {
-//            throw sentinel;
-//        }
-//        )
-//        .then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d.progress(other);
-//    }
-//
-//    @Test
-//    public void
-//    testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_a_resolved_promise_returns_a_promise() {
-//        var d, d2;
-//
-//        d = when.defer();
-//        d2 = when.defer();
-//
-//// resolve d BEFORE calling attaching progress handler
-//        d.resolve();
-//
-//        d.promise.then(
-//                function() {
-//            return d2.promise;
-//        }
-//        ).then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d2.progress(sentinel);
-//    }
-//
-//    @Test
-//    public void
-//    testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_an_unresovled_promise_returns_a_promise() {
-//        var d, d2;
-//
-//        d = when.defer();
-//        d2 = when.defer();
-//
-//        d.promise.then(
-//                function() {
-//            return d2.promise;
-//        }
-//        ).then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//// resolve d AFTER calling attaching progress handler
-//        d.resolve();
-//        d2.progress(sentinel);
-//    }
-//
-//    @Test
-//    public void testProgress_should_forward_progress_when_resolved_with_another_promise() {
-//        var d, d2;
-//
-//        d = when.defer();
-//        d2 = when.defer();
-//
-//        d.promise
-//                .then(fail, fail,
-//                        function() {
-//            return sentinel;
-//        }
-//        )
-//        .then(fail, fail,
-//                function(update) {
-//            assert.same(update, sentinel);
-//            done();
-//        }
-//        );
-//
-//        d.resolve(d2.promise);
-//
-//        d2.progress();
-//    }
+    @Test
+    public void testDefer_should_return_a_promise_for_passed_in_resolution_value_when_already_rejected() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
 
+        d.getResolver().reject(new Reason<>(other, null));
 
-//        'should allow resolve after progress':function(done){
-//        var d=when.defer();
+        d.getResolver().resolve(sentinel).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(value, sentinel);
+                        return null;
+                    }
+                },
+                null,
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_rejected() {
+        Deferred<Object, Object> d = When.defer();
+        Done<Object, Object> done = new Done<>();
+        final Reason<Object> reason = new Reason<>(sentinel, null);
+
+        d.getResolver().reject(new Reason<>(other, null));
+
+        d.getResolver().reject(reason).then(
+                fail.onSuccess,
+                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Reason<Object> value) {
+                        assertEquals(value, reason);
+                        assertEquals(value.data, sentinel);
+
+                        return null;
+                    }
+                },
+                null
+        ).then(done.onSuccess, done.onFail, null);
+
+        done.assertSuccess();
+    }
+
+//    @Test
+//    public void testDefer_should_return_silently_on_progress_when_already_rejected() {
+//        var d = when.defer();
+//        d.reject();
 //
-//var progressed=false;
-//d.promise.then(
-//        function(){
-//        assert(progressed);
-//done();
-//},
-//        fail,
-//        function(){
-//        progressed=true;
-//}
-//        );
-//
-//d.progress();
-//d.resolve();
-//},
-//
-//        'should allow reject after progress':function(done){
-//        var d=when.defer();
-//
-//var progressed=false;
-//d.promise.then(
-//        fail,
-//        function(){
-//        assert(progressed);
-//done();
-//},
-//        function(){
-//        progressed=true;
-//}
-//        );
-//
-//d.progress();
-//d.reject();
-//}
-//        },
-//
-//        'should return a promise for passed-in resolution value when already resolved':function(done){
-//        var d=when.defer();
-//d.resolve(other);
-//
-//d.resolve(sentinel).then(function(val){
-//        assert.same(val,sentinel);
-//}).always(done);
-//},
-//
-//        'should return a promise for passed-in rejection value when already resolved':function(done){
-//        var d=when.defer();
-//d.resolve(other);
-//
-//d.reject(sentinel).then(
-//        fail,
-//        function(val){
-//        assert.same(val,sentinel);
-//}
-//        ).always(done);
-//},
-//
-//        'should return silently on progress when already resolved':function(){
-//        var d=when.defer();
-//d.resolve();
-//
-//refute.defined(d.progress());
-//},
-//
-//        'should return a promise for passed-in resolution value when already rejected':function(done){
-//        var d=when.defer();
-//d.reject(other);
-//
-//d.resolve(sentinel).then(function(val){
-//        assert.same(val,sentinel);
-//}).always(done);
-//},
-//
-//        'should return a promise for passed-in rejection value when already rejected':function(done){
-//        var d=when.defer();
-//d.reject(other);
-//
-//d.reject(sentinel).then(
-//        fail,
-//        function(val){
-//        assert.same(val,sentinel);
-//}
-//        ).always(done);
-//},
-//
-//        'should return silently on progress when already rejected':function(){
-//        var d=when.defer();
-//d.reject();
-//
-//refute.defined(d.progress());
-//}
+//        refute.defined(d.progress());
+//    }
+    // TODO: Does refute make sense in Java?
 
 }
