@@ -1,6 +1,7 @@
 package com.englishtown.promises;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,6 +35,41 @@ public class When<TResolve, TProgress> {
      *         value of callback or errback or the completion value of promiseOrValue if
      *         callback and/or errback is not supplied.
      */
+    private Promise<TResolve, TProgress> whenInner(
+            TResolve value,
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<TProgress, TProgress> onProgress) {
+        // Get a trusted promise for the input promiseOrValue, and then
+        // register promise handlers
+        return resolve(value).then(onFulfilled, onRejected, onProgress);
+    }
+
+    private Promise<TResolve, TProgress> whenInner(
+            Promise<TResolve, TProgress> promise,
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<TProgress, TProgress> onProgress) {
+        // Get a trusted promise for the input promiseOrValue, and then
+        // register promise handlers
+        return resolve(promise).then(onFulfilled, onRejected, onProgress);
+    }
+
+    /**
+     * Register an observer for a promise or immediate value.
+     *
+     * @param {*}         promiseOrValue
+     * @param {function?} [onFulfilled] callback to be called when promiseOrValue is
+     *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
+     *                    will be invoked immediately.
+     * @param {function?} [onRejected] callback to be called when promiseOrValue is
+     *                    rejected.
+     * @param {function?} [onProgress] callback to be called when progress updates
+     *                    are issued for promiseOrValue.
+     * @return {com.englishtown.promises.Promise} a new {@link Promise} that will complete with the return
+     *         value of callback or errback or the completion value of promiseOrValue if
+     *         callback and/or errback is not supplied.
+     */
     public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
             TResolve value,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
@@ -42,7 +78,7 @@ public class When<TResolve, TProgress> {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         When<TResolve, TProgress> when = new When<>();
-        return when.resolve(value).then(onFulfilled, onRejected, onProgress);
+        return when.whenInner(value, onFulfilled, onRejected, onProgress);
     }
 
     public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
@@ -70,7 +106,7 @@ public class When<TResolve, TProgress> {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         When<TResolve, TProgress> when = new When<>();
-        return when.resolve(promise).then(onFulfilled, onRejected, onProgress);
+        return when.whenInner(promise, onFulfilled, onRejected, onProgress);
     }
 
     public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
@@ -715,59 +751,157 @@ public class When<TResolve, TProgress> {
 //    function join(/* ...promises */) {
 //        return map(arguments, identity);
 //    }
-//
-//    /**
-//     * Traditional map function, similar to `Array.prototype.map()`, but allows
-//     * input to contain {@link com.englishtown.promises.Promise}s and/or values, and mapFunc may return
-//     * either a value or a {@link com.englishtown.promises.Promise}
-//     *
-//     * @param {Array|com.englishtown.promises.Promise} promise array of anything, may contain a mix
-//     *                        of {@link com.englishtown.promises.Promise}s and values
-//     * @param {function}      mapFunc mapping function mapFunc(value) which may return
-//     *                        either a {@link com.englishtown.promises.Promise} or value
-//     * @returns {com.englishtown.promises.Promise} a {@link com.englishtown.promises.Promise} that will resolve to an array containing
-//     * the mapped output values.
-//     */
-//    function map(promise, mapFunc) {
-//        return when(promise, function(array) {
-//            var results, len, toResolve, resolve, i, d;
-//
-//            // Since we know the resulting length, we can preallocate the results
-//            // array to avoid array expansions.
-//            toResolve = len = array.length >>> 0;
-//            results =[];
-//            d = deferInner();
-//
-//            if (!toResolve) {
-//                d.resolve(results);
-//            } else {
-//
-//                resolve = function resolveOne(item, i) {
-//                    when(item, mapFunc).then(function(mapped) {
-//                        results[i] = mapped;
-//
-//                        if (!--toResolve) {
-//                            d.resolve(results);
-//                        }
-//                    },d.reject);
-//                } ;
-//
-//                // Since mapFunc may be async, get all invocations of it into flight
-//                for (i = 0; i < len; i++) {
-//                    if (i in array){
-//                        resolve(array[i], i);
-//                    }else{
-//                        --toResolve;
-//                    }
-//                }
-//
-//            }
-//
-//            return d.promise;
-//
-//        });
-//    }
-//
+
+
+    /**
+     * Traditional map function, similar to `Array.prototype.map()`, but allows
+     * input to contain {@link Promise}s and/or values, and mapFunc may return
+     * either a value or a {@link Promise}
+     *
+     * @param {Array|Promise} promise array of anything, may contain a mix
+     *                        of {@link Promise}s and values
+     * @param {function}      mapFunc mapping function mapFunc(value) which may return
+     *                        either a {@link Promise} or value
+     * @returns {Promise} a {@link Promise} that will resolve to an array containing
+     * the mapped output values.
+     */
+    public Promise<List<TResolve>, TProgress> map(
+            List<TResolve> values,
+            Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
+
+        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+
+        if (values != null) {
+            for (TResolve val : values) {
+                promises.add(resolve(val));
+            }
+        }
+
+        return mapPromises(promises, mapFunc);
+    }
+
+    /**
+     * Traditional map function, similar to `Array.prototype.map()`, but allows
+     * input to contain {@link Promise}s and/or values, and mapFunc may return
+     * either a value or a {@link Promise}
+     *
+     * @param {Array|Promise} promise array of anything, may contain a mix
+     *                        of {@link Promise}s and values
+     * @param {function}      mapFunc mapping function mapFunc(value) which may return
+     *                        either a {@link Promise} or value
+     * @returns {Promise} a {@link Promise} that will resolve to an array containing
+     * the mapped output values.
+     */
+    public Promise<List<TResolve>, TProgress> map(
+            Promise<List<TResolve>, TProgress> promise,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
+
+        When<List<TResolve>, TProgress> when = new When<>();
+
+        return when.whenInner(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+            @Override
+            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                return map(value, mapFunc);
+            }
+        }, null, null);
+
+    }
+
+    /**
+     * Traditional map function, similar to `Array.prototype.map()`, but allows
+     * input to contain {@link Promise}s and/or values, and mapFunc may return
+     * either a value or a {@link Promise}
+     *
+     * @param {Array|Promise} promise array of anything, may contain a mix
+     *                        of {@link Promise}s and values
+     * @param {function}      mapFunc mapping function mapFunc(value) which may return
+     *                        either a {@link Promise} or value
+     * @returns {Promise} a {@link Promise} that will resolve to an array containing
+     * the mapped output values.
+     */
+    public Promise<List<TResolve>, TProgress> mapPromises(
+            List<Promise<TResolve, TProgress>> promise,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
+
+        final When<List<TResolve>, TProgress> w1 = new When<>();
+        final Deferred<List<TResolve>, TProgress> d1 = w1.deferInner();
+        final Resolver<List<TResolve>, TProgress> r1 = d1.getResolver();
+
+        final When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
+        final When<TResolve, TProgress> w3 = new When<>();
+
+        w2.whenInner(promise, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> array) {
+
+                final Value<Integer> toResolve = new Value<>();
+                int len;
+
+                // Since we know the resulting length, we can preallocate the results
+                // array to avoid array expansions.
+                toResolve.value = len = array.size();
+                final List<TResolve> results = new ArrayList<>();
+
+                if (toResolve.value == 0) {
+                    r1.resolve(results);
+
+                } else {
+                    Runnable2<Void, Promise<TResolve, TProgress>, Integer> resolveOne = new Runnable2<Void, Promise<TResolve, TProgress>, Integer>() {
+                        @Override
+                        public Void run(Promise<TResolve, TProgress> item, final Integer index) {
+
+                            w3.whenInner(item, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                @Override
+                                public Promise<TResolve, TProgress> run(TResolve value) {
+                                    return (mapFunc != null ? w3.resolve(mapFunc.run(value)) : w3.resolve(value));
+                                }
+                            }, null, null).then(
+                                    new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                        @Override
+                                        public Promise<TResolve, TProgress> run(TResolve mapped) {
+                                            results.add(index, mapped);
+
+                                            if (--toResolve.value == 0) {
+                                                r1.resolve(results);
+                                            }
+
+                                            return null;
+                                        }
+                                    },
+                                    new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                                        @Override
+                                        public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
+                                            r1.reject(new Reason<>(Arrays.asList(value.data), value.error));
+                                            return null;
+                                        }
+                                    },
+                                    null
+                            );
+
+                            return null;
+                        }
+                    };
+
+                    // Since mapFunc may be async, get all invocations of it into flight
+                    for (int i = 0; i < len; i++) {
+                        if (i < array.size()) {
+                            resolveOne.run(array.get(i), i);
+                        } else {
+                            --toResolve.value;
+                        }
+                    }
+
+                }
+
+                return null;
+                //return d.promise;
+            }
+        }, null, null);
+
+        return d1.getPromise();
+    }
+
+
 //    /**
 //     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
 //     * input may contain promises and/or values, and reduceFunc

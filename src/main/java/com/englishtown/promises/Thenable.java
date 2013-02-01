@@ -1,7 +1,5 @@
 package com.englishtown.promises;
 
-import java.lang.*;
-
 /**
  * Created with IntelliJ IDEA.
  * User: adriangonzalez
