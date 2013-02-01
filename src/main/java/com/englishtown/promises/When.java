@@ -808,28 +808,107 @@ public class When<TResolve, TProgress> {
 
     }
 
-//    /**
-//     * Initiates a competitive race, returning a promise that will resolve when
-//     * any one of the supplied promisesOrValues has resolved or will reject when
-//     * *all* promisesOrValues have rejected.
-//     *
-//     * @param {Array|com.englishtown.promises.Promise} promisesOrValues array of anything, may contain a mix
-//     *                        of {@link com.englishtown.promises.Promise}s and values
-//     * @param {function?}     [onFulfilled] resolution handler
-//     * @param {function?}     [onRejected] rejection handler
-//     * @param {function?}     [onProgress] progress handler
-//     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-//     * will reject with an array of all rejected inputs.
-//     */
-//    function any(promisesOrValues, onFulfilled, onRejected, onProgress) {
-//
-//        function unwrapSingleResult (val) {
-//        return onFulfilled ? onFulfilled(val[0]) : val[0];
-//        }
-//
-//        return some(promisesOrValues, 1, unwrapSingleResult, onRejected, onProgress);
-//    }
-//
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * any one of the supplied promisesOrValues has resolved or will reject when
+     * *all* promisesOrValues have rejected.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
+     * will reject with an array of all rejected inputs.
+     */
+    public Promise<List<TResolve>, TProgress> any(
+            final List<TResolve> values,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+
+        for (TResolve val : values) {
+            if (val != null) {
+                promises.add(resolve(val));
+            }
+        }
+
+        return anyPromises(promises, onFulfilled, onRejected, onProgress);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * any one of the supplied promisesOrValues has resolved or will reject when
+     * *all* promisesOrValues have rejected.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
+     * will reject with an array of all rejected inputs.
+     */
+    public Promise<List<TResolve>, TProgress> anyPromise(
+            final Promise<List<TResolve>, TProgress> promise,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        When<List<TResolve>, TProgress> when = new When<>();
+
+        return when.whenInner(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+            @Override
+            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                return any(value, onFulfilled, onRejected, onProgress);
+            }
+        }, null, null);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * any one of the supplied promisesOrValues has resolved or will reject when
+     * *all* promisesOrValues have rejected.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
+     * will reject with an array of all rejected inputs.
+     */
+    public Promise<List<TResolve>, TProgress> anyPromises(
+            final List<Promise<TResolve, TProgress>> promises,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> unwrapSingleResult = new
+                Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                    @Override
+                    public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                        if (onFulfilled != null) {
+                            TResolve val = null;
+
+                            if (value.size() > 0) {
+                                val = value.get(0);
+                            }
+
+                            onFulfilled.run(val);
+                        }
+                        return null;
+                    }
+                };
+
+        return somePromises(promises, 1, unwrapSingleResult, onRejected, onProgress);
+    }
+
 //    /**
 //     * Return a promise that will resolve only once all the supplied promisesOrValues
 //     * have resolved. The resolution value of the returned promise will be an array
