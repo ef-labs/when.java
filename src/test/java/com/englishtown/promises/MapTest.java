@@ -50,6 +50,7 @@ public class MapTest {
 
         done.assertSuccess();
 
+
     }
 
     @Test
@@ -139,7 +140,7 @@ public class MapTest {
         When<List<Integer>, Integer> w1 = new When<>();
         Promise<List<Integer>, Integer> input = w1.resolve(Arrays.asList(1, 2, 3));
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapPromise(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));

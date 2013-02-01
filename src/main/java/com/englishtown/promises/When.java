@@ -619,89 +619,195 @@ public class When<TResolve, TProgress> {
         return new DeferredImpl(promise, resolver);
     }
 
-//    /**
-//     * Initiates a competitive race, returning a promise that will resolve when
-//     * howMany of the supplied promisesOrValues have resolved, or will reject when
-//     * it becomes impossible for howMany to resolve, for example, when
-//     * (promisesOrValues.length - howMany) + 1 input promises reject.
-//     *
-//     * @param {Array}     promisesOrValues array of anything, may contain a mix
-//     *                    of promises and values
-//     * @param howMany     {number} number of promisesOrValues to resolve
-//     * @param {function?} [onFulfilled] resolution handler
-//     * @param {function?} [onRejected] rejection handler
-//     * @param {function?} [onProgress] progress handler
-//     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-//     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-//     * rejection reasons.
-//     */
-//    function some(promisesOrValues, howMany, onFulfilled, onRejected, onProgress) {
-//
-//        checkCallbacks(2, arguments);
-//
-//        return when(promisesOrValues, function(promisesOrValues) {
-//
-//            var toResolve, toReject, values, reasons, deferred, fulfillOne, rejectOne, progress, len, i;
-//
-//            len = promisesOrValues.length >>> 0;
-//
-//            toResolve = Math.max(0, Math.min(howMany, len));
-//            values =[];
-//
-//            toReject = (len - toResolve) + 1;
-//            reasons =[];
-//
-//            deferred = deferInner();
-//
-//            // No items in the input, resolve immediately
-//            if (!toResolve) {
-//                deferred.resolve(values);
-//
-//            } else {
-//                progress = deferred.progress;
-//
-//                rejectOne = function(reason) {
-//                    reasons.push(reason);
-//                    if (!--toReject) {
-//                        fulfillOne = rejectOne = noop;
-//                        deferred.reject(reasons);
-//                    }
-//                }
-//                ;
-//
-//                fulfillOne = function(val) {
-//                    // This orders the values based on promise resolution order
-//                    // Another strategy would be to use the original position of
-//                    // the corresponding promise.
-//                    values.push(val);
-//
-//                    if (!--toResolve) {
-//                        fulfillOne = rejectOne = noop;
-//                        deferred.resolve(values);
-//                    }
-//                }
-//                ;
-//
-//                for (i = 0; i < len; ++i) {
-//                    if (i in promisesOrValues){
-//                        when(promisesOrValues[i], fulfiller, rejecter, progress);
-//                    }
-//                }
-//            }
-//
-//            return deferred.then(onFulfilled, onRejected, onProgress);
-//
-//        function rejecter (reason) {
-//                rejectOne(reason);
-//        }
-//
-//        function fulfiller (val) {
-//                fulfillOne(val);
-//        }
-//
-//        });
-//    }
-//
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> some(
+            final List<TResolve> values,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+
+        for (TResolve val : values) {
+            if (val != null) {
+                promises.add(resolve(val));
+            }
+        }
+
+        return somePromises(promises, howMany, onFulfilled, onRejected, onProgress);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromise(
+            final Promise<List<TResolve>, TProgress> promise,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        When<List<TResolve>, TProgress> when = new When<>();
+
+        return when.whenInner(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+            @Override
+            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                return some(value, howMany, onFulfilled, onRejected, onProgress);
+            }
+        }, null, null);
+
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromises(
+            final List<Promise<TResolve, TProgress>> promises,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<TProgress, TProgress> onProgress) {
+
+        final When<List<TResolve>, TProgress> w1 = new When<>();
+        final When<List<TResolve>, TProgress>.DeferredImpl d1 = w1.deferInner();
+        When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
+        final When<TResolve, TProgress> w3 = new When<>();
+
+        w2.whenInner(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> value) {
+
+                //var toResolve, toReject, values, reasons, deferred, fulfillOne, rejectOne, progress, len, i;
+
+                int len = value.size();
+
+                final Value<Integer> toResolve = new Value<>(Math.max(0, Math.min(howMany, len)));
+                final List<TResolve> values = new ArrayList<>();
+
+                final Value<Integer> toReject = new Value<>((len - toResolve.value) + 1);
+                final List<TResolve> reasons = new ArrayList<>();
+
+
+                // No items in the input, resolve immediately
+                if (toResolve.value == 0) {
+                    d1.getResolver().resolve(values);
+
+                } else {
+                    Runnable<TProgress, TProgress> progress = d1.resolver.progress;
+
+                    final Value<Runnable<Promise<TResolve, TProgress>, TResolve>> fulfillOne = new Value<>();
+                    final Value<Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>> rejectOne = new Value<>();
+
+                    rejectOne.value = new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+                            reasons.add(reason.data);
+
+                            if (--toReject.value == 0) {
+                                rejectOne.value = null;
+                                fulfillOne.value = null;
+                                d1.getResolver().reject(new Reason<>(reasons, reason.error));
+                            }
+
+                            return null;
+                        }
+                    };
+
+                    fulfillOne.value = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(TResolve value) {
+                            // This orders the values based on promise resolution order
+                            // Another strategy would be to use the original position of
+                            // the corresponding promise.
+                            values.add(value);
+
+                            if (--toResolve.value == 0) {
+                                fulfillOne.value = null;
+                                rejectOne.value = null;
+                                d1.getResolver().resolve(w1.resolve(values));
+                            }
+
+                            return null;
+                        }
+                    };
+
+                    for (int i = 0; i < len; ++i) {
+                        if (i < promises.size()) {
+                            Promise<TResolve, TProgress> p3 = promises.get(i);
+
+                            if (p3 != null) {
+                                w3.whenInner(
+                                        p3,
+                                        new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                            @Override
+                                            public Promise<TResolve, TProgress> run(TResolve value) {
+                                                return (fulfillOne.value != null ? fulfillOne.value.run(value) : null);
+                                            }
+                                        },
+                                        new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                                            @Override
+                                            public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
+                                                return (rejectOne.value != null ? rejectOne.value.run(value) : null);
+                                            }
+                                        },
+                                        progress
+                                );
+                            }
+                        }
+                    }
+                }
+
+                d1.getPromise().then(onFulfilled, onRejected, onProgress);
+                return null;
+            }
+        }, null, null);
+
+        return d1.getPromise();
+
+    }
+
 //    /**
 //     * Initiates a competitive race, returning a promise that will resolve when
 //     * any one of the supplied promisesOrValues has resolved or will reject when
@@ -773,7 +879,9 @@ public class When<TResolve, TProgress> {
 
         if (values != null) {
             for (TResolve val : values) {
-                promises.add(resolve(val));
+                if (val != null) {
+                    promises.add(resolve(val));
+                }
             }
         }
 
@@ -792,7 +900,7 @@ public class When<TResolve, TProgress> {
      * @returns {Promise} a {@link Promise} that will resolve to an array containing
      * the mapped output values.
      */
-    public Promise<List<TResolve>, TProgress> map(
+    public Promise<List<TResolve>, TProgress> mapPromise(
             Promise<List<TResolve>, TProgress> promise,
             final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
 
@@ -884,7 +992,13 @@ public class When<TResolve, TProgress> {
 
                     // Since mapFunc may be async, get all invocations of it into flight
                     for (int i = 0; i < len; i++) {
+                        Promise<TResolve, TProgress> p = null;
+
                         if (i < array.size()) {
+                            p = array.get(i);
+                        }
+
+                        if (p != null) {
                             resolveOne.run(array.get(i), i);
                         } else {
                             --toResolve.value;
@@ -987,6 +1101,7 @@ public class When<TResolve, TProgress> {
      * @param {Array} queue array of functions to execute
      * @param {*}     value argument passed to each function
      */
+
     private <T1, T2> void processQueue(List<Runnable<T1, T2>> queue, T2 value) {
         for (Runnable<T1, T2> handler : queue) {
             handler.run(value);
