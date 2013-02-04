@@ -143,6 +143,22 @@ public class When<TResolve, TProgress> {
         return fulfilled(value);
     }
 
+    /**
+     * Returns promiseOrValue if promiseOrValue is a {@link Promise}, a new com.englishtown.promises.Promise if
+     * promiseOrValue is a foreign promise, or a new, already-fulfilled {@link Promise}
+     * whose value is promiseOrValue if promiseOrValue is an immediate value.
+     *
+     * @param {*} promiseOrValue
+     * @returns Guaranteed to return a trusted com.englishtown.promises.Promise.  If promiseOrValue is a when.js {@link Promise}
+     * returns promiseOrValue, otherwise, returns a new, already-resolved, when.js {@link Promise}
+     * whose resolution value is:
+     * * the resolution value of promiseOrValue if it's a foreign promise, or
+     * * promiseOrValue if it's a value
+     */
+    public Promise<TResolve, TProgress> resolvePromise(Promise<TResolve, TProgress> promise) {
+        return resolve(promise);
+    }
+
     private PromiseImpl resolve(Promise<TResolve, TProgress> promise) {
 
         // Handle null promise
