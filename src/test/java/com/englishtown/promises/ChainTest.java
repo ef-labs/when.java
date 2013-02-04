@@ -22,7 +22,7 @@ public class ChainTest {
         Deferred<Integer, Integer> d;
         //var d, result;
 
-        d = when.defer();
+        d = When.defer();
 
         Promise<Integer, Integer> result = when.chain(1, d.getResolver(), null);
 
@@ -39,8 +39,8 @@ public class ChainTest {
         Deferred<Integer, Integer> d1, d2;
         Promise<Integer, Integer> result;
 
-        d1 = when.defer();
-        d2 = when.defer();
+        d1 = When.defer();
+        d2 = When.defer();
 
         result = when.chain(d1.getPromise(), d2.getResolver(), null);
 
@@ -57,7 +57,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
@@ -80,7 +80,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
         Deferred<Integer, Integer> input;
 
         d.getPromise().then(
@@ -94,7 +94,7 @@ public class ChainTest {
                 fail.onFail,
                 null).then(done.onSuccess, done.onFail, null);
 
-        input = when.defer();
+        input = When.defer();
         input.getResolver().resolve(1);
 
         when.chain(input.getPromise(), d.getResolver(), null);
@@ -107,7 +107,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
@@ -130,7 +130,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
         Deferred<Integer, Integer> input;
 
         d.getPromise().then(
@@ -144,7 +144,7 @@ public class ChainTest {
                 fail.onFail,
                 null).then(done.onSuccess, done.onFail, null);
 
-        input = when.defer();
+        input = When.defer();
         input.getResolver().resolve(1);
 
         when.chain(input.getPromise(), d.getResolver(), 2);
@@ -157,7 +157,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
         Deferred<Integer, Integer> input;
 
         d.getPromise().then(
@@ -171,8 +171,8 @@ public class ChainTest {
                 },
                 null).then(done.onSuccess, done.onFail, null);
 
-        input = when.defer();
-        input.getResolver().reject(new Reason<Integer>(1, null));
+        input = When.defer();
+        input.getResolver().reject(new Reason<>(1, null));
 
         when.chain(input.getPromise(), d.getResolver(), null);
         done.assertSuccess();
@@ -184,7 +184,7 @@ public class ChainTest {
 
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        Deferred<Integer, Integer> d = When.defer();
         Deferred<Integer, Integer> input;
 
         d.getPromise().then(
@@ -199,7 +199,7 @@ public class ChainTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        input = when.defer();
+        input = When.defer();
         input.getResolver().reject(new Reason<>(1, null));
 
         when.chain(input.getPromise(), d.getResolver(), 2);
@@ -215,8 +215,8 @@ public class ChainTest {
         Deferred<Integer, Integer> d;
         Deferred<Integer, Integer> input;
 
-        input = when.defer();
-        d = when.defer();
+        input = When.defer();
+        d = When.defer();
 
         input.getResolver().resolve(1);
 
@@ -243,8 +243,8 @@ public class ChainTest {
         Deferred<Integer, Integer> d;
         Deferred<Integer, Integer> input;
 
-        input = when.defer();
-        d = when.defer();
+        input = When.defer();
+        d = When.defer();
 
         input.getResolver().resolve(1);
 
@@ -272,8 +272,8 @@ public class ChainTest {
         Deferred<Integer, Integer> d;
         Deferred<Integer, Integer> input;
 
-        input = when.defer();
-        d = when.defer();
+        input = When.defer();
+        d = When.defer();
 
         input.getResolver().reject(new Reason<>(1, null));
 

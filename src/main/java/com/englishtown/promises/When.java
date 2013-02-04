@@ -995,16 +995,41 @@ public class When<TResolve, TProgress> {
 
     }
 
-//    /**
-//     * Joins multiple promises into a single returned promise.
-//     *
-//     * @return {com.englishtown.promises.Promise} a promise that will fulfill when *all* the input promises
-//     *         have fulfilled, or will reject when *any one* of the input promises rejects.
-//     */
-//    function join(/* ...promises */) {
-//        return map(arguments, identity);
-//    }
+    /**
+     * Joins multiple promises into a single returned promise.
+     *
+     * @return {com.englishtown.promises.Promise} a promise that will fulfill when *all* the input promises
+     *         have fulfilled, or will reject when *any one* of the input promises rejects.
+     */
+    @SafeVarargs
+    public final Promise<List<TResolve>, TProgress> join(TResolve... values) {
 
+        return map(Arrays.asList(values), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+            @Override
+            public Promise<TResolve, TProgress> run(TResolve value) {
+                return resolve(value);
+            }
+        });
+
+    }
+
+    /**
+     * Joins multiple promises into a single returned promise.
+     *
+     * @return {com.englishtown.promises.Promise} a promise that will fulfill when *all* the input promises
+     *         have fulfilled, or will reject when *any one* of the input promises rejects.
+     */
+    @SafeVarargs
+    public final Promise<List<TResolve>, TProgress> joinPromises(Promise<TResolve, TProgress>... promises) {
+
+        return mapPromises(Arrays.asList(promises), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+            @Override
+            public Promise<TResolve, TProgress> run(TResolve value) {
+                return resolve(value);
+            }
+        });
+
+    }
 
     /**
      * Traditional map function, similar to `Array.prototype.map()`, but allows
