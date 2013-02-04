@@ -207,7 +207,7 @@ public class When<TResolve, TProgress> {
      * @return {com.englishtown.promises.Promise} rejected {@link Promise}
      */
     public Promise<TResolve, TProgress> reject(Promise<TResolve, TProgress> promise) {
-        return when(
+        return whenInner(
                 promise,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
@@ -231,7 +231,7 @@ public class When<TResolve, TProgress> {
      * @return {com.englishtown.promises.Promise} rejected {@link Promise}
      */
     public Promise<TResolve, TProgress> reject(TResolve value) {
-        return when(
+        return whenInner(
                 value,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
@@ -1130,6 +1130,26 @@ public class When<TResolve, TProgress> {
 //        });
 //    }
 
+
+    /**
+     * Ensure that resolution of promiseOrValue will trigger resolver with the
+     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
+     *
+     * @param {com.englishtown.promises.Promise}
+     *                   promise
+     * @param {Object}   resolver
+     * @param {function} resolver.resolve
+     * @param {function} resolver.reject
+     * @param {*}        [resolveValue]
+     * @return {com.englishtown.promises.Promise}
+     */
+    public Promise<TResolve, TProgress> chain(
+            TResolve value,
+            final Resolver<TResolve, TProgress> resolver,
+            final TResolve resolveValue) {
+        return chain(resolve(value), resolver, resolveValue);
+    }
+
     /**
      * Ensure that resolution of promiseOrValue will trigger resolver with the
      * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
@@ -1147,7 +1167,7 @@ public class When<TResolve, TProgress> {
             final Resolver<TResolve, TProgress> resolver,
             final TResolve resolveValue) {
 
-        return when(
+        return whenInner(
                 promise,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
