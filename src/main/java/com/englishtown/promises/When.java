@@ -647,6 +647,8 @@ public class When<TResolve, TProgress> {
         for (TResolve val : values) {
             if (val != null) {
                 promises.add(resolve(val));
+            } else {
+                promises.add(null);
             }
         }
 
@@ -719,8 +721,6 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> value) {
 
-                //var toResolve, toReject, values, reasons, deferred, fulfillOne, rejectOne, progress, len, i;
-
                 int len = value.size();
 
                 final Value<Integer> toResolve = new Value<>(Math.max(0, Math.min(howMany, len)));
@@ -728,7 +728,6 @@ public class When<TResolve, TProgress> {
 
                 final Value<Integer> toReject = new Value<>((len - toResolve.value) + 1);
                 final List<TResolve> reasons = new ArrayList<>();
-
 
                 // No items in the input, resolve immediately
                 if (toResolve.value == 0) {
@@ -909,24 +908,93 @@ public class When<TResolve, TProgress> {
         return somePromises(promises, 1, unwrapSingleResult, onRejected, onProgress);
     }
 
-//    /**
-//     * Return a promise that will resolve only once all the supplied promisesOrValues
-//     * have resolved. The resolution value of the returned promise will be an array
-//     * containing the resolution values of each of the promisesOrValues.
-//     *
-//     * @param {Array|com.englishtown.promises.Promise} promisesOrValues array of anything, may contain a mix
-//     *                        of {@link com.englishtown.promises.Promise}s and values
-//     * @param {function?}     [onFulfilled] resolution handler
-//     * @param {function?}     [onRejected] rejection handler
-//     * @param {function?}     [onProgress] progress handler
-//     * @memberOf when
-//     * @returns {com.englishtown.promises.Promise}
-//     */
-//    function all(promisesOrValues, onFulfilled, onRejected, onProgress) {
-//        checkCallbacks(1, arguments);
-//        return map(promisesOrValues, identity).then(onFulfilled, onRejected, onProgress);
-//    }
-//
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> all(
+            List<TResolve> values,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<TProgress, TProgress> onProgress) {
+
+        return map(values, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+            @Override
+            public Promise<TResolve, TProgress> run(TResolve value) {
+                return resolve(value);
+            }
+        }).then(onFulfilled, onRejected, onProgress);
+
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromise(
+            Promise<List<TResolve>, TProgress> promise,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<TProgress, TProgress> onProgress) {
+
+        return mapPromise(promise, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+            @Override
+            public Promise<TResolve, TProgress> run(TResolve value) {
+                return resolve(value);
+            }
+        }).then(onFulfilled, onRejected, onProgress);
+
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromises(
+            List<Promise<TResolve, TProgress>> promises,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<TProgress, TProgress> onProgress) {
+
+        return mapPromises(promises, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+            @Override
+            public Promise<TResolve, TProgress> run(TResolve value) {
+                return resolve(value);
+            }
+        }).then(onFulfilled, onRejected, onProgress);
+
+    }
+
 //    /**
 //     * Joins multiple promises into a single returned promise.
 //     *
@@ -960,6 +1028,8 @@ public class When<TResolve, TProgress> {
             for (TResolve val : values) {
                 if (val != null) {
                     promises.add(resolve(val));
+                } else {
+                    promises.add(null);
                 }
             }
         }
@@ -1007,7 +1077,7 @@ public class When<TResolve, TProgress> {
      * the mapped output values.
      */
     public Promise<List<TResolve>, TProgress> mapPromises(
-            List<Promise<TResolve, TProgress>> promise,
+            List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
 
         final When<List<TResolve>, TProgress> w1 = new When<>();
@@ -1017,7 +1087,7 @@ public class When<TResolve, TProgress> {
         final When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
         final When<TResolve, TProgress> w3 = new When<>();
 
-        w2.whenInner(promise, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
+        w2.whenInner(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> array) {
 
@@ -1027,7 +1097,10 @@ public class When<TResolve, TProgress> {
                 // Since we know the resulting length, we can preallocate the results
                 // array to avoid array expansions.
                 toResolve.value = len = array.size();
-                final List<TResolve> results = new ArrayList<>();
+                final List<TResolve> results = new ArrayList<>(len);
+                for (int i = 0; i < len; i++) {
+                    results.add(null);
+                }
 
                 if (toResolve.value == 0) {
                     r1.resolve(results);
@@ -1046,7 +1119,7 @@ public class When<TResolve, TProgress> {
                                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                                         @Override
                                         public Promise<TResolve, TProgress> run(TResolve mapped) {
-                                            results.add(index, mapped);
+                                            results.set(index, mapped);
 
                                             if (--toResolve.value == 0) {
                                                 r1.resolve(results);
@@ -1059,6 +1132,8 @@ public class When<TResolve, TProgress> {
                                         @Override
                                         public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
                                             r1.reject(new Reason<>(Arrays.asList(value.data), value.error));
+                                            // TODO: reject with a Reason<List<TResolve>>?  Or add additional generic
+                                            // parameter?
                                             return null;
                                         }
                                     },
