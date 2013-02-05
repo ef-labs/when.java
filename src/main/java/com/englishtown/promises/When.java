@@ -1225,42 +1225,291 @@ public class When<TResolve, TProgress> {
         return d1.getPromise();
     }
 
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reduce(
+            List<TResolve> values,
+            final Reducer2<TResolve> reduceFunc) {
+        Promise<TResolve, TProgress> initialValue = null;
+        return reduce(values, reduceFunc, initialValue);
+    }
 
-//    /**
-//     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-//     * input may contain promises and/or values, and reduceFunc
-//     * may return either a value or a promise, *and* initialValue may
-//     * be a promise for the starting value.
-//     *
-//     * @param {Array|com.englishtown.promises.Promise} promise array or promise for an array of anything,
-//     *                        may contain a mix of promises and values.
-//     * @param {function}      reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-//     *                        where total is the total number of items being reduced, and will be the same
-//     *                        in each call to reduceFunc.
-//     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
-//     */
-//    function reduce(promise, reduceFunc /*, initialValue */) {
-//        var args = slice.call(arguments, 1);
-//
-//        return when(promise, function(array) {
-//            var total;
-//
-//            total = array.length;
-//
-//            // Wrap the supplied reduceFunc with one that handles promises and then
-//            // delegates to the supplied.
-//            args[0] = function(current, val, i) {
-//                return when(current, function(c) {
-//                    return when(val, function(value) {
-//                        return reduceFunc(c, value, i, total);
-//                    });
-//                });
-//            } ;
-//
-//            return reduceArray.apply(array, args);
-//        });
-//    }
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reduce(
+            List<TResolve> values,
+            final Reducer2<TResolve> reduceFunc,
+            final TResolve initialValue) {
+        return reduce(values, reduceFunc, (initialValue != null ? resolve(initialValue) : null));
+    }
 
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reducePromise(
+            Promise<List<TResolve>, TProgress> promise,
+            final Reducer2<TResolve> reduceFunc,
+            final TResolve initialValue) {
+
+
+        final Deferred<TResolve, TProgress> d1 = deferInner();
+        final When<List<TResolve>, TProgress> w2 = new When<>();
+        Deferred<List<TResolve>, TProgress> d2 = w2.deferInner();
+
+        w2.whenInner(promise,
+                new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                    @Override
+                    public Promise<List<TResolve>, TProgress> run(List<TResolve> values) {
+                        d1.getResolver().resolve(reduce(values, reduceFunc, initialValue));
+                        return null;
+                    }
+                },
+                new Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>>() {
+                    @Override
+                    public Promise<List<TResolve>, TProgress> run(Reason<List<TResolve>> value) {
+                        d1.getResolver().reject(new Reason<TResolve>(null, value.error));
+                        return null;
+                    }
+                }, null
+        );
+
+        return d1.getPromise();
+    }
+
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reduce(
+            List<TResolve> values,
+            final Reducer2<TResolve> reduceFunc,
+            final Promise<TResolve, TProgress> initialValue) {
+
+        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+
+        if (values != null) {
+            for (TResolve value : values) {
+                promises.add((value != null ? resolve(value) : null));
+            }
+        }
+
+        return reducePromises(promises, reduceFunc, initialValue);
+    }
+
+
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reducePromises(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer2<TResolve> reduceFunc) {
+        Promise<TResolve, TProgress> initialValue = null;
+        return reducePromises(promises, reduceFunc, initialValue);
+    }
+
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reducePromises(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer2<TResolve> reduceFunc,
+            TResolve initialValue) {
+        return reducePromises(promises, reduceFunc, (initialValue != null ? resolve(initialValue) : null));
+    }
+
+    /**
+     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
+     * input may contain promises and/or values, and reduceFunc
+     * may return either a value or a promise, *and* initialValue may
+     * be a promise for the starting value.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                   promise array or promise for an array of anything,
+     *                   may contain a mix of promises and values.
+     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
+     *                   where total is the total number of items being reduced, and will be the same
+     *                   in each call to reduceFunc.
+     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     */
+    public Promise<TResolve, TProgress> reducePromises(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer2<TResolve> reduceFunc,
+            final Promise<TResolve, TProgress> initialValue) {
+        //var args = slice.call(arguments, 1);
+
+        final When<List<Promise<TResolve, TProgress>>, TProgress> w1 = new When<>();
+        final When<TResolve, TProgress> w2 = new When<>();
+        final Deferred<TResolve, TProgress> d2 = w2.deferInner();
+
+        w1.whenInner(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve,
+                    TProgress>> array) {
+
+                final int total = array.size();
+
+                // Wrap the supplied reduceFunc with one that handles promises and then
+                // delegates to the supplied.
+                Reducer<Promise<TResolve, TProgress>> reducerWrapper = new Reducer<Promise<TResolve, TProgress>>() {
+                    @Override
+                    public Promise<TResolve, TProgress> run(
+                            Promise<TResolve, TProgress> current,
+                            final Promise<TResolve, TProgress> val,
+                            final int i,
+                            List<Promise<TResolve, TProgress>> list) {
+
+                        return w2.whenInner(current, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                            @Override
+                            public Promise<TResolve, TProgress> run(final TResolve c) {
+                                return w2.whenInner(val, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                    @Override
+                                    public Promise<TResolve, TProgress> run(TResolve value) {
+                                        return w2.resolve(reduceFunc.run(c, value, i, total));
+                                    }
+                                }, null, null);
+                            }
+                        }, null, null);
+                    }
+                };
+
+                Promise<TResolve, TProgress> p = reduceList(array, reducerWrapper, initialValue);
+                d2.getResolver().resolve(p);
+                return null;
+            }
+        }, null, null
+        ).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
+                Reason<List<Promise<TResolve, TProgress>>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+                d2.getResolver().reject(new Reason<TResolve>(null, value.error));
+                return null;
+            }
+        }, null);
+
+        return d2.getPromise();
+    }
+
+    private static <T> T reduceList(List<T> list, Reducer<T> reduceFunc, T initialValue) {
+        /*jshint maxcomplexity: 7*/
+
+        // ES5 dictates that reduce.length === 1
+
+        // This implementation deviates from ES5 spec in the following ways:
+        // 1. It does not check if reduceFunc is a Callable
+        T reduced;
+        //var arr, args, len;
+
+        int i = 0;
+        // This generates a jshint warning, despite being valid
+        // "Missing 'new' prefix when invoking a constructor."
+        // See https://github.com/jshint/jshint/issues/392
+        //arr = Object(this);
+        int len = (list == null ? 0 : list.size());
+        //args = arguments;
+
+        // If no initialValue, use first item of array (we know length !== 0 here)
+        // and adjust i to start at second item
+        if (initialValue == null) {
+            // Skip to the first real element in the array
+            for (; ; ) {
+                // If we reached the end of the array without finding any real
+                // elements, it's a TypeError
+                if (i >= len) {
+                    throw new RuntimeException("No non-null values to reduce.");
+                }
+
+                T temp = list.get(i);
+                if (temp != null) {
+                    reduced = temp;
+                    i++;
+                    break;
+                }
+
+                i++;
+            }
+        } else {
+            // If initialValue provided, use it
+            reduced = initialValue;
+        }
+
+        // Do the actual reduce
+        for (; i < len; ++i) {
+            // Skip holes
+            T val = list.get(i);
+            if (val != null) {
+                reduced = reduceFunc.run(reduced, val, i, list);
+            }
+        }
+
+        return reduced;
+    }
 
     /**
      * Ensure that resolution of promiseOrValue will trigger resolver with the
