@@ -99,6 +99,13 @@ public class When<TResolve, TProgress> {
     }
 
     public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
+            TResolve value) {
+        // Get a trusted promise for the input promiseOrValue, and then
+        // register promise handlers
+        return when(value, null, null, null);
+    }
+
+    public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
             Promise<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
@@ -123,6 +130,14 @@ public class When<TResolve, TProgress> {
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
+        return when(promise, onFulfilled, null, null);
+    }
+
+    public static <TResolve, TProgress> Promise<TResolve, TProgress> when(
+            Promise<TResolve, TProgress> promise) {
+        // Get a trusted promise for the input promiseOrValue, and then
+        // register promise handlers
+        Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled = null;
         return when(promise, onFulfilled, null, null);
     }
 
