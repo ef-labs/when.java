@@ -658,16 +658,13 @@ public class DeferTest {
         done.assertSuccess();
     }
 
-//    @Test
-//    public void testDefer_should_return_silently_on_progress_when_already_resolved() {
-//        Deferred<Object, Object> d = When.defer();
-//        Done<Object, Object> done = new Done<>();
-//
-//        d.getResolver().resolve(null);
-//
-//        refute.defined(d.getResolver().progress(null));
-//    }
-    // TODO: Does refute make sense in Java?
+    @Test
+    public void testDefer_should_return_silently_on_progress_when_already_resolved() {
+        Deferred<Object, Object> d = new When<Object, Object>().defer();
+
+        d.getResolver().resolve(null);
+        assertNull(d.getResolver().progress(new Object()));
+    }
 
     @Test
     public void testDefer_should_return_a_promise_for_passed_in_resolution_value_when_already_rejected() {
