@@ -115,8 +115,7 @@ public class When<TResolve, TProgress> {
             Promise<TResolve, TProgress> promise) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
-        Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled = null;
-        return when(promise, onFulfilled, null, null);
+        return when(promise, null, null, null);
     }
 
     /**
@@ -156,8 +155,7 @@ public class When<TResolve, TProgress> {
 
         // Handle null promise
         if (promise == null) {
-            TResolve value = null;
-            return fulfilled(value);
+            return fulfilled(null);
         }
 
         if (PromiseImpl.class.isInstance(promise)) {
@@ -258,6 +256,16 @@ public class When<TResolve, TProgress> {
         }
 
         @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+            return then(onFulfilled, null, null);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            return then(onFulfilled, onRejected, null);
+        }
+
+        @Override
         public Promise<TResolve, TProgress> then(
                 Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
                 Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
@@ -296,7 +304,7 @@ public class When<TResolve, TProgress> {
          * @return {com.englishtown.promises.Promise}
          */
         public Promise<TResolve, TProgress> otherwise(Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
-            return this.then(null, onRejected, null);
+            return this.then(null, onRejected);
         }
 
         /**
@@ -519,7 +527,7 @@ public class When<TResolve, TProgress> {
                 handlers.add(new Runnable<Void, Promise<TResolve, TProgress>>() {
                     @Override
                     public Void run(Promise<TResolve, TProgress> promise) {
-                        promise.then(onFulfilled, onRejected, null)
+                        promise.then(onFulfilled, onRejected)
                                 .then(deferred.resolver.resolve, deferred.resolver.reject, progressHandler.value);
                         return null;
                     }
@@ -667,7 +675,7 @@ public class When<TResolve, TProgress> {
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
-            final Runnable<TProgress, TProgress> onProgress) {
+            final Runnable<TProgress, TProgress> onProgress) { // TODO: Overload with less callbacks
 
         List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
 
@@ -864,6 +872,7 @@ public class When<TResolve, TProgress> {
 
         return anyPromises(promises, onFulfilled, onRejected, onProgress);
     }
+    // TODO: Overload without all callbacks
 
     /**
      * Initiates a competitive race, returning a promise that will resolve when
@@ -1446,7 +1455,7 @@ public class When<TResolve, TProgress> {
                 d2.getResolver().reject(new Reason<TResolve>(null, value.error));
                 return null;
             }
-        }, null);
+        });
 
         return d2.getPromise();
     }
@@ -1523,7 +1532,7 @@ public class When<TResolve, TProgress> {
             final Resolver<TResolve, TProgress> resolver,
             final TResolve resolveValue) {
         return chain(resolve(value), resolver, resolveValue);
-    }
+    } // TODO: Overload without resolveValue
 
     /**
      * Ensure that resolution of promiseOrValue will trigger resolver with the
@@ -1540,7 +1549,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> chain(
             Promise<TResolve, TProgress> promise,
             final Resolver<TResolve, TProgress> resolver,
-            final TResolve resolveValue) {
+            final TResolve resolveValue) { // TODO: Overload without resolveValue
 
         return when(
                 promise,

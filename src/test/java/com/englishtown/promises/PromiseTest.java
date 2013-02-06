@@ -41,17 +41,17 @@ public class PromiseTest {
 
     @Test
     public void testPromise_should_return_a_promise() {
-        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, null, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null));
     }
 
     @Test
     public void testPromise_should_allow_a_single_callback_function() {
-        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, null, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess));
     }
 
     @Test
     public void testPromise_should_allow_a_callback_and_errback_function() {
-        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class PromiseTest {
 
     @Test
     public void testPromise_should_allow_functions_and_null_or_undefined_to_be_mixed() {
-        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail));
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, null, onProgress));
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail, onProgress));
     }
@@ -99,9 +99,8 @@ public class PromiseTest {
                         fail();
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(expected);
         done.assertSuccess();
@@ -116,8 +115,7 @@ public class PromiseTest {
 
         d.getPromise().then(
                 null,
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -126,9 +124,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -149,8 +146,7 @@ public class PromiseTest {
                         return w1.resolve(value + 1);
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -159,9 +155,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -182,8 +177,7 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -192,9 +186,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -218,8 +211,7 @@ public class PromiseTest {
                         // return a rejected promise;
                         return null;
                     }
-                },
-                null
+                }
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -228,9 +220,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
         done.assertSuccess();
@@ -252,8 +243,7 @@ public class PromiseTest {
                         return d1.getPromise();
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -262,9 +252,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -286,8 +275,7 @@ public class PromiseTest {
                         return d1.getPromise();
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
@@ -296,9 +284,8 @@ public class PromiseTest {
                         assertEquals(2, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -318,8 +305,7 @@ public class PromiseTest {
                         throw new RuntimeException();
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
@@ -328,9 +314,8 @@ public class PromiseTest {
                         assertNotNull(value.error);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(1);
         done.assertSuccess();
@@ -351,8 +336,7 @@ public class PromiseTest {
                         When<Integer, Integer> w1 = new When<>();
                         return w1.resolve(value.data + 1);
                     }
-                },
-                null
+                }
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -361,9 +345,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
         done.assertSuccess();
@@ -385,8 +368,7 @@ public class PromiseTest {
                         d1.getResolver().resolve(value.data + 1);
                         return d1.getPromise();
                     }
-                },
-                null
+                }
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
@@ -395,9 +377,8 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
         done.assertSuccess();
@@ -417,8 +398,7 @@ public class PromiseTest {
                     public Promise<Integer, Integer> run(Reason<Integer> value) {
                         throw new RuntimeException();
                     }
-                },
-                null
+                }
         ).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
@@ -427,9 +407,8 @@ public class PromiseTest {
                         assertNotNull(value.error);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
         done.assertSuccess();
@@ -451,8 +430,7 @@ public class PromiseTest {
                         d1.getResolver().reject(value.data + 1);
                         return d1.getPromise();
                     }
-                },
-                null
+                }
         ).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
@@ -461,9 +439,8 @@ public class PromiseTest {
                         assertEquals(2, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
         done.assertSuccess();

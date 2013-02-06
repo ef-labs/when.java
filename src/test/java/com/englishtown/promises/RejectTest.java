@@ -30,9 +30,8 @@ public class RejectTest {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -56,9 +55,8 @@ public class RejectTest {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -83,9 +81,8 @@ public class RejectTest {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 

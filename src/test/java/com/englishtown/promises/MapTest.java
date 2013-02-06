@@ -46,7 +46,7 @@ public class MapTest {
                 assertArrayEquals(expected, value.toArray(new Integer[3]));
                 return null;
             }
-        }, fail.onFail, null).then(done.onSuccess, done.onFail, null);
+        }, fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -74,7 +74,7 @@ public class MapTest {
                 assertArrayEquals(expected, value.toArray(new Integer[3]));
                 return null;
             }
-        }, fail.onFail, null).then(done.onSuccess, done.onFail, null);
+        }, fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -120,9 +120,7 @@ public class MapTest {
                         assertArrayEquals(expected, value.toArray(new Integer[3]));
                         return null;
                     }
-                },
-                null,
-                null).then(done.onSuccess, done.onFail, null);
+                }).then(done.onSuccess, done.onFail);
 
         for (int i = 0; i < resolvers.size(); i++) {
             resolvers.get(i).resolve(values.get(i));
@@ -154,9 +152,8 @@ public class MapTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -182,8 +179,8 @@ public class MapTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -209,8 +206,8 @@ public class MapTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -238,7 +235,8 @@ public class MapTest {
                         assertTrue(2 == value.data.get(0));
                         return null;
                     }
-                }, null).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }

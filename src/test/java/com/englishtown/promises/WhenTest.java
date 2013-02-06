@@ -31,6 +31,16 @@ public class WhenTest {
         }
 
         @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+            return then(onFulfilled, null, null);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            return then(onFulfilled, onRejected, null);
+        }
+
+        @Override
         public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected, Runnable<TProgress, TProgress> onProgress) {
             if (onFulfilled != null) {
                 onFulfilled.run(this.value);
@@ -87,9 +97,8 @@ public class WhenTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -119,16 +128,15 @@ public class WhenTest {
                 Deferred<Boolean, Integer> d2 = w1.defer();
                 d2.getResolver().resolve(value);
 
-                return w1.when(d2.getPromise().then(identity, null, null), identity).then(
+                return w1.when(d2.getPromise().then(identity), identity).then(
                         new Runnable<Promise<Boolean, Integer>, Boolean>() {
                             @Override
                             public Promise<Boolean, Integer> run(Boolean value) {
                                 return w1.resolve(!value);
                             }
-                        },
-                        null, null);
+                        });
             }
-        }, null, null)));
+        })));
 
         result.then(
                 new Runnable<Promise<Boolean, Integer>, Boolean>() {
@@ -138,9 +146,8 @@ public class WhenTest {
                         return null;
                     }
                 },
-                fail2.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -159,9 +166,8 @@ public class WhenTest {
                         return null;
                     }
                 },
-                fail2.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -201,8 +207,8 @@ public class WhenTest {
                         return null;
                     }
                 },
-                fail.onFail, null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         assertFalse(result instanceof FakePromise);
         done.assertSuccess();
@@ -242,8 +248,8 @@ public class WhenTest {
                         return null;
                     }
                 },
-                fail.onFail, null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 

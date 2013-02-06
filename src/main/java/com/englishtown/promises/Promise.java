@@ -7,11 +7,13 @@ package com.englishtown.promises;
  * Time: 12:13 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Promise<TResolve, TProgress> {
+public interface Promise<TResolve, TProgress> extends Thenable<TResolve, TProgress> {
+
+    Promise<TResolve, TProgress> then(
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled);
 
     Promise<TResolve, TProgress> then(
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
-            Runnable<TProgress, TProgress> onProgress);
+            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected);
 
 }

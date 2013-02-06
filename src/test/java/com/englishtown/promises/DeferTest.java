@@ -31,8 +31,8 @@ public class DeferTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(sentinel);
         done.assertSuccess();
@@ -50,6 +50,16 @@ public class DeferTest {
 
         public FakeResolved(Promise<TResolve, TProgress> promise) {
             this.promise = promise;
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+            return then(onFulfilled, null, null);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            return then(onFulfilled, onRejected, null);
         }
 
         @Override
@@ -71,6 +81,16 @@ public class DeferTest {
 
         public FakeRejected(Reason<TResolve> reason) {
             this.reason = reason;
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+            return then(onFulfilled, null, null);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            return then(onFulfilled, onRejected, null);
         }
 
         @Override
@@ -107,8 +127,8 @@ public class DeferTest {
                         return null;
                     }
                 },
-                done.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                done.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().resolve(new FakeResolved<>(sentinel));
         done.assertSuccess();
@@ -129,8 +149,8 @@ public class DeferTest {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
-                },
-                null).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         Reason<Object> reason = new Reason<>(sentinel, null);
         d.getResolver().resolve(new FakeRejected<>(reason));
@@ -163,8 +183,8 @@ public class DeferTest {
 
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -187,15 +207,13 @@ public class DeferTest {
                                         assertEquals(value1, value2);
                                         return null;
                                     }
-                                },
-                                null,
-                                null);
+                                });
                         return null;
                     }
                 }
                 ,
-                fail.onFail, null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -222,13 +240,11 @@ public class DeferTest {
                                         assertEquals(value1.data, value2.data);
                                         return null;
                                     }
-                                },
-                                null);
+                                });
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -248,9 +264,8 @@ public class DeferTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -269,9 +284,8 @@ public class DeferTest {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(sentinel);
         done.assertSuccess();
@@ -299,14 +313,12 @@ public class DeferTest {
                                         assertEquals(value1, value2);
                                         return null;
                                     }
-                                },
-                                null
+                                }
                         );
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -326,9 +338,8 @@ public class DeferTest {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -463,9 +474,7 @@ public class DeferTest {
                     public Promise<Object, Object> run(Object value) {
                         return d2.getPromise();
                     }
-                },
-                null,
-                null
+                }
         ).then(fail.onSuccess, fail.onFail,
                 new Runnable<Object, Object>() {
                     @Override
@@ -496,9 +505,7 @@ public class DeferTest {
                     public Promise<Object, Object> run(Object value) {
                         return d2.getPromise();
                     }
-                },
-                null,
-                null
+                }
         ).then(fail.onSuccess, fail.onFail,
                 new Runnable<Object, Object>() {
                     @Override
@@ -625,7 +632,7 @@ public class DeferTest {
                 assertEquals(value, sentinel);
                 return null;
             }
-        }, null, null).then(done.onSuccess, done.onFail, null);
+        }).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -645,9 +652,8 @@ public class DeferTest {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -677,10 +683,8 @@ public class DeferTest {
                         assertEquals(value, sentinel);
                         return null;
                     }
-                },
-                null,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -701,9 +705,8 @@ public class DeferTest {
 
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }

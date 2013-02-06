@@ -36,7 +36,7 @@ public class AllTest {
                 },
                 fail.onFail,
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -59,7 +59,7 @@ public class AllTest {
                 },
                 fail.onFail,
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -83,7 +83,7 @@ public class AllTest {
                 },
                 fail.onFail,
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -106,7 +106,7 @@ public class AllTest {
                 },
                 fail.onFail,
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -128,7 +128,7 @@ public class AllTest {
                     }
                 },
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -159,7 +159,7 @@ public class AllTest {
                 },
                 fail.onFail,
                 null
-        ).then(done.onSuccess, done.onFail, null);
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }

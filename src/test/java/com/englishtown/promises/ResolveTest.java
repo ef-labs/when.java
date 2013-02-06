@@ -30,9 +30,8 @@ public class ResolveTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -56,9 +55,8 @@ public class ResolveTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -82,9 +80,8 @@ public class ResolveTest {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 

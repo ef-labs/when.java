@@ -50,9 +50,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -73,9 +72,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -96,9 +94,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -119,9 +116,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -141,9 +137,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -164,9 +159,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -187,9 +181,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -210,9 +203,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -233,9 +225,8 @@ public class ReduceTest {
                         assertEquals(2, result.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -256,9 +247,8 @@ public class ReduceTest {
                         assertNotNull(value.error);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -279,9 +269,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -302,9 +291,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -328,9 +316,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail2.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
 
         d3.getResolver().resolve("3");
         d1.getResolver().resolve("1");
@@ -358,9 +345,8 @@ public class ReduceTest {
                         return null;
                     }
                 },
-                fail2.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -383,9 +369,8 @@ public class ReduceTest {
                         assertNotNull(value.error);
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         d1.getResolver().reject(new Reason<List<String>>(null, new RuntimeException()));
 

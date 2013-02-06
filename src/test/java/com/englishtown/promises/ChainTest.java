@@ -67,8 +67,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         when.chain(1, d.getResolver(), null);
         done.assertSuccess();
@@ -91,8 +91,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         input = when.defer();
         input.getResolver().resolve(1);
@@ -117,8 +117,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         when.chain(1, d.getResolver(), 2);
         done.assertSuccess();
@@ -141,8 +141,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         input = when.defer();
         input.getResolver().resolve(1);
@@ -168,8 +168,8 @@ public class ChainTest {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
-                },
-                null).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         input = when.defer();
         input.getResolver().reject(1);
@@ -195,9 +195,8 @@ public class ChainTest {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         input = when.defer();
         input.getResolver().reject(1);
@@ -228,9 +227,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -256,9 +254,8 @@ public class ChainTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
@@ -285,9 +282,8 @@ public class ChainTest {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
-                },
-                null
-        ).then(done.onSuccess, done.onFail, null);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
 
