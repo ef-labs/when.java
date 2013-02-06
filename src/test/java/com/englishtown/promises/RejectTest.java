@@ -73,7 +73,7 @@ public class RejectTest {
         When<Integer, Integer> when = new When<>();
 
         Deferred<Integer, Integer> d = when.defer();
-        d.getResolver().reject(new Reason<Integer>(expected, null));
+        d.getResolver().reject(expected);
 
         when.reject(d.getPromise()).then(
                 fail.onSuccess,

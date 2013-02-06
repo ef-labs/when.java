@@ -260,14 +260,12 @@ public class DeferTest {
     public void testReject_should_reject() {
         Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
-        final Reason<Object> reason = new Reason<>(sentinel, null);
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Object, Object>, Reason<Object>>() {
                     @Override
                     public Promise<Object, Object> run(Reason<Object> value) {
-                        assertEquals(value, reason);
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -275,7 +273,7 @@ public class DeferTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(reason);
+        d.getResolver().reject(sentinel);
         done.assertSuccess();
 
     }
@@ -283,12 +281,11 @@ public class DeferTest {
     @Test
     public void testReject_should_return_a_promise_for_the_rejection_value() {
         final Deferred<Object, Object> d = new When<>().defer();
-        Reason<Object> reason = new Reason<>(sentinel, null);
         Done<Object, Object> done = new Done<>();
 
         // Both the returned promise, and the deferred's own promise should
         // be rejected with the same value
-        d.getResolver().reject(reason).then(
+        d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
                 new Runnable<Promise<Object, Object>, Reason<Object>>() {
                     @Override
@@ -317,17 +314,15 @@ public class DeferTest {
     @Test
     public void testReject_should_invoke_newly_added_errback_when_already_rejected() {
         Deferred<Object, Object> d = new When<>().defer();
-        final Reason<Object> reason = new Reason<>(sentinel, null);
         Done<Object, Object> done = new Done<>();
 
-        d.getResolver().reject(reason);
+        d.getResolver().reject(sentinel);
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Object, Object>, Reason<Object>>() {
                     @Override
                     public Promise<Object, Object> run(Reason<Object> value) {
-                        assertEquals(value, reason);
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -639,16 +634,14 @@ public class DeferTest {
     public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_resolved() {
         Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
-        final Reason<Object> reason = new Reason<>(sentinel, null);
 
         d.getResolver().resolve(other);
 
-        d.getResolver().reject(reason).then(
+        d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
                 new Runnable<Promise<Object, Object>, Reason<Object>>() {
                     @Override
                     public Promise<Object, Object> run(Reason<Object> value) {
-                        assertEquals(value, reason);
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -675,7 +668,7 @@ public class DeferTest {
         Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
-        d.getResolver().reject(new Reason<>(other, null));
+        d.getResolver().reject(other);
 
         d.getResolver().resolve(sentinel).then(
                 new Runnable<Promise<Object, Object>, Object>() {
@@ -696,16 +689,14 @@ public class DeferTest {
     public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_rejected() {
         Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
-        final Reason<Object> reason = new Reason<>(sentinel, null);
 
-        d.getResolver().reject(new Reason<>(other, null));
+        d.getResolver().reject(other);
 
-        d.getResolver().reject(reason).then(
+        d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
                 new Runnable<Promise<Object, Object>, Reason<Object>>() {
                     @Override
                     public Promise<Object, Object> run(Reason<Object> value) {
-                        assertEquals(value, reason);
                         assertEquals(value.data, sentinel);
 
                         return null;
@@ -720,7 +711,8 @@ public class DeferTest {
     @Test
     public void testDefer_should_return_silently_on_progress_when_already_rejected() {
         Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
-        d.getResolver().reject(null);
+        Integer reason = null;
+        d.getResolver().reject(reason);
 
         assertNull(d.getResolver().progress(1));
     }

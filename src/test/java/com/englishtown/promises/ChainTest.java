@@ -172,7 +172,7 @@ public class ChainTest {
                 null).then(done.onSuccess, done.onFail, null);
 
         input = when.defer();
-        input.getResolver().reject(new Reason<>(1, null));
+        input.getResolver().reject(1);
 
         when.chain(input.getPromise(), d.getResolver(), null);
         done.assertSuccess();
@@ -200,7 +200,7 @@ public class ChainTest {
         ).then(done.onSuccess, done.onFail, null);
 
         input = when.defer();
-        input.getResolver().reject(new Reason<>(1, null));
+        input.getResolver().reject(1);
 
         when.chain(input.getPromise(), d.getResolver(), 2);
         done.assertSuccess();
@@ -275,7 +275,7 @@ public class ChainTest {
         input = when.defer();
         d = when.defer();
 
-        input.getResolver().reject(new Reason<>(1, null));
+        input.getResolver().reject(1);
 
         when.chain(input.getPromise(), d.getResolver(), null).then(
                 fail.onSuccess,

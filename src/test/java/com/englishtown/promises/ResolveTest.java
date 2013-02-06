@@ -72,7 +72,7 @@ public class ResolveTest {
         When<Integer, Integer> when = new When<>();
 
         Deferred<Integer, Integer> d = when.defer();
-        d.getResolver().reject(new Reason<>(expected, null));
+        d.getResolver().reject(expected);
 
         when.resolvePromise(d.getPromise()).then(
                 fail.onSuccess,

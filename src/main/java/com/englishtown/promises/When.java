@@ -238,14 +238,7 @@ public class When<TResolve, TProgress> {
      * @return {com.englishtown.promises.Promise} rejected {@link Promise}
      */
     public Promise<TResolve, TProgress> reject(TResolve value) {
-        return when(
-                value,
-                new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                    @Override
-                    public Promise<TResolve, TProgress> run(TResolve value) {
-                        return rejected(new Reason<>(value, null));
-                    }
-                });
+        return reject(resolve(value));
     }
 
     private class PromiseImpl implements Promise<TResolve, TProgress> {
@@ -437,6 +430,11 @@ public class When<TResolve, TProgress> {
         @Override
         public Promise<TResolve, TProgress> resolve(Promise<TResolve, TProgress> value) {
             return resolvePromise.run(value);
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> reject(TResolve reason) {
+            return reject(new Reason<>(reason, null));
         }
 
         @Override

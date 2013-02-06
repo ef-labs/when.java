@@ -232,7 +232,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<>(1, null));
+        d.getResolver().reject(1);
         done.assertSuccess();
 
     }
@@ -282,7 +282,7 @@ public class PromiseTest {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
-                        d1.getResolver().reject(new Reason<>(value + 1, null));
+                        d1.getResolver().reject(value + 1);
                         return d1.getPromise();
                     }
                 },
@@ -365,7 +365,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<>(1, null));
+        d.getResolver().reject(1);
         done.assertSuccess();
 
     }
@@ -399,7 +399,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<>(1, null));
+        d.getResolver().reject(1);
         done.assertSuccess();
 
     }
@@ -431,7 +431,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<>(1, null));
+        d.getResolver().reject(1);
         done.assertSuccess();
 
     }
@@ -448,7 +448,7 @@ public class PromiseTest {
                     @Override
                     public Promise<Integer, Integer> run(Reason<Integer> value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
-                        d1.getResolver().reject(new Reason<>(value.data + 1, null));
+                        d1.getResolver().reject(value.data + 1);
                         return d1.getPromise();
                     }
                 },
@@ -465,7 +465,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<>(1, null));
+        d.getResolver().reject(1);
         done.assertSuccess();
 
     }

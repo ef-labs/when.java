@@ -13,6 +13,8 @@ public interface Resolver<TResolve, TProgress> {
 
     Promise<TResolve, TProgress> resolve(Promise<TResolve, TProgress> value);
 
+    Promise<TResolve, TProgress> reject(TResolve reason);
+
     Promise<TResolve, TProgress> reject(Reason<TResolve> reason);
 
     TProgress progress(TProgress update);
