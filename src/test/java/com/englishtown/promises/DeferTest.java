@@ -21,7 +21,7 @@ public class DeferTest {
     public void testResolve_should_fulfill_with_an_immediate_value() {
 
         Done<Object, Object> done = new Done<>();
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Object, Object>, Object>() {
@@ -96,7 +96,7 @@ public class DeferTest {
 
     @Test
     public void testResolve_should_fulfill_with_fulfilled_promised() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getPromise().then(
@@ -118,7 +118,7 @@ public class DeferTest {
     @Test
     public void testResolve_should_reject_with_rejected_promise() {
 
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getPromise().then(
@@ -140,7 +140,7 @@ public class DeferTest {
 
     @Test
     public void testResolve_should_return_a_promise_for_the_resolution_value() {
-        final Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getResolver().resolve(sentinel).then(
@@ -173,7 +173,7 @@ public class DeferTest {
     public void testResolve_should_return_a_promise_for_a_promised_resolution_value() {
 
         When<Object, Object> when = new When<>();
-        final Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d = when.defer();
         Done<Object, Object> done = new Done<>();
 
         d.getResolver().resolve(when.resolve(sentinel)).then(
@@ -202,9 +202,9 @@ public class DeferTest {
 
     @Test
     public void testResolve_should_return_a_promise_for_a_promised_rejection_value() {
-        final Deferred<Object, Object> d = When.defer();
         When<Object, Object> when = new When<>();
         Done<Object, Object> done = new Done<>();
+        final Deferred<Object, Object> d = when.defer();
 
         // Both the returned promise, and the deferred's own promise should
         // be rejected with the same value
@@ -235,7 +235,7 @@ public class DeferTest {
 
     @Test
     public void testResolve_should_invoke_newly_added_callback_when_already_resolved() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getResolver().resolve(sentinel);
@@ -258,7 +258,7 @@ public class DeferTest {
 
     @Test
     public void testReject_should_reject() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
         final Reason<Object> reason = new Reason<>(sentinel, null);
 
@@ -282,7 +282,7 @@ public class DeferTest {
 
     @Test
     public void testReject_should_return_a_promise_for_the_rejection_value() {
-        final Deferred<Object, Object> d = When.defer();
+        final Deferred<Object, Object> d = new When<>().defer();
         Reason<Object> reason = new Reason<>(sentinel, null);
         Done<Object, Object> done = new Done<>();
 
@@ -316,7 +316,7 @@ public class DeferTest {
 
     @Test
     public void testReject_should_invoke_newly_added_errback_when_already_rejected() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Reason<Object> reason = new Reason<>(sentinel, null);
         Done<Object, Object> done = new Done<>();
 
@@ -340,7 +340,7 @@ public class DeferTest {
 
     @Test
     public void testProgress_should_progress() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Done<Object, Object> done = new Done<>();
 
         d.getPromise().then(
@@ -362,7 +362,7 @@ public class DeferTest {
 
     @Test
     public void testProgress_should_propagate_progress_to_downstream_promises() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Done<Object, Object> done = new Done<>();
 
         d.getPromise()
@@ -392,7 +392,7 @@ public class DeferTest {
 
     @Test
     public void testProgress_should_propagate_transformed_progress_to_downstream_promises() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Done<Object, Object> done = new Done<>();
 
         d.getPromise()
@@ -456,8 +456,8 @@ public class DeferTest {
     testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_a_resolved_promise_returns_a_promise() {
 
         final Done<Object, Object> done = new Done<>();
-        Deferred<Object, Object> d = When.defer();
-        final Deferred<Object, Object> d2 = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
+        final Deferred<Object, Object> d2 = new When<>().defer();
 
         // resolve d BEFORE calling attaching progress handler
         d.getResolver().resolve(null);
@@ -492,8 +492,8 @@ public class DeferTest {
     testProgress_should_forward_progress_events_when_intermediary_callback_tied_to_an_unresolved_promise_returns_a_promise() {
 
         final Done<Object, Object> done = new Done<>();
-        Deferred<Object, Object> d = When.defer();
-        final Deferred<Object, Object> d2 = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
+        final Deferred<Object, Object> d2 = new When<>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Object, Object>, Object>() {
@@ -525,8 +525,8 @@ public class DeferTest {
     public void testProgress_should_forward_progress_when_resolved_with_another_promise() {
 
         final Done<Object, Object> done = new Done<>();
-        Deferred<Object, Object> d = When.defer();
-        final Deferred<Object, Object> d2 = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
+        final Deferred<Object, Object> d2 = new When<>().defer();
 
         d.getPromise()
                 .then(fail.onSuccess, fail.onFail,
@@ -557,7 +557,7 @@ public class DeferTest {
 
     @Test
     public void testProgress_should_allow_resolve_after_progress() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Done<Object, Object> done = new Done<>();
 
         final Value<Boolean> progressed = new Value<>(false);
@@ -588,7 +588,7 @@ public class DeferTest {
 
     @Test
     public void testProgress_should_allow_reject_after_progress() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         final Value<Boolean> progressed = new Value<>(false);
         final Done<Object, Object> done = new Done<>();
 
@@ -619,7 +619,7 @@ public class DeferTest {
 
     @Test
     public void testDefer_should_return_a_promise_for_passed_in_resolution_value_when_already_resolved() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getResolver().resolve(other);
@@ -637,7 +637,7 @@ public class DeferTest {
 
     @Test
     public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_resolved() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
         final Reason<Object> reason = new Reason<>(sentinel, null);
 
@@ -672,7 +672,7 @@ public class DeferTest {
 
     @Test
     public void testDefer_should_return_a_promise_for_passed_in_resolution_value_when_already_rejected() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
 
         d.getResolver().reject(new Reason<>(other, null));
@@ -694,7 +694,7 @@ public class DeferTest {
 
     @Test
     public void testDefer_should_return_a_promise_for_passed_in_rejection_value_when_already_rejected() {
-        Deferred<Object, Object> d = When.defer();
+        Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
         final Reason<Object> reason = new Reason<>(sentinel, null);
 
@@ -717,13 +717,12 @@ public class DeferTest {
         done.assertSuccess();
     }
 
-//    @Test
-//    public void testDefer_should_return_silently_on_progress_when_already_rejected() {
-//        var d = when.defer();
-//        d.reject();
-//
-//        refute.defined(d.progress());
-//    }
-    // TODO: Does refute make sense in Java?
+    @Test
+    public void testDefer_should_return_silently_on_progress_when_already_rejected() {
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+        d.getResolver().reject(null);
+
+        assertNull(d.getResolver().progress(1));
+    }
 
 }

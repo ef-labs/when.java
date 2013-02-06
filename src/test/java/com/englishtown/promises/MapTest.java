@@ -97,7 +97,7 @@ public class MapTest {
 
         Done<List<Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
-        When<Integer, Integer> when = new When<>();
+        final When<Integer, Integer> when = new When<>();
         final List<Resolver<Integer, Integer>> resolvers = new ArrayList<>(3);
         final List<Integer> values = new ArrayList<>(3);
 
@@ -105,7 +105,7 @@ public class MapTest {
                 Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
-                Deferred<Integer, Integer> d = When.defer();
+                Deferred<Integer, Integer> d = when.defer();
                 resolvers.add(d.getResolver());
                 values.add(mapper.run(value));
                 return d.getPromise();

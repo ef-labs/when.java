@@ -315,9 +315,9 @@ public class ReduceTest {
 
         Done<String, Integer> done = new Done<>();
         When<String, Integer> when = new When<>();
-        Deferred<String, Integer> d1 = When.defer();
-        Deferred<String, Integer> d2 = When.defer();
-        Deferred<String, Integer> d3 = When.defer();
+        Deferred<String, Integer> d1 = when.defer();
+        Deferred<String, Integer> d2 = when.defer();
+        Deferred<String, Integer> d3 = when.defer();
         List<Promise<String, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
 
         when.reducePromises(input, plus2, "").then(
@@ -371,8 +371,9 @@ public class ReduceTest {
 
         Done<String, Integer> done = new Done<>();
         When<String, Integer> when = new When<>();
+        When<List<String>, Integer> w1 = new When<>();
 
-        Deferred<List<String>, Integer> d1 = When.defer();
+        Deferred<List<String>, Integer> d1 = w1.defer();
 
         when.reducePromise(d1.getPromise(), plus2, "").then(
                 fail2.onSuccess,

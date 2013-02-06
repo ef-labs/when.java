@@ -41,22 +41,22 @@ public class PromiseTest {
 
     @Test
     public void testPromise_should_return_a_promise() {
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(null, null, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, null, null));
     }
 
     @Test
     public void testPromise_should_allow_a_single_callback_function() {
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(onSuccess, null, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, null, null));
     }
 
     @Test
     public void testPromise_should_allow_a_callback_and_errback_function() {
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(onSuccess, onFail, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail, null));
     }
 
     @Test
     public void testPromise_should_allow_a_callback_errback_and_progback_function() {
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(onSuccess, onFail, onProgress));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail, onProgress));
     }
 
 //            'should allow null and undefined': function() {
@@ -73,16 +73,16 @@ public class PromiseTest {
 
     @Test
     public void testPromise_should_allow_functions_and_null_or_undefined_to_be_mixed() {
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(null, onFail, null));
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(null, null, onProgress));
-        assertNotNull(When.<Integer, Integer>defer().getPromise().then(null, onFail, onProgress));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail, null));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, null, onProgress));
+        assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail, onProgress));
     }
 
     @Test
     public void testPromise_should_preserve_object_whose_valueOf_differs_from_original_object() {
 
         Done<Date, Integer> done = new Done<>();
-        Deferred<Date, Integer> d = When.defer();
+        Deferred<Date, Integer> d = new When<Date, Integer>().defer();
         final Date expected = new Date();
 
         d.getPromise().then(
@@ -112,7 +112,7 @@ public class PromiseTest {
     public void testPromise_should_forward_result_when_callback_is_null() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 null,
@@ -139,7 +139,7 @@ public class PromiseTest {
     public void testPromise_should_forward_callback_result_to_next_callback() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
@@ -172,7 +172,7 @@ public class PromiseTest {
     public void testPromise_should_forward_undefined() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
@@ -205,7 +205,7 @@ public class PromiseTest {
     public void testPromise_should_forward_undefined_rejection_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 fail.onSuccess,
@@ -241,13 +241,13 @@ public class PromiseTest {
     public void testPromise_should_forward_promised_callback_result_value_to_next_callback() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
-                        Deferred<Integer, Integer> d1 = When.defer();
+                        Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().resolve(value + 1);
                         return d1.getPromise();
                     }
@@ -275,13 +275,13 @@ public class PromiseTest {
     public void testPromise_should_switch_from_callbacks_to_errbacks_when_callback_returns_a_rejection() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
-                        Deferred<Integer, Integer> d1 = When.defer();
+                        Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().reject(new Reason<>(value + 1, null));
                         return d1.getPromise();
                     }
@@ -309,7 +309,7 @@ public class PromiseTest {
     public void testPromise_should_switch_from_callbacks_to_errbacks_when_callback_throws() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
@@ -341,7 +341,7 @@ public class PromiseTest {
     public void testPromise_should_switch_from_errbacks_to_callbacks_when_errback_does_not_explicitly_propagate() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 fail.onSuccess,
@@ -365,7 +365,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<Integer>(1, null));
+        d.getResolver().reject(new Reason<>(1, null));
         done.assertSuccess();
 
     }
@@ -374,14 +374,14 @@ public class PromiseTest {
     public void testPromise_should_switch_from_errbacks_to_callbacks_when_errback_returns_a_resolution() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Reason<Integer> value) {
-                        Deferred<Integer, Integer> d1 = When.defer();
+                        Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().resolve(value.data + 1);
                         return d1.getPromise();
                     }
@@ -399,7 +399,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<Integer>(1, null));
+        d.getResolver().reject(new Reason<>(1, null));
         done.assertSuccess();
 
     }
@@ -408,7 +408,7 @@ public class PromiseTest {
     public void testPromise_should_propagate_rejections_when_errback_throws() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 fail.onSuccess,
@@ -431,7 +431,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<Integer>(1, null));
+        d.getResolver().reject(new Reason<>(1, null));
         done.assertSuccess();
 
     }
@@ -440,14 +440,14 @@ public class PromiseTest {
     public void testPromise_should_propagate_rejections_when_errback_returns_a_rejection() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Reason<Integer> value) {
-                        Deferred<Integer, Integer> d1 = When.defer();
+                        Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().reject(new Reason<>(value.data + 1, null));
                         return d1.getPromise();
                     }
@@ -465,7 +465,7 @@ public class PromiseTest {
                 null
         ).then(done.onSuccess, done.onFail, null);
 
-        d.getResolver().reject(new Reason<Integer>(1, null));
+        d.getResolver().reject(new Reason<>(1, null));
         done.assertSuccess();
 
     }
@@ -473,19 +473,22 @@ public class PromiseTest {
     @Test
     public void testPromise_should_call_progback() {
 
-        Done<Object, Object> done = new Done<>();
-        Deferred<Object, Object> d = When.defer();
+        final Done<Object, Object> done = new Done<>();
+        Deferred<Object, Object> d = new When<>().defer();
         final Object expected = new Object();
 
         d.getPromise().then(null, null, new Runnable<Object, Object>() {
             @Override
             public Object run(Object value) {
                 assertEquals(expected, value);
+                done.success = true;
                 return null;
             }
         });
 
         d.getResolver().progress(expected);
+        done.assertSuccess();
+
     }
 
 // TODO: Port promise unit tests for always/otherwise/yield/spread

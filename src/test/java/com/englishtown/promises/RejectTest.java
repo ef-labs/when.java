@@ -45,7 +45,7 @@ public class RejectTest {
         Done<Integer, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
 
-        Deferred<Integer, Integer> d = When.defer();
+        Deferred<Integer, Integer> d = when.defer();
         d.getResolver().resolve(expected);
 
         when.reject(d.getPromise()).then(

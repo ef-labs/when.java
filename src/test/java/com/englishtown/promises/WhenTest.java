@@ -56,19 +56,19 @@ public class WhenTest {
 
     @Test
     public void whenTest_should_return_a_promise_for_a_value() {
-        Promise<Integer, Integer> result = When.when(1);
+        Promise<Integer, Integer> result = new When<Integer, Integer>().when(1);
         assertNotNull(result);
     }
 
     @Test
     public void whenTest_should_return_a_promise_for_a_promise() {
-        Promise<Integer, Integer> result = When.when(fakePromise);
+        Promise<Integer, Integer> result = new When<Integer, Integer>().when(fakePromise);
         assertNotNull(result);
     }
 
     @Test
     public void whenTest_should_not_return_the_input_promise() {
-        Promise<Integer, Integer> result = When.when(fakePromise);
+        Promise<Integer, Integer> result = new When<Integer, Integer>().when(fakePromise);
         assertNotSame(fakePromise, result);
     }
 
@@ -76,17 +76,19 @@ public class WhenTest {
     public void whenTest_should_return_a_promise_that_forwards_for_a_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        Promise<Integer, Integer> result = When.when(1, new Constant<>(2));
+        Promise<Integer, Integer> result = new When<Integer, Integer>().when(1, new Constant<>(2));
 
         assertNotNull(result);
-        result.then(new Runnable<Promise<Integer, Integer>, Integer>() {
-            @Override
-            public Promise<Integer, Integer> run(Integer value) {
-                assertEquals(2, value.intValue());
-                return null;
-            }
-        },
-                fail.onFail, null
+        result.then(
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        assertEquals(2, value.intValue());
+                        return null;
+                    }
+                },
+                fail.onFail,
+                null
         ).then(done.onSuccess, done.onFail, null);
 
         done.assertSuccess();
@@ -100,7 +102,7 @@ public class WhenTest {
         Promise<Boolean, Integer> result;
         final When<Boolean, Integer> w1 = new When<>();
 
-        d1 = When.defer();
+        d1 = w1.defer();
         d1.getResolver().resolve(false);
 
         final Runnable<Promise<Boolean, Integer>, Boolean> identity = new Runnable<Promise<Boolean, Integer>, Boolean>() {
@@ -110,14 +112,14 @@ public class WhenTest {
             }
         };
 
-        result = When.when(When.when(d1.getPromise().then(new Runnable<Promise<Boolean, Integer>, Boolean>() {
+        result = w1.when(w1.when(d1.getPromise().then(new Runnable<Promise<Boolean, Integer>, Boolean>() {
             @Override
             public Promise<Boolean, Integer> run(Boolean value) {
 
-                Deferred<Boolean, Integer> d2 = When.defer();
+                Deferred<Boolean, Integer> d2 = w1.defer();
                 d2.getResolver().resolve(value);
 
-                return When.when(d2.getPromise().then(identity, null, null), identity).then(
+                return w1.when(d2.getPromise().then(identity, null, null), identity).then(
                         new Runnable<Promise<Boolean, Integer>, Boolean>() {
                             @Override
                             public Promise<Boolean, Integer> run(Boolean value) {
@@ -149,7 +151,7 @@ public class WhenTest {
         Done<Boolean, Integer> done = new Done<>();
         When<Boolean, Integer> when = new When<>();
 
-        When.when(when.resolve(true)).then(
+        when.when(when.resolve(true)).then(
                 new Runnable<Promise<Boolean, Integer>, Boolean>() {
                     @Override
                     public Promise<Boolean, Integer> run(Boolean value) {
@@ -169,7 +171,7 @@ public class WhenTest {
 
         // unstrusted promise should never be returned by when()
         Promise<Integer, Integer> untrusted = new FakePromise<>();
-        Promise<Integer, Integer> result = When.when(untrusted);
+        Promise<Integer, Integer> result = new When<Integer, Integer>().when(untrusted);
 
         assertNotSame(untrusted, result);
         assertFalse(result instanceof FakePromise);
@@ -183,7 +185,7 @@ public class WhenTest {
 
         // untrusted promise returned by an intermediate
         // handler should be assimilated
-        result = When.when(1,
+        result = new When<Integer, Integer>().when(1,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -210,9 +212,10 @@ public class WhenTest {
     public void whenTest_should_assimilate_intermediate_promises_and_forward_results() {
 
         Done<Integer, Integer> done = new Done<>();
-        Promise<Integer, Integer> untrusted = new FakePromise(1);
+        Promise<Integer, Integer> untrusted = new FakePromise<>(1);
+        When<Integer, Integer> when = new When<>();
 
-        Promise<Integer, Integer> result = When.when(untrusted, new Runnable<Promise<Integer, Integer>, Integer>() {
+        Promise<Integer, Integer> result = when.when(untrusted, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return new FakePromise<>(value + 1);
@@ -222,12 +225,12 @@ public class WhenTest {
         assertNotSame(untrusted, result);
         assertFalse(result instanceof FakePromise);
 
-        When.when(result,
+        when.when(result,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
                         assertEquals(2, value.intValue());
-                        return new FakePromise(value + 1);
+                        return new FakePromise<>(value + 1);
                     }
                 },
                 null, null
