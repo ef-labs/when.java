@@ -885,9 +885,9 @@ public class When<TResolve, TProgress> {
 
         w2.when(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
-            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> value) {
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> promises) {
 
-                int len = value.size();
+                int len = promises.size();
 
                 final Value<Integer> toResolve = new Value<>(Math.max(0, Math.min(howMany, len)));
                 final List<TResolve> values = new ArrayList<>();
@@ -965,6 +965,13 @@ public class When<TResolve, TProgress> {
                 }
 
                 d1.getPromise().then(onFulfilled, onRejected, onProgress);
+                return null;
+            }
+        }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, Reason<List<Promise<TResolve, TProgress>>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+                // Need to reject the deferred if an exception is thrown above
+                d1.getResolver().reject(new Reason<List<TResolve>>(null, value.error));
                 return null;
             }
         });
@@ -1252,7 +1259,6 @@ public class When<TResolve, TProgress> {
 
         final When<List<TResolve>, TProgress> w1 = new When<>();
         final Deferred<List<TResolve>, TProgress> d1 = w1.deferInner();
-        final Resolver<List<TResolve>, TProgress> r1 = d1.getResolver();
 
         final When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
         final When<TResolve, TProgress> w3 = new When<>();
@@ -1273,7 +1279,7 @@ public class When<TResolve, TProgress> {
                 }
 
                 if (toResolve.value == 0) {
-                    r1.resolve(results);
+                    d1.getResolver().resolve(results);
 
                 } else {
                     Runnable2<Void, Promise<TResolve, TProgress>, Integer> resolveOne = new Runnable2<Void, Promise<TResolve, TProgress>, Integer>() {
@@ -1292,7 +1298,7 @@ public class When<TResolve, TProgress> {
                                             results.set(index, mapped);
 
                                             if (--toResolve.value == 0) {
-                                                r1.resolve(results);
+                                                d1.getResolver().resolve(results);
                                             }
 
                                             return null;
@@ -1301,9 +1307,7 @@ public class When<TResolve, TProgress> {
                                     new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
                                         @Override
                                         public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
-                                            r1.reject(new Reason<>(Arrays.asList(value.data), value.error));
-                                            // TODO: reject with a Reason<List<TResolve>>?  Or add additional generic
-                                            // parameter?
+                                            d1.getResolver().reject(new Reason<>(Arrays.asList(value.data), value.error));
                                             return null;
                                         }
                                     },
@@ -1332,15 +1336,15 @@ public class When<TResolve, TProgress> {
                 }
 
                 return null;
-                //return d.promise;
             }
         }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
                 Reason<List<Promise<TResolve, TProgress>>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+                // Need to reject the deferred if an exception is thrown above
                 d1.getResolver().reject(new Reason<List<TResolve>>(null, value.error));
                 return null;
-            } // TODO: Double check this is correct in mapPromises()
+            }
         });
 
         return d1.getPromise();

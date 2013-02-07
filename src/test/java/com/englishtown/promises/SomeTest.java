@@ -41,27 +41,29 @@ public class SomeTest {
         done.assertSuccess();
     }
 
-// TODO: What should happen when input list is null?
-//    @Test
-//    public void testSome_should_reject_null_input() {
-//
-//        Done<List<Integer>, Integer> done = new Done<>();
-//        When<Integer, Integer> when = new When<>();
-//        List<Promise<Integer, Integer>> input = null;
-//
-//        when.somePromises(input, 1,
-//                fail.onSuccess,
-//                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
-//                    @Override
-//                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
-//                        assertNotNull(value.error);
-//                        return null;
-//                    }
-//                }
-//        ).then(done.onSuccess, done.onFail);
-//
-//        done.assertSuccess();
-//    }
+    @Test
+    public void testSome_should_reject_null_input() {
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        List<Promise<Integer, Integer>> input = null;
+
+        when.somePromises(input, 1,
+                fail.onSuccess,
+                fail.onFail
+        ).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+                        assertNotNull(value.error);
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
 
     @Test
     public void testSome_should_resolve_values_array() {

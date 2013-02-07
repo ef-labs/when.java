@@ -258,7 +258,7 @@ public class MapTest {
                     @Override
                     public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
                         assertEquals(1, value.data.size());
-                        assertTrue(2 == value.data.get(0));
+                        assertEquals(2, value.data.get(0).intValue());
                         return null;
                     }
                 }
