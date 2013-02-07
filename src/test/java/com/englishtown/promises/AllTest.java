@@ -49,9 +49,9 @@ public class AllTest {
         When<Integer, Integer> when = new When<>();
 
         when.allPromises(null, fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -140,9 +140,9 @@ public class AllTest {
 
         when.allPromises(input,
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> failed) {
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> failed) {
                         assertEquals(2, failed.data.get(0).intValue());
                         return null;
                     }

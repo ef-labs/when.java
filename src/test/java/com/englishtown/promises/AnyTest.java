@@ -54,9 +54,9 @@ public class AnyTest {
                 fail.onFail
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -140,9 +140,9 @@ public class AnyTest {
                         return null;
                     }
                 },
-                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> result) {
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> result) {
                         Integer[] expected = {1, 2, 3};
                         assertArrayEquals(expected, result.data.toArray());
                         return null;

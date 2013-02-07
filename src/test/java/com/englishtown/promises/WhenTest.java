@@ -1,7 +1,6 @@
 package com.englishtown.promises;
 
 import org.junit.Test;
-import sun.nio.ch.FileKey;
 
 import static org.junit.Assert.*;
 
@@ -36,12 +35,12 @@ public class WhenTest {
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return then(onFulfilled, onRejected, null);
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected, Runnable<TProgress, TProgress> onProgress) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<TProgress, TProgress> onProgress) {
             if (onFulfilled != null) {
                 onFulfilled.run(this.value);
             }

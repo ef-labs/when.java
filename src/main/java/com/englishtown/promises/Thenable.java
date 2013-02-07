@@ -11,6 +11,6 @@ public interface Thenable<TResolve, TProgress> {
 
     public Promise<TResolve, TProgress> then(
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<TProgress, TProgress> onProgress);
 }

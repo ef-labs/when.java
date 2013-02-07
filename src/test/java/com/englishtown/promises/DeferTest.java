@@ -58,14 +58,14 @@ public class DeferTest {
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return then(onFulfilled, onRejected, null);
         }
 
         @Override
         public Promise<TResolve, TProgress> then(
                 Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                 Runnable<TProgress, TProgress> onProgress) {
 
             return (onFulfilled != null ?
@@ -77,9 +77,9 @@ public class DeferTest {
 
     private class FakeRejected<TResolve, TProgress> implements Promise<TResolve, TProgress> {
 
-        private Reason<TResolve> reason;
+        private Value<TResolve> reason;
 
-        public FakeRejected(Reason<TResolve> reason) {
+        public FakeRejected(Value<TResolve> reason) {
             this.reason = reason;
         }
 
@@ -89,14 +89,14 @@ public class DeferTest {
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return then(onFulfilled, onRejected, null);
         }
 
         @Override
         public Promise<TResolve, TProgress> then(
                 Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                 Runnable<TProgress, TProgress> onProgress) {
 
             return (onRejected != null ?
@@ -143,16 +143,16 @@ public class DeferTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
                 }
         ).then(done.onSuccess, done.onFail);
 
-        Reason<Object> reason = new Reason<>(sentinel, null);
+        Value<Object> reason = new Value<>(sentinel, null);
         d.getResolver().resolve(new FakeRejected<>(reason));
         done.assertSuccess();
 
@@ -228,14 +228,14 @@ public class DeferTest {
         // be rejected with the same value
         d.getResolver().resolve(when.reject(sentinel)).then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(final Reason<Object> value1) {
+                    public Promise<Object, Object> run(final Value<Object> value1) {
                         d.getPromise().then(
                                 fail.onSuccess,
-                                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                                new Runnable<Promise<Object, Object>, Value<Object>>() {
                                     @Override
-                                    public Promise<Object, Object> run(Reason<Object> value2) {
+                                    public Promise<Object, Object> run(Value<Object> value2) {
                                         assertEquals(value1, value2);
                                         assertEquals(value1.data, value2.data);
                                         return null;
@@ -278,9 +278,9 @@ public class DeferTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -301,15 +301,15 @@ public class DeferTest {
         // be rejected with the same value
         d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(final Reason<Object> value1) {
+                    public Promise<Object, Object> run(final Value<Object> value1) {
 
                         d.getPromise().then(
                                 fail.onSuccess,
-                                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                                new Runnable<Promise<Object, Object>, Value<Object>>() {
                                     @Override
-                                    public Promise<Object, Object> run(Reason<Object> value2) {
+                                    public Promise<Object, Object> run(Value<Object> value2) {
                                         assertEquals(value1, value2);
                                         return null;
                                     }
@@ -332,9 +332,9 @@ public class DeferTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -427,35 +427,35 @@ public class DeferTest {
     }
 
 // TODO: Throw in Java must be an exception, handle this test case somehow
-//    @Test
-//    public void testProgress_should_propagate_caught_exception_value_as_progress() {
-//        Deferred<Object, Object> d = When.defer();
-//        final Done<Object, Object> done = new Done<>();
-//
-//        d.getPromise()
-//                .then(fail.onSuccess, fail.onFail,
-//                        new Runnable<Object, Object>() {
-//                            @Override
-//                            public Object run(Object value) {
-//                                throw new RuntimeException();
-//                                //throw sentinel;
-//                            }
-//                        }
-//                )
-//                .then(fail.onSuccess, fail.onFail,
-//                new Runnable<Object, Object>() {
-//                    @Override
-//                    public Object run(Object value) {
-//                        assertEquals(value, sentinel);
-//                        done.success = true;
-//                        return null;
-//                    }
-//                }
-//        );
-//
-//        d.getResolver().progress(other);
-//        done.assertSuccess();
-//    }
+    @Test
+    public void testProgress_should_propagate_caught_exception_value_as_progress() {
+        Deferred<Object, Object> d = new When<>().defer();
+        final Done<Object, Object> done = new Done<>();
+
+        d.getPromise()
+                .then(fail.onSuccess, fail.onFail,
+                        new Runnable<Object, Object>() {
+                            @Override
+                            public Object run(Object value) {
+                                throw new RuntimeException();
+                                //throw sentinel;
+                            }
+                        }
+                )
+                .then(fail.onSuccess, fail.onFail,
+                new Runnable<Object, Object>() {
+                    @Override
+                    public Object run(Object value) {
+                        assertEquals(value, sentinel);
+                        done.success = true;
+                        return null;
+                    }
+                }
+        );
+
+        d.getResolver().progress(other);
+        done.assertSuccess();
+    }
 
     @Test
     public void
@@ -562,7 +562,7 @@ public class DeferTest {
         Deferred<Object, Object> d = new When<>().defer();
         final Done<Object, Object> done = new Done<>();
 
-        final Value<Boolean> progressed = new Value<>(false);
+        final ValueHolder<Boolean> progressed = new ValueHolder<>(false);
 
         d.getPromise().then(
                 new Runnable<Promise<Object, Object>, Object>() {
@@ -591,14 +591,14 @@ public class DeferTest {
     @Test
     public void testProgress_should_allow_reject_after_progress() {
         Deferred<Object, Object> d = new When<>().defer();
-        final Value<Boolean> progressed = new Value<>(false);
+        final ValueHolder<Boolean> progressed = new ValueHolder<>(false);
         final Done<Object, Object> done = new Done<>();
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertTrue(progressed.value);
                         done.success = true;
                         return null;
@@ -646,9 +646,9 @@ public class DeferTest {
 
         d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertEquals(value.data, sentinel);
                         return null;
                     }
@@ -695,9 +695,9 @@ public class DeferTest {
 
         d.getResolver().reject(sentinel).then(
                 fail.onSuccess,
-                new Runnable<Promise<Object, Object>, Reason<Object>>() {
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Reason<Object> value) {
+                    public Promise<Object, Object> run(Value<Object> value) {
                         assertEquals(value.data, sentinel);
 
                         return null;

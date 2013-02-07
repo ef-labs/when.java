@@ -4,17 +4,17 @@ package com.englishtown.promises;
  * Created with IntelliJ IDEA.
  * User: adriangonzalez
  * Date: 1/23/13
- * Time: 4:26 PM
+ * Time: 3:03 PM
  * To change this template use File | Settings | File Templates.
  */
-class Value<T> {
+public class Value<T> {
 
-    public Value() {
+    public Value(T data, RuntimeException error) {
+        this.data = data;
+        this.error = error;
     }
 
-    public Value(T value) {
-        this.value = value;
-    }
+    public T data;
+    public RuntimeException error;
 
-    public T value;
 }

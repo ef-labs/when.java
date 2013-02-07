@@ -38,7 +38,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> when(
             TResolve value,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
@@ -48,7 +48,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> when(
             Promise<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
@@ -73,7 +73,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> when(
             TResolve value,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         return when(value, onFulfilled, onRejected, null);
@@ -97,7 +97,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> when(
             Promise<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         return when(promise, onFulfilled, onRejected, null);
@@ -179,9 +179,9 @@ public class When<TResolve, TProgress> {
                             return null;
                         }
                     },
-                    new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                    new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
-                        public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+                        public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
                             deferred.resolver.reject(reason);
                             return null;
                         }
@@ -219,7 +219,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
                     public Promise<TResolve, TProgress> run(TResolve value) {
-                        return rejected(new Reason<>(value, null));
+                        return rejected(new Value<>(value, null));
                     }
                 });
     }
@@ -261,14 +261,14 @@ public class When<TResolve, TProgress> {
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return then(onFulfilled, onRejected, null);
         }
 
         @Override
         public Promise<TResolve, TProgress> then(
                 Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                 Runnable<TProgress, TProgress> onProgress) {
             return __then.then(onFulfilled, onRejected, onProgress);
         }
@@ -288,9 +288,9 @@ public class When<TResolve, TProgress> {
 
             return this.then(
                     onFulfilledOrRejected,
-                    new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                    new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
-                        public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+                        public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
                             return onFulfilledOrRejected.run(reason.data);
                         }
                     },
@@ -303,7 +303,7 @@ public class When<TResolve, TProgress> {
          * @param {function?} onRejected
          * @return {com.englishtown.promises.Promise}
          */
-        public Promise<TResolve, TProgress> otherwise(Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected) {
+        public Promise<TResolve, TProgress> otherwise(Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return this.then(null, onRejected);
         }
 
@@ -343,14 +343,14 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<TResolve, TProgress> then(
                     Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                    Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                    Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                     Runnable<TProgress, TProgress> onProgress) {
 
                 try {
                     return (onFulfilled != null ? resolve(onFulfilled.run(value)) : resolve(value));
 
                 } catch (RuntimeException e) {
-                    return rejected(new Reason<TResolve>(null, e));
+                    return rejected(new Value<TResolve>(null, e));
 
                 }
 
@@ -368,21 +368,21 @@ public class When<TResolve, TProgress> {
      * @param {*} reason
      * @return {com.englishtown.promises.Promise} rejected promise
      */
-    private Promise<TResolve, TProgress> rejected(final Reason<TResolve> reason) {
+    private Promise<TResolve, TProgress> rejected(final Value<TResolve> reason) {
 
         PromiseImpl p = new PromiseImpl(new Thenable<TResolve, TProgress>() {
 
             @Override
             public Promise<TResolve, TProgress> then(
                     Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                    Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                    Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                     Runnable<TProgress, TProgress> onProgress) {
 
                 try {
                     return onRejected != null ? resolve(onRejected.run(reason)) : rejected(reason);
 
                 } catch (RuntimeException e) {
-                    return rejected(new Reason<TResolve>(null, e));
+                    return rejected(new Value<TResolve>(null, e));
 
                 }
             }
@@ -416,13 +416,13 @@ public class When<TResolve, TProgress> {
 
         public Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
         public Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise;
-        public Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> reject;
+        public Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject;
         public Runnable<TProgress, TProgress> progress;
 
         public ResolverImpl(
                 Runnable<Promise<TResolve, TProgress>, TResolve> resolve,
                 Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise,
-                Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> reject,
+                Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject,
                 Runnable<TProgress, TProgress> progress) {
             this.resolve = resolve;
             this.resolvePromise = resolvePromise;
@@ -442,11 +442,11 @@ public class When<TResolve, TProgress> {
 
         @Override
         public Promise<TResolve, TProgress> reject(TResolve reason) {
-            return reject(new Reason<>(reason, null));
+            return reject(new Value<>(reason, null));
         }
 
         @Override
-        public Promise<TResolve, TProgress> reject(Reason<TResolve> reason) {
+        public Promise<TResolve, TProgress> reject(Value<TResolve> reason) {
             return reject.run(reason);
         }
 
@@ -484,15 +484,15 @@ public class When<TResolve, TProgress> {
          * @param {function?} [onRejected] rejection handler
          * @param {function?} [onProgress] progress handler
          */
-        final Value<Thenable<TResolve, TProgress>> _then = new Value<>();
+        final ValueHolder<Thenable<TResolve, TProgress>> _then = new ValueHolder<>();
         _then.value = new Thenable<TResolve, TProgress>() {
             @Override
             public Promise<TResolve, TProgress> then(
                     final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                    final Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                    final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                     final Runnable<TProgress, TProgress> onProgress) {
 
-                final Value<Runnable<TProgress, TProgress>> progressHandler = new Value<>();
+                final ValueHolder<Runnable<TProgress, TProgress>> progressHandler = new ValueHolder<>();
                 final DeferredImpl deferred = deferInner();
 
                 if (onProgress != null) {
@@ -507,7 +507,7 @@ public class When<TResolve, TProgress> {
                                 // Use caught value as progress
                                 deferred.resolver.progress(update);
                                 // TODO: Could not pass exception through to progress.run(),
-                                // passing update instead.  Consider passing Reason<TData>?
+                                // passing update instead.  Consider passing Value<TData>?
 
                             }
 
@@ -544,7 +544,7 @@ public class When<TResolve, TProgress> {
          * @private
          * @param {*} update progress event payload to pass to all listeners
          */
-        final Value<Runnable<TProgress, TProgress>> _progress = new Value<>();
+        final ValueHolder<Runnable<TProgress, TProgress>> _progress = new ValueHolder<>();
         _progress.value = new Runnable<TProgress, TProgress>() {
             @Override
             public TProgress run(TProgress update) {
@@ -559,7 +559,7 @@ public class When<TResolve, TProgress> {
          * @private
          * @param {*} value the value of this deferred
          */
-        final Value<Runnable<Promise<TResolve, TProgress>, TResolve>> _resolve = new Value<>();
+        final ValueHolder<Runnable<Promise<TResolve, TProgress>, TResolve>> _resolve = new ValueHolder<>();
 
         final Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> _resolvePromise =
                 new Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>>() {
@@ -611,10 +611,10 @@ public class When<TResolve, TProgress> {
                         return _resolvePromise.run(promise);
                     }
                 };
-        Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> promiseReject = new Runnable<Promise<TResolve,
-                TProgress>, Reason<TResolve>>() {
+        Runnable<Promise<TResolve, TProgress>, Value<TResolve>> promiseReject = new Runnable<Promise<TResolve,
+                TProgress>, Value<TResolve>>() {
             @Override
-            public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+            public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
                 return _resolvePromise.run(resolve(rejected(reason)));
             }
         };
@@ -633,7 +633,7 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<TResolve, TProgress> then(
                     Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                    Runnable<Promise<TResolve, TProgress>, Reason<TResolve>> onRejected,
+                    Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                     Runnable<TProgress, TProgress> onProgress) {
                 return _then.value.then(onFulfilled, onRejected, onProgress);
             }
@@ -697,7 +697,7 @@ public class When<TResolve, TProgress> {
             final List<TResolve> values,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return some(values, howMany, onFulfilled, onRejected, null);
     }
 
@@ -721,7 +721,7 @@ public class When<TResolve, TProgress> {
             final List<TResolve> values,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
         return somePromises(resolveValues(values), howMany, onFulfilled, onRejected, onProgress);
     }
@@ -769,7 +769,7 @@ public class When<TResolve, TProgress> {
             final Promise<List<TResolve>, TProgress> promise,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return somePromise(promise, howMany, onFulfilled, onRejected, null);
     }
 
@@ -793,7 +793,7 @@ public class When<TResolve, TProgress> {
             final Promise<List<TResolve>, TProgress> promise,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
 
         When<List<TResolve>, TProgress> when = new When<>();
@@ -851,7 +851,7 @@ public class When<TResolve, TProgress> {
             final List<Promise<TResolve, TProgress>> promises,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return somePromises(promises, howMany, onFulfilled, onRejected, null);
     }
 
@@ -875,7 +875,7 @@ public class When<TResolve, TProgress> {
             final List<Promise<TResolve, TProgress>> promises,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
 
         final When<List<TResolve>, TProgress> w1 = new When<>();
@@ -889,10 +889,10 @@ public class When<TResolve, TProgress> {
 
                 int len = promises.size();
 
-                final Value<Integer> toResolve = new Value<>(Math.max(0, Math.min(howMany, len)));
+                final ValueHolder<Integer> toResolve = new ValueHolder<>(Math.max(0, Math.min(howMany, len)));
                 final List<TResolve> values = new ArrayList<>();
 
-                final Value<Integer> toReject = new Value<>((len - toResolve.value) + 1);
+                final ValueHolder<Integer> toReject = new ValueHolder<>((len - toResolve.value) + 1);
                 final List<TResolve> reasons = new ArrayList<>();
 
                 // No items in the input, resolve immediately
@@ -902,18 +902,18 @@ public class When<TResolve, TProgress> {
                 } else {
                     Runnable<TProgress, TProgress> progress = d1.resolver.progress;
 
-                    final Value<Runnable<Promise<TResolve, TProgress>, TResolve>> fulfillOne = new Value<>();
-                    final Value<Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>> rejectOne = new Value<>();
+                    final ValueHolder<Runnable<Promise<TResolve, TProgress>, TResolve>> fulfillOne = new ValueHolder<>();
+                    final ValueHolder<Runnable<Promise<TResolve, TProgress>, Value<TResolve>>> rejectOne = new ValueHolder<>();
 
-                    rejectOne.value = new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                    rejectOne.value = new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
-                        public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+                        public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
                             reasons.add(reason.data);
 
                             if (--toReject.value == 0) {
                                 rejectOne.value = null;
                                 fulfillOne.value = null;
-                                d1.getResolver().reject(new Reason<>(reasons, reason.error));
+                                d1.getResolver().reject(new Value<>(reasons, reason.error));
                             }
 
                             return null;
@@ -951,9 +951,9 @@ public class When<TResolve, TProgress> {
                                                 return (fulfillOne.value != null ? fulfillOne.value.run(value) : null);
                                             }
                                         },
-                                        new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                                        new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                                             @Override
-                                            public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
+                                            public Promise<TResolve, TProgress> run(Value<TResolve> value) {
                                                 return (rejectOne.value != null ? rejectOne.value.run(value) : null);
                                             }
                                         },
@@ -967,11 +967,11 @@ public class When<TResolve, TProgress> {
                 d1.getPromise().then(onFulfilled, onRejected, onProgress);
                 return null;
             }
-        }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, Reason<List<Promise<TResolve, TProgress>>>>() {
+        }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, Value<List<Promise<TResolve, TProgress>>>>() {
             @Override
-            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(new Reason<List<TResolve>>(null, value.error));
+                d1.getResolver().reject(new Value<List<TResolve>>(null, value.error));
                 return null;
             }
         });
@@ -1017,7 +1017,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> any(
             final List<TResolve> values,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return any(values, onFulfilled, onRejected, null);
     }
 
@@ -1038,7 +1038,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> any(
             final List<TResolve> values,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
         return anyPromises(resolveValues(values), onFulfilled, onRejected, onProgress);
     }
@@ -1077,7 +1077,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> anyPromise(
             final Promise<List<TResolve>, TProgress> promise,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return anyPromise(promise, onFulfilled, onRejected, null);
     }
 
@@ -1098,7 +1098,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> anyPromise(
             final Promise<List<TResolve>, TProgress> promise,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
 
         When<List<TResolve>, TProgress> when = new When<>();
@@ -1148,7 +1148,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> anyPromises(
             final List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return anyPromises(promises, onFulfilled, onRejected, null);
     }
 
@@ -1169,7 +1169,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> anyPromises(
             final List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
 
         Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> unwrapSingleResult = new
@@ -1229,7 +1229,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> all(
             List<TResolve> values,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return all(values, onFulfilled, onRejected, null);
     }
 
@@ -1250,7 +1250,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> all(
             List<TResolve> values,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
 
         return map(values, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
@@ -1299,7 +1299,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> allPromise(
             Promise<List<TResolve>, TProgress> promise,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return allPromise(promise, onFulfilled, onRejected, null);
     }
 
@@ -1320,7 +1320,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> allPromise(
             Promise<List<TResolve>, TProgress> promise,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
 
         return mapPromise(promise, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
@@ -1369,7 +1369,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> allPromises(
             List<Promise<TResolve, TProgress>> promises,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
         return allPromises(promises, onFulfilled, onRejected, null);
     }
 
@@ -1390,7 +1390,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> allPromises(
             List<Promise<TResolve, TProgress>> promises,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
+            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
 
         return mapPromises(promises, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
@@ -1509,7 +1509,7 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> array) {
 
-                final Value<Integer> toResolve = new Value<>();
+                final ValueHolder<Integer> toResolve = new ValueHolder<>();
                 int len;
 
                 // Since we know the resulting length, we can preallocate the results
@@ -1546,10 +1546,10 @@ public class When<TResolve, TProgress> {
                                             return null;
                                         }
                                     },
-                                    new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                                    new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                                         @Override
-                                        public Promise<TResolve, TProgress> run(Reason<TResolve> value) {
-                                            d1.getResolver().reject(new Reason<>(Arrays.asList(value.data), value.error));
+                                        public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+                                            d1.getResolver().reject(new Value<>(Arrays.asList(value.data), value.error));
                                             return null;
                                         }
                                     },
@@ -1580,11 +1580,11 @@ public class When<TResolve, TProgress> {
                 return null;
             }
         }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
-                Reason<List<Promise<TResolve, TProgress>>>>() {
+                Value<List<Promise<TResolve, TProgress>>>>() {
             @Override
-            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(new Reason<List<TResolve>>(null, value.error));
+                d1.getResolver().reject(new Value<List<TResolve>>(null, value.error));
                 return null;
             }
         });
@@ -1665,10 +1665,10 @@ public class When<TResolve, TProgress> {
                         return null;
                     }
                 },
-                new Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>>() {
+                new Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>>() {
                     @Override
-                    public Promise<List<TResolve>, TProgress> run(Reason<List<TResolve>> value) {
-                        d1.getResolver().reject(new Reason<TResolve>(null, value.error));
+                    public Promise<List<TResolve>, TProgress> run(Value<List<TResolve>> value) {
+                        d1.getResolver().reject(new Value<TResolve>(null, value.error));
                         return null;
                     }
                 }
@@ -1801,10 +1801,10 @@ public class When<TResolve, TProgress> {
                 return null;
             }
         }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
-                Reason<List<Promise<TResolve, TProgress>>>>() {
+                Value<List<Promise<TResolve, TProgress>>>>() {
             @Override
-            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
-                d2.getResolver().reject(new Reason<TResolve>(null, value.error));
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
+                d2.getResolver().reject(new Value<TResolve>(null, value.error));
                 return null;
             }
         });
@@ -1913,9 +1913,9 @@ public class When<TResolve, TProgress> {
                         return resolve(val);
                     }
                 },
-                new Runnable<Promise<TResolve, TProgress>, Reason<TResolve>>() {
+                new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                     @Override
-                    public Promise<TResolve, TProgress> run(Reason<TResolve> reason) {
+                    public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
                         resolver.reject(reason);
                         return rejected(reason);
                     }

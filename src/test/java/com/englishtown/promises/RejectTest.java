@@ -24,9 +24,9 @@ public class RejectTest {
 
         when.reject(expected).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
@@ -49,9 +49,9 @@ public class RejectTest {
 
         when.reject(d.getPromise()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }
@@ -75,9 +75,9 @@ public class RejectTest {
 
         when.reject(d.getPromise()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(expected, value.data.intValue());
                         return null;
                     }

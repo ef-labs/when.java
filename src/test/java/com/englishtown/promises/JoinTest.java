@@ -122,9 +122,9 @@ public class JoinTest {
 
         when.joinPromises(when.resolve(1), when.reject(2), when.resolve(3)).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> failed) {
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> failed) {
                         assertEquals(2, failed.data.get(0).intValue());
                         return null;
                     }

@@ -219,9 +219,9 @@ public class ReduceTest {
 
         when.reducePromises(input, plus, when.resolve(1)).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> result) {
+                    public Promise<Integer, Integer> run(Value<Integer> result) {
                         assertEquals(2, result.data.intValue());
                         return null;
                     }
@@ -241,9 +241,9 @@ public class ReduceTest {
 
         when.reducePromises(input, plus).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -363,16 +363,16 @@ public class ReduceTest {
 
         when.reducePromise(d1.getPromise(), plus2, "").then(
                 fail2.onSuccess,
-                new Runnable<Promise<String, Integer>, Reason<String>>() {
+                new Runnable<Promise<String, Integer>, Value<String>>() {
                     @Override
-                    public Promise<String, Integer> run(Reason<String> value) {
+                    public Promise<String, Integer> run(Value<String> value) {
                         assertNotNull(value.error);
                         return null;
                     }
                 }
         ).then(done.onSuccess, done.onFail);
 
-        d1.getResolver().reject(new Reason<List<String>>(null, new RuntimeException()));
+        d1.getResolver().reject(new Value<List<String>>(null, new RuntimeException()));
 
         done.assertSuccess();
 

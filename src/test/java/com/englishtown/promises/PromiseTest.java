@@ -1,7 +1,6 @@
 package com.englishtown.promises;
 
 import org.junit.Test;
-import sun.jvm.hotspot.utilities.IntegerEnum;
 
 import java.util.Date;
 
@@ -23,9 +22,9 @@ public class PromiseTest {
         }
     };
 
-    private Runnable<Promise<Integer, Integer>, Reason<Integer>> onFail = new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+    private Runnable<Promise<Integer, Integer>, Value<Integer>> onFail = new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
         @Override
-        public Promise<Integer, Integer> run(Reason<Integer> value) {
+        public Promise<Integer, Integer> run(Value<Integer> value) {
             return null;
         }
     };
@@ -93,9 +92,9 @@ public class PromiseTest {
                         return null;
                     }
                 },
-                new Runnable<Promise<Date, Integer>, Reason<Date>>() {
+                new Runnable<Promise<Date, Integer>, Value<Date>>() {
                     @Override
-                    public Promise<Date, Integer> run(Reason<Date> value) {
+                    public Promise<Date, Integer> run(Value<Date> value) {
                         fail();
                         return null;
                     }
@@ -202,9 +201,9 @@ public class PromiseTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         // presence of rejection handler is enough to switch back
                         // to resolve mode, even though it returns undefined.
                         // The ONLY way to propagate a rejection is to re-throw or
@@ -278,9 +277,9 @@ public class PromiseTest {
                 fail.onFail
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(2, value.data.intValue());
                         return null;
                     }
@@ -308,9 +307,9 @@ public class PromiseTest {
                 fail.onFail
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -330,9 +329,9 @@ public class PromiseTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         When<Integer, Integer> w1 = new When<>();
                         return w1.resolve(value.data + 1);
                     }
@@ -361,9 +360,9 @@ public class PromiseTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().resolve(value.data + 1);
                         return d1.getPromise();
@@ -393,17 +392,17 @@ public class PromiseTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         throw new RuntimeException();
                     }
                 }
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -423,9 +422,9 @@ public class PromiseTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
                         d1.getResolver().reject(value.data + 1);
                         return d1.getPromise();
@@ -433,9 +432,9 @@ public class PromiseTest {
                 }
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(2, value.data.intValue());
                         return null;
                     }

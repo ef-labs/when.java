@@ -162,9 +162,9 @@ public class ChainTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
@@ -189,9 +189,9 @@ public class ChainTest {
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
@@ -276,9 +276,9 @@ public class ChainTest {
 
         when.chain(input.getPromise(), d.getResolver(), null).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Reason<Integer>>() {
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Reason<Integer> value) {
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.data.intValue());
                         return null;
                     }
