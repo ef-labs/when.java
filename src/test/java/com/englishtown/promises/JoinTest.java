@@ -2,9 +2,10 @@ package com.englishtown.promises;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created with IntelliJ IDEA.

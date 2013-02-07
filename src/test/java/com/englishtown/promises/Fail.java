@@ -1,6 +1,6 @@
 package com.englishtown.promises;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Created with IntelliJ IDEA.
