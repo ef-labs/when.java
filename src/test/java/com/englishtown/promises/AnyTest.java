@@ -32,7 +32,35 @@ public class AnyTest {
                 assertNull(value);
                 return null;
             }
-        }, fail.onFail, null).then(done.onSuccess, done.onFail);
+        }, fail.onFail).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testAny_should_reject_with_null_input_array() {
+
+        When<Integer, Integer> when = new When<>();
+        Done<List<Integer>, Integer> done = new Done<>();
+
+        when.any(null,
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        fail.onSuccess.run(Arrays.asList(value));
+                        return null;
+                    }
+                },
+                fail.onFail
+        ).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+                        assertNotNull(value.error);
+                        return null;
+                    }
+                }).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -52,7 +80,7 @@ public class AnyTest {
                         return null;
                     }
                 },
-                fail.onFail, null).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -72,7 +100,27 @@ public class AnyTest {
                         return null;
                     }
                 },
-                fail.onFail, null).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testAny_should_resolve_with_a_promised_input_value_if_any_resolve() {
+
+        When<Integer, Integer> when = new When<>();
+        Done<List<Integer>, Integer> done = new Done<>();
+        List<Promise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.resolve(3));
+
+        when.anyPromises(input,
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        assertEquals(3, value.intValue());
+                        return null;
+                    }
+                },
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -99,7 +147,7 @@ public class AnyTest {
                         assertArrayEquals(expected, result.data.toArray());
                         return null;
                     }
-                }, null
+                }
         ).then(done.onSuccess, done.onFail);
 
         done.assertFailed();
@@ -120,7 +168,7 @@ public class AnyTest {
                         return null;
                     }
                 },
-                fail.onFail, null).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -150,7 +198,7 @@ public class AnyTest {
                         return null;
                     }
                 },
-                fail.onFail, null).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -163,7 +211,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.any(input, null, null, null).then(
+        when.any(input).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> value) {
