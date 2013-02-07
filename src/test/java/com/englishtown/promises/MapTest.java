@@ -159,9 +159,9 @@ public class MapTest {
     }
 
     @Test
-    public void testMap_should_resolve_to_empty_array_when_input_promise_does_not_resolve_to_an_array() {
+    public void testMap_should_resolve_to_empty_array_when_input_is_empty_array() {
 
-        List<Integer> input = null;
+        List<Integer> input = new ArrayList<>();
         final When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
 
@@ -180,6 +180,32 @@ public class MapTest {
                     }
                 },
                 fail.onFail
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testMap_should_reject_when_input_array_is_null() {
+
+        List<Integer> input = null;
+        final When<Integer, Integer> when = new When<>();
+        Done<List<Integer>, Integer> done = new Done<>();
+
+        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+            @Override
+            public Promise<Integer, Integer> run(Integer value) {
+                return when.resolve(mapper.run(value));
+            }
+        }).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+                        assertNotNull(value.error);
+                        return null;
+                    }
+                }
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();

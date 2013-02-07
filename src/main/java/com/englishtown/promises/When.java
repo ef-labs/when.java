@@ -673,21 +673,104 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> some(
             final List<TResolve> values,
             final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return some(values, howMany, onFulfilled, null, null);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> some(
+            final List<TResolve> values,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return some(values, howMany, onFulfilled, onRejected, null);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> some(
+            final List<TResolve> values,
+            final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
-            final Runnable<TProgress, TProgress> onProgress) { // TODO: Overload with less callbacks
+            final Runnable<TProgress, TProgress> onProgress) {
+        return somePromises(resolveValues(values), howMany, onFulfilled, onRejected, onProgress);
+    }
 
-        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromise(
+            final Promise<List<TResolve>, TProgress> promise,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return somePromise(promise, howMany, onFulfilled, null, null);
+    }
 
-        for (TResolve val : values) {
-            if (val != null) {
-                promises.add(resolve(val));
-            } else {
-                promises.add(null);
-            }
-        }
-
-        return somePromises(promises, howMany, onFulfilled, onRejected, onProgress);
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromise(
+            final Promise<List<TResolve>, TProgress> promise,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return somePromise(promise, howMany, onFulfilled, onRejected, null);
     }
 
     /**
@@ -722,6 +805,54 @@ public class When<TResolve, TProgress> {
             }
         });
 
+    }
+
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromises(
+            final List<Promise<TResolve, TProgress>> promises,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return somePromises(promises, howMany, onFulfilled, null, null);
+    }
+
+    /**
+     * Initiates a competitive race, returning a promise that will resolve when
+     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * it becomes impossible for howMany to resolve, for example, when
+     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     *
+     * @param {Array}     promisesOrValues array of anything, may contain a mix
+     *                    of promises and values
+     * @param howMany     {number} number of promisesOrValues to resolve
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
+     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
+     * rejection reasons.
+     */
+    public Promise<List<TResolve>, TProgress> somePromises(
+            final List<Promise<TResolve, TProgress>> promises,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return somePromises(promises, howMany, onFulfilled, onRejected, null);
     }
 
     /**
@@ -800,7 +931,7 @@ public class When<TResolve, TProgress> {
                             if (--toResolve.value == 0) {
                                 fulfillOne.value = null;
                                 rejectOne.value = null;
-                                d1.getResolver().resolve(w1.resolve(values));
+                                d1.getResolver().resolve(values);
                             }
 
                             return null;
@@ -861,16 +992,7 @@ public class When<TResolve, TProgress> {
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
             final Runnable<TProgress, TProgress> onProgress) {
-
-        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
-
-        for (TResolve val : values) {
-            if (val != null) {
-                promises.add(resolve(val));
-            }
-        }
-
-        return anyPromises(promises, onFulfilled, onRejected, onProgress);
+        return anyPromises(resolveValues(values), onFulfilled, onRejected, onProgress);
     }
     // TODO: Overload without all callbacks
 
@@ -1082,20 +1204,7 @@ public class When<TResolve, TProgress> {
     public Promise<List<TResolve>, TProgress> map(
             List<TResolve> values,
             Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
-
-        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
-
-        if (values != null) {
-            for (TResolve val : values) {
-                if (val != null) {
-                    promises.add(resolve(val));
-                } else {
-                    promises.add(null);
-                }
-            }
-        }
-
-        return mapPromises(promises, mapFunc);
+        return mapPromises(resolveValues(values), mapFunc);
     }
 
     /**
@@ -1225,6 +1334,13 @@ public class When<TResolve, TProgress> {
                 return null;
                 //return d.promise;
             }
+        }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
+                Reason<List<Promise<TResolve, TProgress>>>>() {
+            @Override
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
+                d1.getResolver().reject(new Reason<List<TResolve>>(null, value.error));
+                return null;
+            } // TODO: Double check this is correct in mapPromises()
         });
 
         return d1.getPromise();
@@ -1333,16 +1449,7 @@ public class When<TResolve, TProgress> {
             List<TResolve> values,
             final Reducer2<TResolve> reduceFunc,
             final Promise<TResolve, TProgress> initialValue) {
-
-        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
-
-        if (values != null) {
-            for (TResolve value : values) {
-                promises.add((value != null ? resolve(value) : null));
-            }
-        }
-
-        return reducePromises(promises, reduceFunc, initialValue);
+        return reducePromises(resolveValues(values), reduceFunc, initialValue);
     }
 
 
@@ -1447,8 +1554,7 @@ public class When<TResolve, TProgress> {
                 d2.getResolver().resolve(p);
                 return null;
             }
-        }
-        ).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
+        }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
                 Reason<List<Promise<TResolve, TProgress>>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Reason<List<Promise<TResolve, TProgress>>> value) {
@@ -1590,4 +1696,19 @@ public class When<TResolve, TProgress> {
             handler.run(value);
         }
     }
+
+    private List<Promise<TResolve, TProgress>> resolveValues(List<TResolve> values) {
+        if (values == null) {
+            return null;
+        }
+
+        List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
+
+        for (TResolve value : values) {
+            promises.add((value != null ? resolve(value) : null));
+        }
+
+        return promises;
+    }
+
 }

@@ -35,12 +35,33 @@ public class SomeTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
+
+// TODO: What should happen when input list is null?
+//    @Test
+//    public void testSome_should_reject_null_input() {
+//
+//        Done<List<Integer>, Integer> done = new Done<>();
+//        When<Integer, Integer> when = new When<>();
+//        List<Promise<Integer, Integer>> input = null;
+//
+//        when.somePromises(input, 1,
+//                fail.onSuccess,
+//                new Runnable<Promise<List<Integer>, Integer>, Reason<List<Integer>>>() {
+//                    @Override
+//                    public Promise<List<Integer>, Integer> run(Reason<List<Integer>> value) {
+//                        assertNotNull(value.error);
+//                        return null;
+//                    }
+//                }
+//        ).then(done.onSuccess, done.onFail);
+//
+//        done.assertSuccess();
+//    }
 
     @Test
     public void testSome_should_resolve_values_array() {
@@ -59,8 +80,7 @@ public class SomeTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
@@ -83,8 +103,7 @@ public class SomeTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
@@ -107,8 +126,7 @@ public class SomeTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null
+                fail.onFail
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
@@ -132,8 +150,8 @@ public class SomeTest {
                         assertArrayEquals(expected, failed.data.toArray(new Integer[2]));
                         return null;
                     }
-                },
-                null).then(done.onSuccess, done.onFail);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertFailed();
 
@@ -150,7 +168,7 @@ public class SomeTest {
 
         When<Integer, Integer> when = new When<>();
         When<List<Integer>, Integer> w1 = new When<>();
-        final List<Integer> expected = Arrays.asList(1,  2, 3);
+        final List<Integer> expected = Arrays.asList(1, 2, 3);
         Promise<List<Integer>, Integer> input = w1.resolve(expected);
         Done<List<Integer>, Integer> done = new Done<>();
 
@@ -163,8 +181,8 @@ public class SomeTest {
                         return null;
                     }
                 },
-                fail.onFail,
-                null).then(done.onSuccess, done.onFail);
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
