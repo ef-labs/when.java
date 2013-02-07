@@ -37,6 +37,10 @@ public class PromiseTest {
     };
 
     private Fail<Integer, Integer> fail = new Fail<>();
+    private Fail<Object, Object> fail2 = new Fail<>();
+
+    private Object sentinel = new Object();
+    private Object other = new Object();
 
     @Test
     public void testPromise_should_return_a_promise() {
@@ -467,95 +471,168 @@ public class PromiseTest {
 
     }
 
-// TODO: Port promise unit tests for always/otherwise/yield/spread
-//            'always': {
-//        'should return a promise': function() {
-//            assert.isFunction(defer().promise.always().then);
-//        },
-//
-//        'should register callback': function(done) {
-//            var d = when.defer();
-//
-//            d.promise.always(
-//                    function(val) {
-//                assert.equals(val, 1);
-//                done();
-//            }
-//            );
-//
-//            d.resolve(1);
-//        },
-//
-//        'should register errback': function(done) {
-//            var d = when.defer();
-//
-//            d.promise.always(
-//                    function(val) {
-//                assert.equals(val, 1);
-//                done();
-//            }
-//            );
-//
-//            d.reject(1);
-//        },
-//
-//        'should register progback': function(done) {
-//            var d = when.defer();
-//
-//            d.promise.always(null, function (status) {
-//                assert.equals(status, 1);
-//                done();
-//            });
-//
-//            d.progress(1);
-//        }
-//
-//    },
-//
-//            'otherwise': {
-//        'should return a promise': function() {
-//            assert.isFunction(defer().promise.otherwise().then);
-//        },
-//
-//        'should register errback': function(done) {
-//            var d = when.defer();
-//
-//            d.promise.otherwise(
-//                    function(val) {
-//                assert.equals(val, 1);
-//                done();
-//            }
-//            );
-//
-//            d.reject(1);
-//        }
-//    },
-//
-//            'yield': {
-//        'should return a promise': function() {
-//            assert.isFunction(defer().promise.yield().then);
-//        },
-//
-//        'should fulfill with the supplied value': function(done) {
-//            when.resolve(other).yield(sentinel).then(
-//                    function(value) { assert.same(value, sentinel); }
-//            ).always(done);
-//        },
-//
-//        'should fulfill with the value of a fulfilled promise': function(done) {
-//            when.resolve(other).yield(when.resolve(sentinel)).then(
-//                    function(value) { assert.same(value, sentinel); }
-//            ).always(done);
-//        },
-//
-//        'should reject with the reason of a rejected promise': function(done) {
-//            when.resolve(other).yield(when.reject(sentinel)).then(
-//                    fail,
-//                    function(reason) { assert.same(reason, sentinel); }
-//            ).always(done);
-//        }
-//    },
-//
+    @Test
+    public void testAlways_should_return_a_promise() {
+        When<Object, Object> when = new When<>();
+        PromiseExt<Object, Object> p = (PromiseExt<Object, Object>) when.defer().getPromise();
+
+        assertNotNull(p.always(null));
+    }
+
+    @Test
+    public void testAlways_should_register_callback() {
+
+        final Done<Integer, Integer> done = new Done<>();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+
+        ((PromiseExt<Integer, Integer>) d.getPromise()).always(
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        assertEquals(1, value.intValue());
+                        done.success = true;
+                        return null;
+                    }
+                });
+
+        d.getResolver().resolve(1);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testAlways_should_register_errback() {
+
+        final Done<Integer, Integer> done = new Done<>();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+
+        ((PromiseExt<Integer, Integer>) d.getPromise()).always(
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        assertEquals(1, value.intValue());
+                        done.success = true;
+                        return null;
+                    }
+                });
+
+        d.getResolver().reject(1);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testAlways_should_register_progback() {
+
+        final Done<Integer, Integer> done = new Done<>();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+
+        ((PromiseExt<Integer, Integer>) d.getPromise()).always(
+                null,
+                new Runnable<Value<Integer>, Value<Integer>>() {
+                    @Override
+                    public Value<Integer> run(Value<Integer> value) {
+                        assertEquals(1, value.value.intValue());
+                        done.success = true;
+                        return null;
+                    }
+                });
+
+        d.getResolver().progress(1);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testOtherwise_should_return_a_promise() {
+        PromiseExt<Integer, Integer> p = (PromiseExt<Integer, Integer>) new When<Integer, Integer>().defer().getPromise();
+        assertNotNull(p.otherwise(null));
+    }
+
+    @Test
+    public void testOtherwise_should_register_errback() {
+
+        final Done<Integer, Integer> done = new Done<>();
+        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+        PromiseExt<Integer, Integer> p = (PromiseExt<Integer, Integer>) d.getPromise();
+
+        p.otherwise(new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+            @Override
+            public Promise<Integer, Integer> run(Value<Integer> value) {
+                assertEquals(1, value.value.intValue());
+                done.success = true;
+                return null;
+            }
+        });
+
+        d.getResolver().reject(1);
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testYield_should_return_a_promise() {
+        PromiseExt<Object, Object> p = (PromiseExt<Object, Object>) new When<>().defer().getPromise();
+        assertNotNull(p.yield(null));
+    }
+
+    @Test
+    public void testYield_should_fulfill_with_the_supplied_value() {
+
+        Done<Object, Object> done = new Done<>();
+        When<Object, Object> when = new When<>();
+        PromiseExt<Object, Object> p = (PromiseExt<Object, Object>) when.resolve(other);
+
+        p.yield(sentinel).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(sentinel, value);
+                        return null;
+                    }
+                },
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testYield_should_fulfill_with_the_value_of_a_fulfilled_promise() {
+
+        Done<Object, Object> done = new Done<>();
+        When<Object, Object> when = new When<>();
+        PromiseExt<Object, Object> p = (PromiseExt<Object, Object>) when.resolve(other);
+
+        p.yield(when.resolve(sentinel)).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(sentinel, value);
+                        return null;
+                    }
+                }).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testYield_should_reject_with_the_reason_of_a_rejected_promise() {
+
+        Done<Object, Object> done = new Done<>();
+        When<Object, Object> when = new When<>();
+        PromiseExt<Object, Object> p = (PromiseExt<Object, Object>) when.resolve(other);
+
+        p.yield(when.reject(sentinel)).then(
+                fail2.onSuccess,
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Value<Object> reason) {
+                        assertEquals(sentinel, reason.value);
+                        return null;
+                    }
+                }).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+// TODO: Port promise unit tests for spread (if possible in java)
 //            'spread': {
 //        'should return a promise': function() {
 //            assert.isFunction(defer().promise.spread().then);
@@ -616,4 +693,5 @@ public class PromiseTest {
 //        }
 //    }
 //
+
 }

@@ -239,7 +239,7 @@ public class When<TResolve, TProgress> {
         return reject(resolve(value));
     }
 
-    private class PromiseImpl implements Promise<TResolve, TProgress> {
+    private class PromiseImpl implements PromiseExt<TResolve, TProgress> {
 
         private Thenable<TResolve, TProgress> __then;
 
@@ -280,8 +280,23 @@ public class When<TResolve, TProgress> {
          *
          * @param {function?} [onFulfilledOrRejected]
          * @param {function?} [onProgress]
+         */
+        @Override
+        public Promise<TResolve, TProgress> always(
+                final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilledOrRejected) {
+            return always(onFulfilledOrRejected, null);
+        }
+
+        /**
+         * Register a callback that will be called when a promise is
+         * fulfilled or rejected.  Optionally also register a progress handler.
+         * Shortcut for .then(onFulfilledOrRejected, onFulfilledOrRejected, onProgress)
+         *
+         * @param {function?} [onFulfilledOrRejected]
+         * @param {function?} [onProgress]
          * @return {com.englishtown.promises.Promise}
          */
+        @Override
         public Promise<TResolve, TProgress> always(
                 final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilledOrRejected,
                 Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
@@ -303,6 +318,7 @@ public class When<TResolve, TProgress> {
          * @param {function?} onRejected
          * @return {com.englishtown.promises.Promise}
          */
+        @Override
         public Promise<TResolve, TProgress> otherwise(Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return this.then(null, onRejected);
         }
@@ -316,19 +332,39 @@ public class When<TResolve, TProgress> {
          *         - if value is a promise, will fulfill with its value, or reject
          *         with its reason.
          */
-//        public Promise<TResolve, TProgress> yield(TResolve value) {
-//            return this.then(
-//                    new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-//                        @Override
-//                        public Promise<TResolve, TProgress> run(TResolve value) {
-//                            return value;
-//                        }
-//                    },
-//                    null,
-//                    null);
-//        }
-// TODO: Could not implement yield returning a value rather than a promise...
+        @Override
+        public Promise<TResolve, TProgress> yield(final TResolve value) {
+            return this.then(
+                    new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(TResolve ignore) {
+                            return resolve(value);
+                        }
+                    });
+        }
+
+        /**
+         * Shortcut for .then(function() { return value; })
+         *
+         * @param {*} value
+         * @return {com.englishtown.promises.Promise} a promise that:
+         *         - is fulfilled if value is not a promise, or
+         *         - if value is a promise, will fulfill with its value, or reject
+         *         with its reason.
+         */
+        @Override
+        public Promise<TResolve, TProgress> yield(final Promise<TResolve, TProgress> promise) {
+            return this.then(
+                    new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(TResolve ignore) {
+                            return resolve(promise);
+                        }
+                    });
+        }
+
     }
+
 
     /**
      * Create an already-resolved promise for the supplied value
