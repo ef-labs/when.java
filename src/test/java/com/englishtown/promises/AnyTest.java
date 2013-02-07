@@ -211,7 +211,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.any(input).then(
+        when.any(input, null).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> value) {

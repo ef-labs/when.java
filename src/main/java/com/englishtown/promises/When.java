@@ -994,24 +994,6 @@ public class When<TResolve, TProgress> {
      * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
      * will reject with an array of all rejected inputs.
      */
-    public Promise<List<TResolve>, TProgress> any(final List<TResolve> values) {
-        return any(values, null, null, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
     public Promise<List<TResolve>, TProgress> any(
             final List<TResolve> values,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
@@ -1226,6 +1208,47 @@ public class When<TResolve, TProgress> {
      */
     public Promise<List<TResolve>, TProgress> all(
             List<TResolve> values,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return all(values, onFulfilled, null, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> all(
+            List<TResolve> values,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return all(values, onFulfilled, onRejected, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> all(
+            List<TResolve> values,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
@@ -1255,6 +1278,47 @@ public class When<TResolve, TProgress> {
      */
     public Promise<List<TResolve>, TProgress> allPromise(
             Promise<List<TResolve>, TProgress> promise,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return allPromise(promise, onFulfilled, null, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromise(
+            Promise<List<TResolve>, TProgress> promise,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return allPromise(promise, onFulfilled, onRejected, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromise(
+            Promise<List<TResolve>, TProgress> promise,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected,
             Runnable<TProgress, TProgress> onProgress) {
@@ -1266,6 +1330,47 @@ public class When<TResolve, TProgress> {
             }
         }).then(onFulfilled, onRejected, onProgress);
 
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromises(
+            List<Promise<TResolve, TProgress>> promises,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return allPromises(promises, onFulfilled, null, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promisesOrValues
+     * have resolved. The resolution value of the returned promise will be an array
+     * containing the resolution values of each of the promisesOrValues.
+     *
+     * @param {Array|com.englishtown.promises.Promise}
+     *                    promisesOrValues array of anything, may contain a mix
+     *                    of {@link com.englishtown.promises.Promise}s and values
+     * @param {function?} [onFulfilled] resolution handler
+     * @param {function?} [onRejected] rejection handler
+     * @param {function?} [onProgress] progress handler
+     * @memberOf when
+     * @returns {com.englishtown.promises.Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allPromises(
+            List<Promise<TResolve, TProgress>> promises,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
+            Runnable<Promise<List<TResolve>, TProgress>, Reason<List<TResolve>>> onRejected) {
+        return allPromises(promises, onFulfilled, onRejected, null);
     }
 
     /**
