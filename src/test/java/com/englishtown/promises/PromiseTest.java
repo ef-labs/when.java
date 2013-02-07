@@ -29,9 +29,9 @@ public class PromiseTest {
         }
     };
 
-    private Runnable<Integer, Integer> onProgress = new Runnable<Integer, Integer>() {
+    private Runnable<Value<Integer>, Value<Integer>> onProgress = new Runnable<Value<Integer>, Value<Integer>>() {
         @Override
-        public Integer run(Integer value) {
+        public Value<Integer> run(Value<Integer> value) {
             return value;
         }
     };
@@ -280,7 +280,7 @@ public class PromiseTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(2, value.data.intValue());
+                        assertEquals(2, value.value.intValue());
                         return null;
                     }
                 }
@@ -333,7 +333,7 @@ public class PromiseTest {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
                         When<Integer, Integer> w1 = new When<>();
-                        return w1.resolve(value.data + 1);
+                        return w1.resolve(value.value + 1);
                     }
                 }
         ).then(
@@ -364,7 +364,7 @@ public class PromiseTest {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
-                        d1.getResolver().resolve(value.data + 1);
+                        d1.getResolver().resolve(value.value + 1);
                         return d1.getPromise();
                     }
                 }
@@ -426,7 +426,7 @@ public class PromiseTest {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
                         Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
-                        d1.getResolver().reject(value.data + 1);
+                        d1.getResolver().reject(value.value + 1);
                         return d1.getPromise();
                     }
                 }
@@ -435,7 +435,7 @@ public class PromiseTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(2, value.data.intValue());
+                        assertEquals(2, value.value.intValue());
                         return null;
                     }
                 }
@@ -453,10 +453,10 @@ public class PromiseTest {
         Deferred<Object, Object> d = new When<>().defer();
         final Object expected = new Object();
 
-        d.getPromise().then(null, null, new Runnable<Object, Object>() {
+        d.getPromise().then(null, null, new Runnable<Value<Object>, Value<Object>>() {
             @Override
-            public Object run(Object value) {
-                assertEquals(expected, value);
+            public Value<Object> run(Value<Object> value) {
+                assertEquals(expected, value.value);
                 done.success = true;
                 return null;
             }

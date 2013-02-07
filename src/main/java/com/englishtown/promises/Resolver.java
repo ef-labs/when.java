@@ -17,6 +17,8 @@ public interface Resolver<TResolve, TProgress> {
 
     Promise<TResolve, TProgress> reject(Value<TResolve> reason);
 
-    TProgress progress(TProgress update);
+    Value<TProgress> progress(TProgress update);
+
+    Value<TProgress> progress(Value<TProgress> update);
 
 }

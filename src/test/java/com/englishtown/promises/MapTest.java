@@ -257,8 +257,8 @@ public class MapTest {
                 new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
-                        assertEquals(1, value.data.size());
-                        assertEquals(2, value.data.get(0).intValue());
+                        assertEquals(1, value.value.size());
+                        assertEquals(2, value.value.get(0).intValue());
                         return null;
                     }
                 }

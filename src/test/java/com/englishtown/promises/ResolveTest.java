@@ -77,7 +77,7 @@ public class ResolveTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.data.intValue());
+                        assertEquals(expected, value.value.intValue());
                         return null;
                     }
                 }

@@ -165,7 +165,7 @@ public class ChainTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.data.intValue());
+                        assertEquals(1, value.value.intValue());
                         return null;
                     }
                 }
@@ -192,7 +192,7 @@ public class ChainTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.data.intValue());
+                        assertEquals(1, value.value.intValue());
                         return null;
                     }
                 }
@@ -279,7 +279,7 @@ public class ChainTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.data.intValue());
+                        assertEquals(1, value.value.intValue());
                         return null;
                     }
                 }

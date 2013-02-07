@@ -40,7 +40,7 @@ public class WhenTest {
         }
 
         @Override
-        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<TProgress, TProgress> onProgress) {
+        public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
             if (onFulfilled != null) {
                 onFulfilled.run(this.value);
             }

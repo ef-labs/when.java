@@ -9,12 +9,16 @@ package com.englishtown.promises;
  */
 public class Value<T> {
 
-    public Value(T data, RuntimeException error) {
-        this.data = data;
+    public Value(T value) {
+        this.value = value;
+    }
+
+    public Value(T value, RuntimeException error) {
+        this.value = value;
         this.error = error;
     }
 
-    public T data;
+    public T value;
     public RuntimeException error;
 
 }

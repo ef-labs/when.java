@@ -149,7 +149,7 @@ public class SomeTest {
                     public Promise<List<Integer>, Integer> run(Value<List<Integer>> failed) {
                         Integer[] expected = {2, 3};
                         assertNotNull(failed);
-                        assertArrayEquals(expected, failed.data.toArray(new Integer[2]));
+                        assertArrayEquals(expected, failed.value.toArray(new Integer[2]));
                         return null;
                     }
                 }

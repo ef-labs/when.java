@@ -222,7 +222,7 @@ public class ReduceTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> result) {
-                        assertEquals(2, result.data.intValue());
+                        assertEquals(2, result.value.intValue());
                         return null;
                     }
                 }

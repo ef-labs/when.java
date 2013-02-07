@@ -143,7 +143,7 @@ public class AllTest {
                 new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(Value<List<Integer>> failed) {
-                        assertEquals(2, failed.data.get(0).intValue());
+                        assertEquals(2, failed.value.get(0).intValue());
                         return null;
                     }
                 },

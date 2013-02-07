@@ -144,7 +144,7 @@ public class AnyTest {
                     @Override
                     public Promise<List<Integer>, Integer> run(Value<List<Integer>> result) {
                         Integer[] expected = {1, 2, 3};
-                        assertArrayEquals(expected, result.data.toArray());
+                        assertArrayEquals(expected, result.value.toArray());
                         return null;
                     }
                 }
