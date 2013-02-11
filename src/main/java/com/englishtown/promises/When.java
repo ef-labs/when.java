@@ -363,6 +363,23 @@ public class When<TResolve, TProgress> {
                     });
         }
 
+// TODO: Does spread make sense in java?
+//        /**
+//         * Assumes that this promise will fulfill with an array, and arranges
+//         * for the onFulfilled to be called with the array as its argument list
+//         * i.e. onFulfilled.spread(undefined, array).
+//         * @param {function} onFulfilled function to receive spread arguments
+//         * @return {Promise}
+//         */
+//        public Promise<TResolve, TProgress> spread(final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+//            return this.then(function(array) {
+//                // array may contain promises, so resolve its contents.
+//                return all(array, function(array) {
+//                    return onFulfilled.apply(undef, array);
+//                });
+//            });
+//        }
+
     }
 
 
@@ -1920,10 +1937,46 @@ public class When<TResolve, TProgress> {
      */
     public Promise<TResolve, TProgress> chain(
             TResolve value,
+            final Resolver<TResolve, TProgress> resolver) {
+        return chain(value, resolver, null);
+    }
+
+    /**
+     * Ensure that resolution of promiseOrValue will trigger resolver with the
+     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
+     *
+     * @param {com.englishtown.promises.Promise}
+     *                   promise
+     * @param {Object}   resolver
+     * @param {function} resolver.resolve
+     * @param {function} resolver.reject
+     * @param {*}        [resolveValue]
+     * @return {com.englishtown.promises.Promise}
+     */
+    public Promise<TResolve, TProgress> chain(
+            TResolve value,
             final Resolver<TResolve, TProgress> resolver,
             final TResolve resolveValue) {
         return chain(resolve(value), resolver, resolveValue);
-    } // TODO: Overload without resolveValue
+    }
+
+    /**
+     * Ensure that resolution of promiseOrValue will trigger resolver with the
+     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
+     *
+     * @param {com.englishtown.promises.Promise}
+     *                   promise
+     * @param {Object}   resolver
+     * @param {function} resolver.resolve
+     * @param {function} resolver.reject
+     * @param {*}        [resolveValue]
+     * @return {com.englishtown.promises.Promise}
+     */
+    public Promise<TResolve, TProgress> chain(
+            Promise<TResolve, TProgress> promise,
+            final Resolver<TResolve, TProgress> resolver) {
+        return chain(promise, resolver, null);
+    }
 
     /**
      * Ensure that resolution of promiseOrValue will trigger resolver with the
@@ -1940,7 +1993,7 @@ public class When<TResolve, TProgress> {
     public Promise<TResolve, TProgress> chain(
             Promise<TResolve, TProgress> promise,
             final Resolver<TResolve, TProgress> resolver,
-            final TResolve resolveValue) { // TODO: Overload without resolveValue
+            final TResolve resolveValue) {
 
         return when(
                 promise,

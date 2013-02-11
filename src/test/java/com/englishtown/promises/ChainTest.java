@@ -20,11 +20,11 @@ public class ChainTest {
 
         When<Integer, Integer> when = new When<>();
         Deferred<Integer, Integer> d;
-        //var d, result;
+        Promise<Integer, Integer> result;
 
         d = when.defer();
 
-        Promise<Integer, Integer> result = when.chain(1, d.getResolver(), null);
+        result = when.chain(1, d.getResolver());
 
         assertNotNull(result);
         assertNotSame(result, d);
@@ -42,7 +42,7 @@ public class ChainTest {
         d1 = when.defer();
         d2 = when.defer();
 
-        result = when.chain(d1.getPromise(), d2.getResolver(), null);
+        result = when.chain(d1.getPromise(), d2.getResolver());
 
         assertNotNull(result);
         assertNotSame(result, d1);
@@ -70,7 +70,7 @@ public class ChainTest {
                 fail.onFail
         ).then(done.onSuccess, done.onFail);
 
-        when.chain(1, d.getResolver(), null);
+        when.chain(1, d.getResolver());
         done.assertSuccess();
 
     }
@@ -97,7 +97,7 @@ public class ChainTest {
         input = when.defer();
         input.getResolver().resolve(1);
 
-        when.chain(input.getPromise(), d.getResolver(), null);
+        when.chain(input.getPromise(), d.getResolver());
         done.assertSuccess();
 
     }
@@ -174,7 +174,7 @@ public class ChainTest {
         input = when.defer();
         input.getResolver().reject(1);
 
-        when.chain(input.getPromise(), d.getResolver(), null);
+        when.chain(input.getPromise(), d.getResolver());
         done.assertSuccess();
 
     }
@@ -219,7 +219,7 @@ public class ChainTest {
 
         input.getResolver().resolve(1);
 
-        when.chain(input.getPromise(), d.getResolver(), null).then(
+        when.chain(input.getPromise(), d.getResolver()).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -274,7 +274,7 @@ public class ChainTest {
 
         input.getResolver().reject(1);
 
-        when.chain(input.getPromise(), d.getResolver(), null).then(
+        when.chain(input.getPromise(), d.getResolver()).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
