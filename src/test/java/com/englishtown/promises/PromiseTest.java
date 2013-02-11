@@ -632,7 +632,6 @@ public class PromiseTest {
         done.assertSuccess();
     }
 
-// TODO: Port promise unit tests for spread (if possible in java)
 //            'spread': {
 //        'should return a promise': function() {
 //            assert.isFunction(defer().promise.spread().then);
