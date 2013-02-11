@@ -1,7 +1,5 @@
 package com.englishtown.promises;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  * User: adriangonzalez
