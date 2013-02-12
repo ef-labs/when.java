@@ -12,105 +12,52 @@ import java.util.List;
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @version 1.7.1
+ *
+ * MIT License (c) copyright B Cavalier & J Hann
  */
 
 /**
- * @license MIT License (c) copyright B Cavalier & J Hann
+ * A Java implementation of the CommonJS Promises/A specification.
+ * http://wiki.commonjs.org/wiki/Promises/A
+ *
+ * @param <TResolve> the type passed to fulfillment or rejection handlers
+ * @param <TProgress> the type passed to progress handlers
  */
 public class When<TResolve, TProgress> {
 
-
     /**
-     * Register an observer for a promise or immediate value.
+     * Register an observer for an immediate value.
      *
-     * @param {*}         promiseOrValue
-     * @param {function?} [onFulfilled] callback to be called when promiseOrValue is
-     *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
-     *                    will be invoked immediately.
-     * @param {function?} [onRejected] callback to be called when promiseOrValue is
-     *                    rejected.
-     * @param {function?} [onProgress] callback to be called when progress updates
-     *                    are issued for promiseOrValue.
-     * @return {com.englishtown.promises.Promise} a new {@link Promise} that will complete with the return
-     *         value of callback or errback or the completion value of promiseOrValue if
-     *         callback and/or errback is not supplied.
+     * @param value the value to provide to returned promise
+     * @return a new {@link Promise} that will complete with the return value of onFulfilled or the provided value if
+     *         onFulfilled is not supplied.
      */
-    public Promise<TResolve, TProgress> when(
-            TResolve value,
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
-            Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return resolve(value).then(onFulfilled, onRejected, onProgress);
-    }
-
-    public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
-            Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return resolve(promise).then(onFulfilled, onRejected, onProgress);
+    public Promise<TResolve, TProgress> when(TResolve value) {
+        return when(value, null);
     }
 
     /**
-     * Register an observer for a promise or immediate value.
+     * Register an observer for an immediate value.
      *
-     * @param {*}         promiseOrValue
-     * @param {function?} [onFulfilled] callback to be called when promiseOrValue is
-     *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
-     *                    will be invoked immediately.
-     * @param {function?} [onRejected] callback to be called when promiseOrValue is
-     *                    rejected.
-     * @param {function?} [onProgress] callback to be called when progress updates
-     *                    are issued for promiseOrValue.
-     * @return {com.englishtown.promises.Promise} a new {@link Promise} that will complete with the return
-     *         value of callback or errback or the completion value of promiseOrValue if
-     *         callback and/or errback is not supplied.
+     * @param value       the value to provide to the onFulfilled callback
+     * @param onFulfilled callback to be called when value is successfully fulfilled.  It will be invoked immediately.
+     * @return a new {@link Promise} that will complete with the return value of onFulfilled or the provided value if
+     *         onFulfilled is not supplied.
      */
     public Promise<TResolve, TProgress> when(
             TResolve value,
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return when(value, onFulfilled, onRejected, null);
-    }
-
-    public Promise<TResolve, TProgress> when(
-            TResolve value,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
-        // Get a trusted promise for the input promiseOrValue, and then
+        // Get a trusted promise for the input value, and then
         // register promise handlers
-        return when(value, onFulfilled, null, null);
+        return when(resolve(value), onFulfilled);
     }
 
-    public Promise<TResolve, TProgress> when(
-            TResolve value) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return when(value, null, null, null);
-    }
-
-    public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return when(promise, onFulfilled, onRejected, null);
-    }
-
-    public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
-        // Get a trusted promise for the input promiseOrValue, and then
-        // register promise handlers
-        return when(promise, onFulfilled, null, null);
-    }
-
+    /**
+     * Register an observer for a promise.
+     *
+     * @param promise a promise whose value is provided to the callbacks.
+     * @return a new {@link Promise} that will complete with the completion value of promise.
+     */
     public Promise<TResolve, TProgress> when(
             Promise<TResolve, TProgress> promise) {
         // Get a trusted promise for the input promiseOrValue, and then
@@ -119,20 +66,55 @@ public class When<TResolve, TProgress> {
     }
 
     /**
-     * Returns promiseOrValue if promiseOrValue is a {@link Promise}, a new com.englishtown.promises.Promise if
-     * promiseOrValue is a foreign promise, or a new, already-fulfilled {@link Promise}
-     * whose value is promiseOrValue if promiseOrValue is an immediate value.
+     * Register an observer for a promise.
      *
-     * @param {*} promiseOrValue
-     * @returns Guaranteed to return a trusted com.englishtown.promises.Promise.  If promiseOrValue is a when.js {@link Promise}
-     * returns promiseOrValue, otherwise, returns a new, already-resolved, when.js {@link Promise}
-     * whose resolution value is:
-     * * the resolution value of promiseOrValue if it's a foreign promise, or
-     * * promiseOrValue if it's a value
+     * @param promise     a promise whose value is provided to the callbacks.
+     * @param onFulfilled callback to be called when the promise is successfully fulfilled.  If the promise is an
+     *                    immediate value, the callback will be invoked immediately.
+     * @return a new {@link Promise} that will complete with the return value of onFulfilled or the
+     *         completion value of promise if onFulfilled is not supplied.
      */
-    public Promise<TResolve, TProgress> resolve(TResolve value) {
-        // It's a value, not a promise.  Create a resolved promise for it.
-        return fulfilled(value);
+    public Promise<TResolve, TProgress> when(
+            Promise<TResolve, TProgress> promise,
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+        return when(promise, onFulfilled, null, null);
+    }
+
+    /**
+     * Register an observer for a promise.
+     *
+     * @param promise     a promise whose value is provided to the callbacks.
+     * @param onFulfilled callback to be called when the promise is successfully fulfilled.  If the promise is an
+     *                    immediate value, the callback will be invoked immediately.
+     * @param onRejected  callback to be called when the promise is rejected.
+     * @return a new {@link Promise} that will complete with the return value of onFulfilled or onRejected or the
+     *         completion value of promise if onFulfilled and/or onRejected are not supplied.
+     */
+    public Promise<TResolve, TProgress> when(
+            Promise<TResolve, TProgress> promise,
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
+        return when(promise, onFulfilled, onRejected, null);
+    }
+
+    /**
+     * Register an observer for a promise.
+     *
+     * @param promise     a promise whose value is provided to the callbacks.
+     * @param onFulfilled callback to be called when the promise is successfully fulfilled.  If the promise is an
+     *                    immediate value, the callback will be invoked immediately.
+     * @param onRejected  callback to be called when the promise is rejected.
+     * @param onProgress  callback to be called when progress updates are issued for the promise.
+     * @return a new {@link Promise} that will complete with the return value of onFulfilled or onRejected or the
+     *         completion value of promise if onFulfilled and/or onRejected are not supplied.
+     */
+    public Promise<TResolve, TProgress> when(
+            Promise<TResolve, TProgress> promise,
+            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
+            Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
+        // Get a trusted promise for the input promise, and then register promise handlers
+        return resolve(promise).then(onFulfilled, onRejected, onProgress);
     }
 
     /**
@@ -140,17 +122,32 @@ public class When<TResolve, TProgress> {
      * promiseOrValue is a foreign promise, or a new, already-fulfilled {@link Promise}
      * whose value is promiseOrValue if promiseOrValue is an immediate value.
      *
-     * @param {*} promiseOrValue
-     * @returns Guaranteed to return a trusted com.englishtown.promises.Promise.  If promiseOrValue is a when.js {@link Promise}
-     * returns promiseOrValue, otherwise, returns a new, already-resolved, when.js {@link Promise}
-     * whose resolution value is:
-     * * the resolution value of promiseOrValue if it's a foreign promise, or
-     * * promiseOrValue if it's a value
+     * @param value a value to wrap in a resolved promise
+     * @return a new already-fulfilled trusted {@link Promise} for the provided value
+     */
+    public Promise<TResolve, TProgress> resolve(TResolve value) {
+        // It's a value, not a promise.  Create a resolved promise for it.
+        return fulfilled(value);
+    }
+
+    /**
+     * Returns the promise if it is a {@link PromiseImpl}, a new {@link PromiseImpl} if it is a foreign
+     * promise, or a new, already-fulfilled {@link Promise} if it is null.
+     *
+     * @param promise the promise to resolve
+     * @return Guarantee to return a trusted {@link PromiseImpl}
      */
     public Promise<TResolve, TProgress> resolvePromise(Promise<TResolve, TProgress> promise) {
         return resolve(promise);
     }
 
+    /**
+     * Returns the promise if it is a {@link PromiseImpl}, a new {@link PromiseImpl} if it is a "foreign"
+     * promise, or a new, already-fulfilled {@link Promise} if it is null.
+     *
+     * @param promise the promise to resolve
+     * @return Guarantee to return a trusted {@link PromiseImpl}
+     */
     private PromiseImpl resolve(Promise<TResolve, TProgress> promise) {
 
         // Handle null promise
@@ -201,17 +198,12 @@ public class When<TResolve, TProgress> {
 
     }
 
-
     /**
-     * Returns a rejected promise for the supplied promiseOrValue.  The returned
-     * promise will be rejected with:
-     * - promiseOrValue, if it is a value, or
-     * - if promiseOrValue is a promise
-     * - promiseOrValue's value after it is fulfilled
-     * - promiseOrValue's reason after it is rejected
+     * Returns a rejected promise for the supplied promise.  The returned promise will be rejected with the
+     * value of the promises after it is fulfilled or the reason after it is rejected.
      *
      * @param promise the rejected value of the returned {@link Promise}
-     * @return {com.englishtown.promises.Promise} rejected {@link Promise}
+     * @return a rejected {@link Promise}
      */
     public Promise<TResolve, TProgress> reject(Promise<TResolve, TProgress> promise) {
         return when(
@@ -235,22 +227,24 @@ public class When<TResolve, TProgress> {
      * @param value the rejected value of the returned {@link Promise}
      * @return {com.englishtown.promises.Promise} rejected {@link Promise}
      */
+    /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied value.
+     *
+     * @param value the rejected value of the returned {@link Promise}
+     * @return a rejected {@link Promise}
+     */
     public Promise<TResolve, TProgress> reject(TResolve value) {
         return reject(resolve(value));
     }
 
+    /**
+     * Trusted implementation of {@link PromiseExt}.  Any other {@link Promise} implementation is considered untrusted.
+     */
     private class PromiseImpl implements PromiseExt<TResolve, TProgress> {
 
         private Thenable<TResolve, TProgress> __then;
 
-        /**
-         * Trusted com.englishtown.promises.Promise constructor.  A com.englishtown.promises.Promise created from this constructor is
-         * a trusted when.js promise.  Any other duck-typed promise is considered
-         * untrusted.
-         *
-         * @param {com.englishtown.promises.Thenable}
-         *
-         */
         PromiseImpl(Thenable<TResolve, TProgress> then) {
             __then = then;
         }
@@ -273,29 +267,12 @@ public class When<TResolve, TProgress> {
             return __then.then(onFulfilled, onRejected, onProgress);
         }
 
-        /**
-         * Register a callback that will be called when a promise is
-         * fulfilled or rejected.  Optionally also register a progress handler.
-         * Shortcut for .then(onFulfilledOrRejected, onFulfilledOrRejected, onProgress)
-         *
-         * @param {function?} [onFulfilledOrRejected]
-         * @param {function?} [onProgress]
-         */
         @Override
         public Promise<TResolve, TProgress> always(
                 final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilledOrRejected) {
             return always(onFulfilledOrRejected, null);
         }
 
-        /**
-         * Register a callback that will be called when a promise is
-         * fulfilled or rejected.  Optionally also register a progress handler.
-         * Shortcut for .then(onFulfilledOrRejected, onFulfilledOrRejected, onProgress)
-         *
-         * @param {function?} [onFulfilledOrRejected]
-         * @param {function?} [onProgress]
-         * @return {com.englishtown.promises.Promise}
-         */
         @Override
         public Promise<TResolve, TProgress> always(
                 final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilledOrRejected,
@@ -312,26 +289,11 @@ public class When<TResolve, TProgress> {
                     onProgress);
         }
 
-        /**
-         * Register a rejection handler.  Shortcut for .then(undefined, onRejected)
-         *
-         * @param {function?} onRejected
-         * @return {com.englishtown.promises.Promise}
-         */
         @Override
         public Promise<TResolve, TProgress> otherwise(Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
             return this.then(null, onRejected);
         }
 
-        /**
-         * Shortcut for .then(function() { return value; })
-         *
-         * @param {*} value
-         * @return {com.englishtown.promises.Promise} a promise that:
-         *         - is fulfilled if value is not a promise, or
-         *         - if value is a promise, will fulfill with its value, or reject
-         *         with its reason.
-         */
         @Override
         public Promise<TResolve, TProgress> yield(final TResolve value) {
             return this.then(
@@ -343,15 +305,6 @@ public class When<TResolve, TProgress> {
                     });
         }
 
-        /**
-         * Shortcut for .then(function() { return value; })
-         *
-         * @param {*} value
-         * @return {com.englishtown.promises.Promise} a promise that:
-         *         - is fulfilled if value is not a promise, or
-         *         - if value is a promise, will fulfill with its value, or reject
-         *         with its reason.
-         */
         @Override
         public Promise<TResolve, TProgress> yield(final Promise<TResolve, TProgress> promise) {
             return this.then(
@@ -382,16 +335,14 @@ public class When<TResolve, TProgress> {
 
     }
 
-
     /**
      * Create an already-resolved promise for the supplied value
      *
-     * @param {*} value
-     * @return {com.englishtown.promises.Promise} fulfilled promise
+     * @param value the value for the promise
+     * @return new fulfilled {@link Promise}.
      */
     private PromiseImpl fulfilled(final TResolve value) {
-
-        PromiseImpl p = new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        return new PromiseImpl(new Thenable<TResolve, TProgress>() {
 
             @Override
             public Promise<TResolve, TProgress> then(
@@ -410,20 +361,16 @@ public class When<TResolve, TProgress> {
             }
 
         });
-
-        return p;
     }
 
     /**
-     * Create an already-rejected {@link Promise} with the supplied
-     * rejection reason.
+     * Create an already-rejected {@link Promise} with the supplied rejection reason.
      *
-     * @param {*} reason
-     * @return {com.englishtown.promises.Promise} rejected promise
+     * @param reason the reason for the rejection
+     * @return a new rejected {@link Promise}.
      */
     private Promise<TResolve, TProgress> rejected(final Value<TResolve> reason) {
-
-        PromiseImpl p = new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        return new PromiseImpl(new Thenable<TResolve, TProgress>() {
 
             @Override
             public Promise<TResolve, TProgress> then(
@@ -440,10 +387,11 @@ public class When<TResolve, TProgress> {
                 }
             }
         });
-
-        return p;
     }
 
+    /**
+     * Private implementation of {@link Deferred}
+     */
     private class DeferredImpl implements Deferred<TResolve, TProgress> {
 
         DeferredImpl(PromiseImpl promise, ResolverImpl resolver) {
@@ -465,6 +413,9 @@ public class When<TResolve, TProgress> {
         }
     }
 
+    /**
+     * Private implementation of {@link Resolver}
+     */
     private class ResolverImpl implements Resolver<TResolve, TProgress> {
 
         public Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
@@ -505,7 +456,7 @@ public class When<TResolve, TProgress> {
 
         @Override
         public Value<TProgress> progress(TProgress update) {
-            return progress(new Value<TProgress>(update, null));
+            return progress(new Value<>(update, null));
         }
 
         @Override
@@ -514,34 +465,29 @@ public class When<TResolve, TProgress> {
         }
     }
 
+    /**
+     * Creates a new {@link Deferred} with fully isolated resolver and promise parts,
+     * either or both of which may be given out safely to consumers.
+     *
+     * @return new {@link Deferred}
+     */
     public Deferred<TResolve, TProgress> defer() {
-        When<TResolve, TProgress> when = new When<>();
-        return when.deferInner();
+        return deferInner();
     }
 
     /**
-     * Creates a new, Deferred with fully isolated resolver and promise parts,
+     * Creates a new {@link DeferredImpl} with fully isolated resolver and promise parts,
      * either or both of which may be given out safely to consumers.
-     * The Deferred itself has the full API: resolve, reject, progress, and
-     * then. The resolver has resolve, reject, and progress.  The promise
-     * only has then.
      *
-     * @return {Deferred}
+     * @return new {@link DeferredImpl}
      */
     private DeferredImpl deferInner() {
 
         final List<Runnable<Void, Promise<TResolve, TProgress>>> handlers = new ArrayList<>();
         final List<Runnable<Value<TProgress>, Value<TProgress>>> progressHandlers = new ArrayList<>();
 
-        /**
-         * Pre-resolution then() that adds the supplied callback, errback, and progback
-         * functions to the registered listeners
-         * @private
-         *
-         * @param {function?} [onFulfilled] resolution handler
-         * @param {function?} [onRejected] rejection handler
-         * @param {function?} [onProgress] progress handler
-         */
+        // Pre-resolution then() implementation that adds the supplied onFulfilled, onRejected,
+        // and onProgress callbacks to the registered listeners
         final ValueHolder<Thenable<TResolve, TProgress>> _then = new ValueHolder<>();
         _then.value = new Thenable<TResolve, TProgress>() {
             @Override
@@ -595,11 +541,7 @@ public class When<TResolve, TProgress> {
             }
         };
 
-        /**
-         * Issue a progress event, notifying all progress listeners
-         * @private
-         * @param {*} update progress event payload to pass to all listeners
-         */
+        // Issue a progress event, notifying all progress listeners
         final ValueHolder<Runnable<Value<TProgress>, Value<TProgress>>> _progress = new ValueHolder<>();
         _progress.value = new Runnable<Value<TProgress>, Value<TProgress>>() {
             @Override
@@ -609,12 +551,8 @@ public class When<TResolve, TProgress> {
             }
         };
 
-        /**
-         * Transition from pre-resolution state to post-resolution state, notifying
-         * all listeners of the resolution or rejection
-         * @private
-         * @param {*} value the value of this deferred
-         */
+        // Transition from pre-resolution state to post-resolution state, notifying all listeners of the resolution
+        // or rejection
         final ValueHolder<Runnable<Promise<TResolve, TProgress>, TResolve>> _resolve = new ValueHolder<>();
 
         final Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> _resolvePromise =
@@ -626,12 +564,7 @@ public class When<TResolve, TProgress> {
                         // Replace _then with one that directly notifies with the result.
                         _then.value = p2.__then;
                         // Replace _resolve so that this Deferred can only be resolved once
-                        _resolve.value = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                            @Override
-                            public Promise<TResolve, TProgress> run(TResolve value) {
-                                return resolve(value);
-                            }
-                        };
+                        _resolve.value = identity;
                         // Make _progress null, to disallow progress for the resolved promise.
                         _progress.value = null;
 
@@ -653,7 +586,7 @@ public class When<TResolve, TProgress> {
             }
         };
 
-        // Runnable wrappers
+        // Wrappers to allow replacing implementations
         Runnable<Promise<TResolve, TProgress>, TResolve> promiseResolve = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
             @Override
             public Promise<TResolve, TProgress> run(TResolve value) {
@@ -680,254 +613,82 @@ public class When<TResolve, TProgress> {
                 return (_progress.value != null ? _progress.value.run(value) : null);
             }
         };
-
-        /**
-         * The promise for the new deferred
-         * @type {com.englishtown.promises.Promise}
-         */
-        PromiseImpl promise = new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        Thenable<TResolve, TProgress> promiseThen = new Thenable<TResolve, TProgress>() {
             @Override
-            public Promise<TResolve, TProgress> then(
-                    Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-                    Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
-                    Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
+            public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
                 return _then.value.then(onFulfilled, onRejected, onProgress);
             }
-        });
+        };
 
+        // The promise for the new deferred
+        PromiseImpl promise = new PromiseImpl(promiseThen);
+
+        // The resolver for the new deferred
         ResolverImpl resolver = new ResolverImpl(
                 promiseResolve,
                 promiseResolvePromise,
                 promiseReject,
                 promiseProgress);
 
-        /**
-         * The full Deferred object, with {@link PromiseImpl} and {@link ResolverImpl}
-         * parts
-         * @class Deferred
-         * @name Deferred
-         */
+        // The full Deferred object, with {@link PromiseImpl} and {@link ResolverImpl}
         return new DeferredImpl(promise, resolver);
     }
 
     /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * Initiates a competitive race, returning a {@link Promise} that will resolve when
+     * howMany of the supplied promises have resolved, or will reject when
      * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     * (promises.size() - howMany) + 1 input promises reject.
      *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
+     * @param promises    a list of promises
+     * @param howMany     number of promises to resolve
+     * @param onFulfilled resolution handler
+     * @return a {@link Promise} that will resolve to a list of howMany values that resolved first,
+     *         or will reject with an array of (promises.size() - howMany + 1) rejection reasons
      */
     public Promise<List<TResolve>, TProgress> some(
-            final List<TResolve> values,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return some(values, howMany, onFulfilled, null, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> some(
-            final List<TResolve> values,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return some(values, howMany, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> some(
-            final List<TResolve> values,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            final Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-        return somePromises(resolveValues(values), howMany, onFulfilled, onRejected, onProgress);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> somePromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return somePromise(promise, howMany, onFulfilled, null, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> somePromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return somePromise(promise, howMany, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> somePromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final int howMany,
-            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            final Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-
-        When<List<TResolve>, TProgress> when = new When<>();
-
-        return when.when(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
-            @Override
-            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
-                return some(value, howMany, onFulfilled, onRejected, onProgress);
-            }
-        });
-
-    }
-
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
-     * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
-     *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
-     */
-    public Promise<List<TResolve>, TProgress> somePromises(
             final List<Promise<TResolve, TProgress>> promises,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return somePromises(promises, howMany, onFulfilled, null, null);
+        return some(promises, howMany, onFulfilled, null, null);
     }
 
     /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * Initiates a competitive race, returning a {@link Promise} that will resolve when
+     * howMany of the supplied promises have resolved, or will reject when
      * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     * (promises.size() - howMany) + 1 input promises reject.
      *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
+     * @param promises    a list of promises
+     * @param howMany     number of promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @return a {@link Promise} that will resolve to a list of howMany values that resolved first,
+     *         or will reject with an array of (promises.size() - howMany + 1) rejection reasons
      */
-    public Promise<List<TResolve>, TProgress> somePromises(
+    public Promise<List<TResolve>, TProgress> some(
             final List<Promise<TResolve, TProgress>> promises,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return somePromises(promises, howMany, onFulfilled, onRejected, null);
+        return some(promises, howMany, onFulfilled, onRejected, null);
     }
 
     /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * howMany of the supplied promisesOrValues have resolved, or will reject when
+     * Initiates a competitive race, returning a {@link Promise} that will resolve when
+     * howMany of the supplied promises have resolved, or will reject when
      * it becomes impossible for howMany to resolve, for example, when
-     * (promisesOrValues.length - howMany) + 1 input promises reject.
+     * (promises.size() - howMany) + 1 input promises reject.
      *
-     * @param {Array}     promisesOrValues array of anything, may contain a mix
-     *                    of promises and values
-     * @param howMany     {number} number of promisesOrValues to resolve
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to an array of howMany values that
-     * resolved first, or will reject with an array of (promisesOrValues.length - howMany) + 1
-     * rejection reasons.
+     * @param promises    a list of promises
+     * @param howMany     number of promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @param onProgress  progress handler
+     * @return a {@link Promise} that will resolve to a list of howMany values that resolved first,
+     *         or will reject with an array of (promises.size() - howMany + 1) rejection reasons
      */
-    public Promise<List<TResolve>, TProgress> somePromises(
+    public Promise<List<TResolve>, TProgress> some(
             final List<Promise<TResolve, TProgress>> promises,
             final int howMany,
             final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
@@ -937,7 +698,6 @@ public class When<TResolve, TProgress> {
         final When<List<TResolve>, TProgress> w1 = new When<>();
         final When<List<TResolve>, TProgress>.DeferredImpl d1 = w1.deferInner();
         When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
-        final When<TResolve, TProgress> w3 = new When<>();
 
         w2.when(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
@@ -994,28 +754,22 @@ public class When<TResolve, TProgress> {
                         }
                     };
 
+                    Runnable<Promise<TResolve, TProgress>, Value<TResolve>> rejecter = new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+                            return (rejectOne.value != null ? rejectOne.value.run(value) : null);
+                        }
+                    };
+                    Runnable<Promise<TResolve, TProgress>, TResolve> fulfiller = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        @Override
+                        public Promise<TResolve, TProgress> run(TResolve value) {
+                            return (fulfillOne.value != null ? fulfillOne.value.run(value) : null);
+                        }
+                    };
+
                     for (int i = 0; i < len; ++i) {
                         if (i < promises.size()) {
-                            Promise<TResolve, TProgress> p3 = promises.get(i);
-
-                            if (p3 != null) {
-                                w3.when(
-                                        p3,
-                                        new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                                            @Override
-                                            public Promise<TResolve, TProgress> run(TResolve value) {
-                                                return (fulfillOne.value != null ? fulfillOne.value.run(value) : null);
-                                            }
-                                        },
-                                        new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
-                                            @Override
-                                            public Promise<TResolve, TProgress> run(Value<TResolve> value) {
-                                                return (rejectOne.value != null ? rejectOne.value.run(value) : null);
-                                            }
-                                        },
-                                        progress
-                                );
-                            }
+                            when(promises.get(i), fulfiller, rejecter, progress);
                         }
                     }
                 }
@@ -1033,196 +787,70 @@ public class When<TResolve, TProgress> {
         });
 
         return d1.getPromise();
+    }
 
+    /**
+     * Resolves immediately returning a resolved {@link Promise} with the specified number of values.
+     *
+     * @param values      a list of resolved values
+     * @param howMany     number of promises to resolve
+     * @param onFulfilled resolution handler
+     * @return a resolved {@link Promise} with howMany values.
+     */
+    public Promise<List<TResolve>, TProgress> someValues(
+            final List<TResolve> values,
+            final int howMany,
+            final Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return some(resolveValues(values), howMany, onFulfilled, null, null);
     }
 
     /**
      * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
+     * any one of the supplied promises has resolved or will reject when
+     * *all* promises have rejected.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
+     * @param promises    list of promises to resolve
+     * @param onFulfilled resolution handler
+     * @return a {@link Promise} that will resolve to the value that resolved first,
+     *         or will reject with an array of all rejected inputs.
      */
     public Promise<List<TResolve>, TProgress> any(
-            final List<TResolve> values,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
-        return any(values, onFulfilled, null, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> any(
-            final List<TResolve> values,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return any(values, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> any(
-            final List<TResolve> values,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            final Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-        return anyPromises(resolveValues(values), onFulfilled, onRejected, onProgress);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> anyPromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
-        return anyPromise(promise, onFulfilled, null, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> anyPromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return anyPromise(promise, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> anyPromise(
-            final Promise<List<TResolve>, TProgress> promise,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            final Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-
-        When<List<TResolve>, TProgress> when = new When<>();
-
-        return when.when(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
-            @Override
-            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
-                return any(value, onFulfilled, onRejected, onProgress);
-            }
-        });
-    }
-
-    /**
-     * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
-     */
-    public Promise<List<TResolve>, TProgress> anyPromises(
             final List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
-        return anyPromises(promises, onFulfilled, null, null);
+        return any(promises, onFulfilled, null, null);
     }
 
     /**
      * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
+     * any one of the supplied promises has resolved or will reject when
+     * *all* promises have rejected.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
+     * @param promises    list of promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @return a {@link Promise} that will resolve to the value that resolved first,
+     *         or will reject with an array of all rejected inputs.
      */
-    public Promise<List<TResolve>, TProgress> anyPromises(
+    public Promise<List<TResolve>, TProgress> any(
             final List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return anyPromises(promises, onFulfilled, onRejected, null);
+        return any(promises, onFulfilled, onRejected, null);
     }
 
     /**
      * Initiates a competitive race, returning a promise that will resolve when
-     * any one of the supplied promisesOrValues has resolved or will reject when
-     * *all* promisesOrValues have rejected.
+     * any one of the supplied promises has resolved or will reject when
+     * *all* promises have rejected.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @returns {com.englishtown.promises.Promise} promise that will resolve to the value that resolved first, or
-     * will reject with an array of all rejected inputs.
+     * @param promises    list of promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @param onProgress  progress handler
+     * @return a {@link Promise} that will resolve to the value that resolved first,
+     *         or will reject with an array of all rejected inputs.
      */
-    public Promise<List<TResolve>, TProgress> anyPromises(
+    public Promise<List<TResolve>, TProgress> any(
             final List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             final Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
@@ -1245,321 +873,129 @@ public class When<TResolve, TProgress> {
                     }
                 };
 
-        return somePromises(promises, 1, unwrapSingleResult, onRejected, onProgress);
+        return some(promises, 1, unwrapSingleResult, onRejected, onProgress);
     }
 
     /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
+     * Resolves immediately returning a resolved {@link Promise} with the first value from the input list.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
+     * @param values      the values
+     * @param onFulfilled resolution handler
+     * @return an already-fulfilled {@link Promise} with the first value from the input list.
+     */
+    public Promise<List<TResolve>, TProgress> anyValues(
+            final List<TResolve> values,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
+        return any(resolveValues(values), onFulfilled, null, null);
+    }
+
+    /**
+     * Return a promise that will resolve only once all the supplied promises
+     * have resolved. The resolution value of the returned promise will be a list
+     * containing the resolution values of each of the promises.
+     *
+     * @param promises    input promises to resolve
+     * @param onFulfilled resolution handler
+     * @return a {@link Promise} that resolves when all the input promises have resolved
      */
     public Promise<List<TResolve>, TProgress> all(
-            List<TResolve> values,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return all(values, onFulfilled, null, null);
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> all(
-            List<TResolve> values,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return all(values, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> all(
-            List<TResolve> values,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-
-        return map(values, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return resolve(value);
-            }
-        }).then(onFulfilled, onRejected, onProgress);
-
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> allPromise(
-            Promise<List<TResolve>, TProgress> promise,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return allPromise(promise, onFulfilled, null, null);
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> allPromise(
-            Promise<List<TResolve>, TProgress> promise,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return allPromise(promise, onFulfilled, onRejected, null);
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> allPromise(
-            Promise<List<TResolve>, TProgress> promise,
-            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
-            Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
-            Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-
-        return mapPromise(promise, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return resolve(value);
-            }
-        }).then(onFulfilled, onRejected, onProgress);
-
-    }
-
-    /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
-     */
-    public Promise<List<TResolve>, TProgress> allPromises(
             List<Promise<TResolve, TProgress>> promises,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
-        return allPromises(promises, onFulfilled, null, null);
+        return all(promises, onFulfilled, null, null);
     }
 
     /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
+     * Return a promise that will resolve only once all the supplied promises
+     * have resolved. The resolution value of the returned promise will be a list
+     * containing the resolution values of each of the promises.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
+     * @param promises    input promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @return a {@link Promise} that resolves when all the input promises have resolved
      */
-    public Promise<List<TResolve>, TProgress> allPromises(
+    public Promise<List<TResolve>, TProgress> all(
             List<Promise<TResolve, TProgress>> promises,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected) {
-        return allPromises(promises, onFulfilled, onRejected, null);
+        return all(promises, onFulfilled, onRejected, null);
     }
 
     /**
-     * Return a promise that will resolve only once all the supplied promisesOrValues
-     * have resolved. The resolution value of the returned promise will be an array
-     * containing the resolution values of each of the promisesOrValues.
+     * Return a promise that will resolve only once all the supplied promises
+     * have resolved. The resolution value of the returned promise will be a list
+     * containing the resolution values of each of the promises.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                    promisesOrValues array of anything, may contain a mix
-     *                    of {@link com.englishtown.promises.Promise}s and values
-     * @param {function?} [onFulfilled] resolution handler
-     * @param {function?} [onRejected] rejection handler
-     * @param {function?} [onProgress] progress handler
-     * @memberOf when
-     * @returns {com.englishtown.promises.Promise}
+     * @param promises    input promises to resolve
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @param onProgress  progress handler
+     * @return a {@link Promise} that resolves when all the input promises have resolved
      */
-    public Promise<List<TResolve>, TProgress> allPromises(
+    public Promise<List<TResolve>, TProgress> all(
             List<Promise<TResolve, TProgress>> promises,
             Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled,
             Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>> onRejected,
             Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
+        // TODO: onProgress does not work...(same problem in when.js)
+        // TODO: change onRejected to take single value rather than list and provide wrapper to resolve?
+        return map(promises, identity).then(onFulfilled, onRejected, onProgress);
+    }
 
-        return mapPromises(promises, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return resolve(value);
-            }
-        }).then(onFulfilled, onRejected, onProgress);
-
+    /**
+     * Return a resolved promise for the list of input values.
+     *
+     * @param values      input values
+     * @param onFulfilled resolution handler
+     * @return a resolved {@link Promise}
+     */
+    public Promise<List<TResolve>, TProgress> allValues(
+            List<TResolve> values,
+            Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>> onFulfilled) {
+        return all(resolveValues(values), onFulfilled, null, null);
     }
 
     /**
      * Joins multiple promises into a single returned promise.
      *
-     * @return {com.englishtown.promises.Promise} a promise that will fulfill when *all* the input promises
-     *         have fulfilled, or will reject when *any one* of the input promises rejects.
+     * @param promises the promises to join
+     * @return a {@link Promise} that will fulfill when *all* the input promises have fulfilled,
+     *         or will reject when *any one* of the input promises rejects.
+     */
+    @SafeVarargs
+    public final Promise<List<TResolve>, TProgress> join(Promise<TResolve, TProgress>... promises) {
+        List<Promise<TResolve, TProgress>> input = (promises == null ? new ArrayList<Promise<TResolve, TProgress>>()
+                : Arrays.asList(promises));
+        return map(input, identity);
+    }
+
+    /**
+     * Joins multiple values into a single returned promise.
+     *
+     * @param values input values to join
+     * @return a resolved {@link Promise} for the joined input values
      */
     @SafeVarargs
     public final Promise<List<TResolve>, TProgress> join(TResolve... values) {
-
-        return map(Arrays.asList(values), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return resolve(value);
-            }
-        });
-
+        List<TResolve> input = (values == null ? new ArrayList<TResolve>() : Arrays.asList(values));
+        return mapValues(input, identity);
     }
 
     /**
-     * Joins multiple promises into a single returned promise.
+     * Traditional map function, but the input is a list of {@link Promise}s for values to be mapped.
      *
-     * @return {com.englishtown.promises.Promise} a promise that will fulfill when *all* the input promises
-     *         have fulfilled, or will reject when *any one* of the input promises rejects.
-     */
-    @SafeVarargs
-    public final Promise<List<TResolve>, TProgress> joinPromises(Promise<TResolve, TProgress>... promises) {
-
-        return mapPromises(Arrays.asList(promises), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return resolve(value);
-            }
-        });
-
-    }
-
-    /**
-     * Traditional map function, similar to `Array.prototype.map()`, but allows
-     * input to contain {@link Promise}s and/or values, and mapFunc may return
-     * either a value or a {@link Promise}
-     *
-     * @param {Array|Promise} promise array of anything, may contain a mix
-     *                        of {@link Promise}s and values
-     * @param {function}      mapFunc mapping function mapFunc(value) which may return
-     *                        either a {@link Promise} or value
-     * @returns {Promise} a {@link Promise} that will resolve to an array containing
-     * the mapped output values.
+     * @param promises a list of {@link Promise}s
+     * @param mapFunc  a mapping function that returns a promise for a value
+     * @return a {@link Promise} that will resolve to a list containing the mapped output values.
      */
     public Promise<List<TResolve>, TProgress> map(
-            List<TResolve> values,
-            Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
-        return mapPromises(resolveValues(values), mapFunc);
-    }
-
-    /**
-     * Traditional map function, similar to `Array.prototype.map()`, but allows
-     * input to contain {@link Promise}s and/or values, and mapFunc may return
-     * either a value or a {@link Promise}
-     *
-     * @param {Array|Promise} promise array of anything, may contain a mix
-     *                        of {@link Promise}s and values
-     * @param {function}      mapFunc mapping function mapFunc(value) which may return
-     *                        either a {@link Promise} or value
-     * @returns {Promise} a {@link Promise} that will resolve to an array containing
-     * the mapped output values.
-     */
-    public Promise<List<TResolve>, TProgress> mapPromise(
-            Promise<List<TResolve>, TProgress> promise,
-            final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
-
-        When<List<TResolve>, TProgress> when = new When<>();
-
-        return when.when(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
-            @Override
-            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
-                return map(value, mapFunc);
-            }
-        });
-
-    }
-
-    /**
-     * Traditional map function, similar to `Array.prototype.map()`, but allows
-     * input to contain {@link Promise}s and/or values, and mapFunc may return
-     * either a value or a {@link Promise}
-     *
-     * @param {Array|Promise} promise array of anything, may contain a mix
-     *                        of {@link Promise}s and values
-     * @param {function}      mapFunc mapping function mapFunc(value) which may return
-     *                        either a {@link Promise} or value
-     * @returns {Promise} a {@link Promise} that will resolve to an array containing
-     * the mapped output values.
-     */
-    public Promise<List<TResolve>, TProgress> mapPromises(
             List<Promise<TResolve, TProgress>> promises,
             final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
 
         final When<List<TResolve>, TProgress> w1 = new When<>();
-        final Deferred<List<TResolve>, TProgress> d1 = w1.deferInner();
+        final Deferred<List<TResolve>, TProgress> d1 = w1.defer();
 
         final When<List<Promise<TResolve, TProgress>>, TProgress> w2 = new When<>();
-        final When<TResolve, TProgress> w3 = new When<>();
 
         w2.when(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
@@ -1568,28 +1004,25 @@ public class When<TResolve, TProgress> {
                 final ValueHolder<Integer> toResolve = new ValueHolder<>();
                 int len;
 
-                // Since we know the resulting length, we can preallocate the results
-                // array to avoid array expansions.
+                // Since we know the resulting length, we can preallocate the results array to avoid array expansions.
                 toResolve.value = len = array.size();
                 final List<TResolve> results = new ArrayList<>(len);
-                for (int i = 0; i < len; i++) {
-                    results.add(null);
-                }
 
                 if (toResolve.value == 0) {
                     d1.getResolver().resolve(results);
 
                 } else {
-                    Runnable2<Void, Promise<TResolve, TProgress>, Integer> resolveOne = new Runnable2<Void, Promise<TResolve, TProgress>, Integer>() {
+                    // Pre-populate null values to allow us to set the value at an index
+                    for (int i = 0; i < len; i++) {
+                        results.add(null);
+                    }
+
+                    Runnable2<Void, Promise<TResolve, TProgress>, Integer> resolveOne;
+                    resolveOne = new Runnable2<Void,
+                            Promise<TResolve, TProgress>, Integer>() {
                         @Override
                         public Void run(Promise<TResolve, TProgress> item, final Integer index) {
-
-                            w3.when(item, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                                @Override
-                                public Promise<TResolve, TProgress> run(TResolve value) {
-                                    return (mapFunc != null ? w3.resolve(mapFunc.run(value)) : w3.resolve(value));
-                                }
-                            }).then(
+                            when(item, mapFunc).then(
                                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                                         @Override
                                         public Promise<TResolve, TProgress> run(TResolve mapped) {
@@ -1598,7 +1031,6 @@ public class When<TResolve, TProgress> {
                                             if (--toResolve.value == 0) {
                                                 d1.getResolver().resolve(results);
                                             }
-
                                             return null;
                                         }
                                     },
@@ -1608,29 +1040,16 @@ public class When<TResolve, TProgress> {
                                             d1.getResolver().reject(new Value<>(Arrays.asList(value.value), value.error));
                                             return null;
                                         }
-                                    },
-                                    null
+                                    }
                             );
-
                             return null;
                         }
                     };
 
                     // Since mapFunc may be async, get all invocations of it into flight
                     for (int i = 0; i < len; i++) {
-                        Promise<TResolve, TProgress> p = null;
-
-                        if (i < array.size()) {
-                            p = array.get(i);
-                        }
-
-                        if (p != null) {
-                            resolveOne.run(array.get(i), i);
-                        } else {
-                            --toResolve.value;
-                        }
+                        resolveOne.run(array.get(i), i);
                     }
-
                 }
 
                 return null;
@@ -1649,66 +1068,153 @@ public class When<TResolve, TProgress> {
     }
 
     /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
+     * Traditional map function, but the input is a {@link Promise} for values to be mapped.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     * @param promise a {@link Promise} for a list of values to be mapped
+     * @param mapFunc a mapping function that returns a promise for a value
+     * @return a {@link Promise} that will resolve to a list containing the mapped output values.
      */
-    public Promise<TResolve, TProgress> reduce(
-            List<TResolve> values,
-            final Reducer2<TResolve> reduceFunc) {
-        Promise<TResolve, TProgress> initialValue = null;
-        return reduce(values, reduceFunc, initialValue);
+    public Promise<List<TResolve>, TProgress> mapPromise(
+            Promise<List<TResolve>, TProgress> promise,
+            final Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
+
+        When<List<TResolve>, TProgress> when = new When<>();
+
+        return when.when(promise, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+            @Override
+            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                return mapValues(value, mapFunc);
+            }
+        });
+
     }
 
     /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
+     * Traditional map function, the input is a list of values to be mapped.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     * @param values  a list of values to be mapped
+     * @param mapFunc a mapping function that returns a promise for a value
+     * @return a resolved {@link Promise} containing the mapped output values.
+     */
+    public Promise<List<TResolve>, TProgress> mapValues(
+            List<TResolve> values,
+            Runnable<Promise<TResolve, TProgress>, TResolve> mapFunc) {
+        return map(resolveValues(values), mapFunc);
+    }
+
+    /**
+     * Traditional reduce function, but the input is a list of {@link Promise}s.
+     *
+     * @param promises   list of {@link Promise}s for values to reduce
+     * @param reduceFunc the reduce function
+     * @return a {@link Promise} that will resolve to the final reduced values.
      */
     public Promise<TResolve, TProgress> reduce(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer<TResolve> reduceFunc) {
+        return reduceInner(promises, reduceFunc, null);
+    }
+
+    /**
+     * Traditional reduce function, but the input is a list of {@link Promise}s.
+     *
+     * @param promises     list of {@link Promise}s for values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a {@link Promise} that will resolve to the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reduce(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer<TResolve> reduceFunc,
+            TResolve initialValue) {
+        return reduce(promises, reduceFunc, resolve(initialValue));
+    }
+
+    /**
+     * Traditional reduce function, but the input is a list of {@link Promise}s.
+     *
+     * @param promises     list of {@link Promise}s for values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a {@link Promise} that will resolve to the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reduce(
+            List<Promise<TResolve, TProgress>> promises,
+            final Reducer<TResolve> reduceFunc,
+            final Promise<TResolve, TProgress> initialValue) {
+        return reduceInner(promises, reduceFunc, new Value<>(initialValue));
+    }
+
+    /**
+     * Traditional reduce function, where the input is a list of values to reduce.
+     *
+     * @param values     a list of values to reduce
+     * @param reduceFunc the reduce function
+     * @return a resolved {@link Promise} for the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reduceValues(
             List<TResolve> values,
-            final Reducer2<TResolve> reduceFunc,
+            final Reducer<TResolve> reduceFunc) {
+        return reduceInner(resolveValues(values), reduceFunc, null);
+    }
+
+    /**
+     * Traditional reduce function, where the input is a list of values to reduce.
+     *
+     * @param values       a list of values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a resolved {@link Promise} for the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reduceValues(
+            List<TResolve> values,
+            final Reducer<TResolve> reduceFunc,
             final TResolve initialValue) {
-        return reduce(values, reduceFunc, (initialValue != null ? resolve(initialValue) : null));
+        return reduceValues(values, reduceFunc, resolve(initialValue));
     }
 
     /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
+     * Traditional reduce function, where the input is a list of values to reduce.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     * @param values       a list of values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a resolved {@link Promise} for the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reduceValues(
+            List<TResolve> values,
+            final Reducer<TResolve> reduceFunc,
+            final Promise<TResolve, TProgress> initialValue) {
+        return reduceInner(resolveValues(values), reduceFunc, new Value<>(initialValue));
+    }
+
+    /**
+     * Traditional reduce function, but the input is a {@link Promise} for a list of values.
+     *
+     * @param promise      a {@link Promise} for values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a {@link Promise} that will resolve to the final reduced values.
      */
     public Promise<TResolve, TProgress> reducePromise(
             Promise<List<TResolve>, TProgress> promise,
-            final Reducer2<TResolve> reduceFunc,
+            final Reducer<TResolve> reduceFunc,
             final TResolve initialValue) {
+        return reducePromise(promise, reduceFunc, resolve(initialValue));
+    }
 
+    /**
+     * Traditional reduce function, but the input is a {@link Promise} for a list of values.
+     *
+     * @param promise      a {@link Promise} for values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the initial value. If null is provided, it will be used as the initial value.
+     * @return a {@link Promise} that will resolve to the final reduced values.
+     */
+    public Promise<TResolve, TProgress> reducePromise(
+            Promise<List<TResolve>, TProgress> promise,
+            final Reducer<TResolve> reduceFunc,
+            final Promise<TResolve, TProgress> initialValue) {
 
         final Deferred<TResolve, TProgress> d1 = deferInner();
         final When<List<TResolve>, TProgress> w2 = new When<>();
@@ -1717,7 +1223,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
                     @Override
                     public Promise<List<TResolve>, TProgress> run(List<TResolve> values) {
-                        d1.getResolver().resolve(reduce(values, reduceFunc, initialValue));
+                        d1.getResolver().resolve(reduceValues(values, reduceFunc, initialValue));
                         return null;
                     }
                 },
@@ -1734,99 +1240,26 @@ public class When<TResolve, TProgress> {
     }
 
     /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
+     * Private reduce implementation, initialValue is now a Value&lt;TResolve&gt; to differentiate between no initial
+     * value and a null initial value.
      *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
+     * @param promises     list of {@link Promise}s for values to reduce
+     * @param reduceFunc   the reduce function
+     * @param initialValue the optional initial value
+     * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduce(
-            List<TResolve> values,
-            final Reducer2<TResolve> reduceFunc,
-            final Promise<TResolve, TProgress> initialValue) {
-        return reducePromises(resolveValues(values), reduceFunc, initialValue);
-    }
-
-
-    /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
-     */
-    public Promise<TResolve, TProgress> reducePromises(
+    private Promise<TResolve, TProgress> reduceInner(
             List<Promise<TResolve, TProgress>> promises,
-            final Reducer2<TResolve> reduceFunc) {
-        Promise<TResolve, TProgress> initialValue = null;
-        return reducePromises(promises, reduceFunc, initialValue);
-    }
-
-    /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
-     */
-    public Promise<TResolve, TProgress> reducePromises(
-            List<Promise<TResolve, TProgress>> promises,
-            final Reducer2<TResolve> reduceFunc,
-            TResolve initialValue) {
-        return reducePromises(promises, reduceFunc, (initialValue != null ? resolve(initialValue) : null));
-    }
-
-    /**
-     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-     * input may contain promises and/or values, and reduceFunc
-     * may return either a value or a promise, *and* initialValue may
-     * be a promise for the starting value.
-     *
-     * @param {Array|com.englishtown.promises.Promise}
-     *                   promise array or promise for an array of anything,
-     *                   may contain a mix of promises and values.
-     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-     *                   where total is the total number of items being reduced, and will be the same
-     *                   in each call to reduceFunc.
-     * @returns {com.englishtown.promises.Promise} that will resolve to the final reduced value
-     */
-    public Promise<TResolve, TProgress> reducePromises(
-            List<Promise<TResolve, TProgress>> promises,
-            final Reducer2<TResolve> reduceFunc,
-            final Promise<TResolve, TProgress> initialValue) {
-        //var args = slice.call(arguments, 1);
+            final Reducer<TResolve> reduceFunc,
+            final Value<Promise<TResolve, TProgress>> initialValue) {
 
         final When<List<Promise<TResolve, TProgress>>, TProgress> w1 = new When<>();
-        final When<TResolve, TProgress> w2 = new When<>();
-        final Deferred<TResolve, TProgress> d2 = w2.deferInner();
+        final Deferred<TResolve, TProgress> d2 = deferInner();
 
         w1.when(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve,
                     TProgress>> array) {
-
-                final int total = array.size();
 
                 // Wrap the supplied reduceFunc with one that handles promises and then
                 // delegates to the supplied.
@@ -1836,15 +1269,15 @@ public class When<TResolve, TProgress> {
                             Promise<TResolve, TProgress> current,
                             final Promise<TResolve, TProgress> val,
                             final int i,
-                            List<Promise<TResolve, TProgress>> list) {
+                            final int total) {
 
-                        return w2.when(current, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        return when(current, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                             @Override
                             public Promise<TResolve, TProgress> run(final TResolve c) {
-                                return w2.when(val, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                return when(val, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                                     @Override
                                     public Promise<TResolve, TProgress> run(TResolve value) {
-                                        return w2.resolve(reduceFunc.run(c, value, i, total));
+                                        return resolve(reduceFunc.run(c, value, i, total));
                                     }
                                 });
                             }
@@ -1868,139 +1301,80 @@ public class When<TResolve, TProgress> {
         return d2.getPromise();
     }
 
-    private static <T> T reduceList(List<T> list, Reducer<T> reduceFunc, T initialValue) {
-        /*jshint maxcomplexity: 7*/
-
-        // ES5 dictates that reduce.length === 1
-
-        // This implementation deviates from ES5 spec in the following ways:
-        // 1. It does not check if reduceFunc is a Callable
+    private static <T> T reduceList(List<T> list, Reducer<T> reduceFunc, Value<T> initialValue) {
         T reduced;
-        //var arr, args, len;
 
         int i = 0;
-        // This generates a jshint warning, despite being valid
-        // "Missing 'new' prefix when invoking a constructor."
-        // See https://github.com/jshint/jshint/issues/392
-        //arr = Object(this);
         int len = (list == null ? 0 : list.size());
-        //args = arguments;
 
-        // If no initialValue, use first item of array (we know length !== 0 here)
-        // and adjust i to start at second item
+        // If no initialValue, use first item of array and adjust i to start at second item
         if (initialValue == null) {
-            // Skip to the first real element in the array
-            for (; ; ) {
-                // If we reached the end of the array without finding any real
-                // elements, it's a TypeError
-                if (i >= len) {
-                    throw new RuntimeException("No non-null values to reduce.");
-                }
-
-                T temp = list.get(i);
-                if (temp != null) {
-                    reduced = temp;
-                    i++;
-                    break;
-                }
-
-                i++;
+            // If the list is empty, it's an exception
+            if (i >= len) {
+                throw new RuntimeException("No values to reduce.");
             }
+            reduced = list.get(i++);
         } else {
             // If initialValue provided, use it
-            reduced = initialValue;
+            reduced = initialValue.value;
         }
 
         // Do the actual reduce
-        for (; i < len; ++i) {
-            // Skip holes
-            T val = list.get(i);
-            if (val != null) {
-                reduced = reduceFunc.run(reduced, val, i, list);
-            }
+        for (; i < len; i++) {
+            reduced = reduceFunc.run(reduced, list.get(i), i, len);
         }
 
         return reduced;
     }
 
     /**
-     * Ensure that resolution of promiseOrValue will trigger resolver with the
-     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
+     * Ensure that resolution of a promise will trigger the resolver with the resolved value.
      *
-     * @param {com.englishtown.promises.Promise}
-     *                   promise
-     * @param {Object}   resolver
-     * @param {function} resolver.resolve
-     * @param {function} resolver.reject
-     * @param {*}        [resolveValue]
-     * @return {com.englishtown.promises.Promise}
-     */
-    public Promise<TResolve, TProgress> chain(
-            TResolve value,
-            final Resolver<TResolve, TProgress> resolver) {
-        return chain(value, resolver, null);
-    }
-
-    /**
-     * Ensure that resolution of promiseOrValue will trigger resolver with the
-     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
-     *
-     * @param {com.englishtown.promises.Promise}
-     *                   promise
-     * @param {Object}   resolver
-     * @param {function} resolver.resolve
-     * @param {function} resolver.reject
-     * @param {*}        [resolveValue]
-     * @return {com.englishtown.promises.Promise}
-     */
-    public Promise<TResolve, TProgress> chain(
-            TResolve value,
-            final Resolver<TResolve, TProgress> resolver,
-            final TResolve resolveValue) {
-        return chain(resolve(value), resolver, resolveValue);
-    }
-
-    /**
-     * Ensure that resolution of promiseOrValue will trigger resolver with the
-     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
-     *
-     * @param {com.englishtown.promises.Promise}
-     *                   promise
-     * @param {Object}   resolver
-     * @param {function} resolver.resolve
-     * @param {function} resolver.reject
-     * @param {*}        [resolveValue]
-     * @return {com.englishtown.promises.Promise}
+     * @param promise  the {@link Promise} that when resolved/rejected will trigger the resolver.
+     * @param resolver the resolver to be triggered.
+     * @return a {@link Promise} for the input promise
      */
     public Promise<TResolve, TProgress> chain(
             Promise<TResolve, TProgress> promise,
             final Resolver<TResolve, TProgress> resolver) {
-        return chain(promise, resolver, null);
+        return chainInner(promise, resolver, null);
     }
 
     /**
-     * Ensure that resolution of promiseOrValue will trigger resolver with the
-     * value or reason of promiseOrValue, or instead with resolveValue if it is provided.
+     * Ensure that resolution of a promise will trigger the resolver with the provided resolveValue.
      *
-     * @param {com.englishtown.promises.Promise}
-     *                   promise
-     * @param {Object}   resolver
-     * @param {function} resolver.resolve
-     * @param {function} resolver.reject
-     * @param {*}        [resolveValue]
-     * @return {com.englishtown.promises.Promise}
+     * @param promise      the {@link Promise} that when resolved/rejected will trigger the resolver.
+     * @param resolver     the resolver to be triggered.
+     * @param resolveValue the value to be provided to the resolver.
+     * @return a {@link Promise} for the input promise
      */
     public Promise<TResolve, TProgress> chain(
             Promise<TResolve, TProgress> promise,
             final Resolver<TResolve, TProgress> resolver,
             final TResolve resolveValue) {
+        return chainInner(promise, resolver, new Value<>(resolveValue));
+    }
+
+    /**
+     * Private implementation of chain, resolveValue is now a Value&lt;TResolve&gt; to differentiate between no resolve
+     * value and a null resolve value.
+     *
+     * @param promise      the {@link Promise} that when resolved/rejected will trigger the resolver.
+     * @param resolver     the resolver to be triggered.
+     * @param resolveValue the value to be provided to the resolver.
+     * @return a {@link Promise} for the input promise
+     */
+    private Promise<TResolve, TProgress> chainInner(
+            Promise<TResolve, TProgress> promise,
+            final Resolver<TResolve, TProgress> resolver,
+            final Value<TResolve> resolveValue) {
 
         return when(
                 promise,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
                     public Promise<TResolve, TProgress> run(TResolve val) {
-                        val = resolveValue != null ? resolveValue : val;
+                        val = resolveValue != null ? resolveValue.value : val;
                         resolver.resolve(val);
                         return resolve(val);
                     }
@@ -2023,30 +1397,46 @@ public class When<TResolve, TProgress> {
     }
 
     /**
-     * Apply all functions in queue to value
+     * Execute all callbacks in the queue passing the provided value
      *
-     * @param {Array} queue array of functions to execute
-     * @param {*}     value argument passed to each function
+     * @param queue list of callbacks
+     * @param value argument passed to each callback
+     * @param <T1>  the callback return type
+     * @param <T2>  the callback input type
      */
-
     private <T1, T2> void processQueue(List<Runnable<T1, T2>> queue, T2 value) {
         for (Runnable<T1, T2> handler : queue) {
             handler.run(value);
         }
     }
 
+    /**
+     * Converts a list of values to a list of resolved promises.  If a null input list is provided,
+     * a null list is returned.
+     *
+     * @param values the values to resolve
+     * @return a list of already-resolved promises for the input values
+     */
     private List<Promise<TResolve, TProgress>> resolveValues(List<TResolve> values) {
+        // Short circuit if values is null
         if (values == null) {
             return null;
         }
-
+        // Resolve non-null values
         List<Promise<TResolve, TProgress>> promises = new ArrayList<>();
-
         for (TResolve value : values) {
             promises.add((value != null ? resolve(value) : null));
         }
-
         return promises;
     }
+
+    // Re-usable "identity" runnable that returns the input value as an already-resolved promise.
+    private final Runnable<Promise<TResolve, TProgress>, TResolve> identity =
+            new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                @Override
+                public Promise<TResolve, TProgress> run(TResolve value) {
+                    return resolve(value);
+                }
+            };
 
 }

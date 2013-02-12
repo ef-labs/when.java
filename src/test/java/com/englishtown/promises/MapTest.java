@@ -22,7 +22,7 @@ public class MapTest {
     Runnable<Integer, Integer> mapper = new Runnable<Integer, Integer>() {
         @Override
         public Integer run(Integer value) {
-            return value * 2;
+            return (value == null ? null : value * 2);
         }
     };
 
@@ -33,7 +33,7 @@ public class MapTest {
         final List<Integer> input = Arrays.asList(1, 2, 3);
         final When<Integer, Integer> when = new When<>();
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -50,6 +50,31 @@ public class MapTest {
 
         done.assertSuccess();
 
+    }
+
+    @Test
+    public void testMap_should_map_input_values_array_with_a_null() {
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        final List<Integer> input = Arrays.asList(1, null, 3);
+        final When<Integer, Integer> when = new When<>();
+
+        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+            @Override
+            public Promise<Integer, Integer> run(Integer value) {
+                return when.resolve(mapper.run(value));
+            }
+        }).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+            @Override
+            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                assertEquals(3, value.size());
+                Integer[] expected = {2, null, 6};
+                assertArrayEquals(expected, value.toArray(new Integer[3]));
+                return null;
+            }
+        }, fail.onFail).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
 
     }
 
@@ -61,7 +86,7 @@ public class MapTest {
 
         final List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.mapPromises(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -112,7 +137,7 @@ public class MapTest {
             }
         };
 
-        when.map(input, deferredMapper).then(
+        when.mapValues(input, deferredMapper).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> value) {
@@ -165,7 +190,7 @@ public class MapTest {
         final When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -192,7 +217,7 @@ public class MapTest {
         final When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -218,7 +243,7 @@ public class MapTest {
         final When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.mapPromises(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -247,7 +272,7 @@ public class MapTest {
 
         final List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
 
-        when.mapPromises(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));

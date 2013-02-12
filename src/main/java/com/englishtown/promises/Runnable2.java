@@ -7,7 +7,7 @@ package com.englishtown.promises;
  * Time: 2:29 AM
  * To change this template use File | Settings | File Templates.
  */
-public interface Runnable2<TRet, TArg1, TArg2> {
+interface Runnable2<TRet, TArg1, TArg2> {
 
     TRet run(TArg1 a1, TArg2 a2);
 

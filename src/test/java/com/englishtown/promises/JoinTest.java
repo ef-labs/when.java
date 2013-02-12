@@ -23,8 +23,9 @@ public class JoinTest {
 
         When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
+        Promise<Integer, Integer>[] input = null;
 
-        when.joinPromises().then(
+        when.join(input).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> results) {
@@ -45,8 +46,9 @@ public class JoinTest {
 
         When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
+        Integer[] input = null;
 
-        when.join().then(
+        when.join(input).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> results) {
@@ -90,7 +92,7 @@ public class JoinTest {
         When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
 
-        when.joinPromises(when.resolve(1), when.resolve(2), when.resolve(3)).then(
+        when.join(when.resolve(1), when.resolve(2), when.resolve(3)).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> results) {
@@ -121,7 +123,7 @@ public class JoinTest {
         When<Integer, Integer> when = new When<>();
         Done<List<Integer>, Integer> done = new Done<>();
 
-        when.joinPromises(when.resolve(1), when.reject(2), when.resolve(3)).then(
+        when.join(when.resolve(1), when.reject(2), when.resolve(3)).then(
                 fail.onSuccess,
                 new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override

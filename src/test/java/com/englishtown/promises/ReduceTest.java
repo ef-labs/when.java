@@ -21,14 +21,14 @@ public class ReduceTest {
     private Fail<Integer, Integer> fail = new Fail<>();
     private Fail<String, Integer> fail2 = new Fail<>();
 
-    private Reducer2<Integer> plus = new Reducer2<Integer>() {
+    private Reducer<Integer> plus = new Reducer<Integer>() {
         @Override
         public Integer run(Integer previousValue, Integer currentValue, int currentIndex, int total) {
-            return previousValue + currentValue;
+            return (previousValue == null ? 0 : previousValue) + (currentValue == null ? 0 : currentValue);
         }
     };
 
-    Reducer2<String> plus2 = new Reducer2<String>() {
+    Reducer<String> plus2 = new Reducer<String>() {
         @Override
         public String run(String previousValue, String currentValue, int currentIndex, int total) {
             return previousValue + currentValue;
@@ -43,7 +43,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.reduce(input, plus).then(
+        when.reduceValues(input, plus).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -65,7 +65,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.reduce(input, plus, 1).then(
+        when.reduceValues(input, plus, 1).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -87,7 +87,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.reduce(input, plus, when.resolve(1)).then(
+        when.reduceValues(input, plus, when.resolve(1)).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -109,7 +109,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.reducePromises(input, plus).then(
+        when.reduce(input, plus).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -130,7 +130,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.reducePromises(input, plus, 1).then(
+        when.reduce(input, plus, 1).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -152,7 +152,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.reducePromises(input, plus, when.resolve(1)).then(
+        when.reduce(input, plus, when.resolve(1)).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -174,7 +174,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = new ArrayList<>();
 
-        when.reduce(input, plus, 1).then(
+        when.reduceValues(input, plus, 1).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -196,7 +196,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = new ArrayList<>();
 
-        when.reduce(input, plus, when.resolve(1)).then(
+        when.reduceValues(input, plus, 1).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -218,7 +218,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
 
-        when.reducePromises(input, plus, when.resolve(1)).then(
+        when.reduce(input, plus, when.resolve(1)).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
@@ -240,7 +240,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = new ArrayList<>();
 
-        when.reducePromises(input, plus).then(
+        when.reduce(input, plus).then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
@@ -262,7 +262,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = Arrays.asList(null, null, 1, null, 1, 1);
 
-        when.reduce(input, plus).then(
+        when.reduceValues(input, plus).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -284,7 +284,7 @@ public class ReduceTest {
         When<Integer, Integer> when = new When<>();
         List<Integer> input = Arrays.asList(null, null, 1, null, 1, 1);
 
-        when.reduce(input, plus, 1).then(
+        when.reduceValues(input, plus, 1).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -309,7 +309,7 @@ public class ReduceTest {
         Deferred<String, Integer> d3 = when.defer();
         List<Promise<String, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
 
-        when.reducePromises(input, plus2, "").then(
+        when.reduce(input, plus2, "").then(
                 new Runnable<Promise<String, Integer>, String>() {
                     @Override
                     public Promise<String, Integer> run(String value) {

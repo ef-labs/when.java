@@ -106,14 +106,6 @@ public class DeferTest {
         }
     }
 
-//    function fakeRejected(reason) {
-//        return {
-//                then: function(callback, errback) {
-//            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
-//        }
-//        };
-//    }
-
     @Test
     public void testResolve_should_fulfill_with_fulfilled_promised() {
         Deferred<Object, Object> d = new When<>().defer();
@@ -659,7 +651,7 @@ public class DeferTest {
 
     @Test
     public void testDefer_should_return_silently_on_progress_when_already_resolved() {
-        Deferred<Object, Object> d = new When<Object, Object>().defer();
+        Deferred<Object, Object> d = new When<>().defer();
 
         d.getResolver().resolve(null);
         assertNull(d.getResolver().progress(new Object()));

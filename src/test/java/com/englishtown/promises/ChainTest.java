@@ -24,7 +24,7 @@ public class ChainTest {
 
         d = when.defer();
 
-        result = when.chain(1, d.getResolver());
+        result = when.chain(when.resolve(1), d.getResolver());
 
         assertNotNull(result);
         assertNotSame(result, d);
@@ -70,7 +70,7 @@ public class ChainTest {
                 fail.onFail
         ).then(done.onSuccess, done.onFail);
 
-        when.chain(1, d.getResolver());
+        when.chain(when.resolve(1), d.getResolver());
         done.assertSuccess();
 
     }
@@ -120,7 +120,7 @@ public class ChainTest {
                 fail.onFail
         ).then(done.onSuccess, done.onFail);
 
-        when.chain(1, d.getResolver(), 2);
+        when.chain(when.resolve(1), d.getResolver(), 2);
         done.assertSuccess();
 
     }
@@ -251,6 +251,34 @@ public class ChainTest {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
                         assertEquals(2, value.intValue());
+                        return null;
+                    }
+                },
+                fail.onFail
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+
+    }
+
+    @Test
+    public void testChain_should_return_a_promise_that_resolves_with_the_optional_null_resolution_value() {
+
+        Done<Integer, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d;
+        Deferred<Integer, Integer> input;
+
+        input = when.defer();
+        d = when.defer();
+
+        input.getResolver().resolve(1);
+
+        when.chain(input.getPromise(), d.getResolver(), null).then(
+                new Runnable<Promise<Integer, Integer>, Integer>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Integer value) {
+                        assertNull(value);
                         return null;
                     }
                 },

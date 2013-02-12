@@ -26,7 +26,7 @@ public class SomeTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = new ArrayList<>();
 
-        when.somePromises(input, 1,
+        when.some(input, 1,
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> value) {
@@ -43,12 +43,12 @@ public class SomeTest {
 
     @Test
     public void testSome_should_reject_null_input() {
-
+        // NOTE: this is following the implementation of when.js
         Done<List<Integer>, Integer> done = new Done<>();
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = null;
 
-        when.somePromises(input, 1,
+        when.some(input, 1,
                 fail.onSuccess,
                 fail.onFail
         ).then(
@@ -72,7 +72,7 @@ public class SomeTest {
         When<Integer, Integer> when = new When<>();
         final List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.some(input, 2,
+        when.someValues(input, 2,
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> results) {
@@ -81,8 +81,7 @@ public class SomeTest {
                         assertArrayEquals(expected, results.toArray(new Integer[2]));
                         return null;
                     }
-                },
-                fail.onFail
+                }
         ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
@@ -95,29 +94,6 @@ public class SomeTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.somePromises(input, 2,
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
-                    @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
-                        Integer[] expected = {1, 2};
-                        assertNotNull(results);
-                        assertArrayEquals(expected, results.toArray(new Integer[2]));
-                        return null;
-                    }
-                },
-                fail.onFail
-        ).then(done.onSuccess, done.onFail);
-
-        done.assertSuccess();
-    }
-
-    @Test
-    public void testSome_should_resolve_sparse_array_input() {
-
-        Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        final List<Integer> input = Arrays.asList(null, 1, null, 2, 3);
-
         when.some(input, 2,
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
@@ -135,6 +111,68 @@ public class SomeTest {
     }
 
     @Test
+    public void testSome_should_progress_promises_array() {
+
+        final Done<List<Integer>, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d1 = when.defer();
+        Deferred<Integer, Integer> d2 = when.defer();
+        Deferred<Integer, Integer> d3 = when.defer();
+
+        List<Promise<Integer, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
+        final int expected = 5;
+
+        when.some(input, 2,
+                fail.onSuccess,
+                fail.onFail,
+                new Runnable<Value<Integer>, Value<Integer>>() {
+                    @Override
+                    public Value<Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.value.intValue());
+                        done.success = true;
+                        return null;
+                    }
+                }
+        );
+
+        done.success = false;
+        d1.getResolver().progress(expected);
+        done.assertSuccess();
+
+        done.success = false;
+        d2.getResolver().progress(expected);
+        done.assertSuccess();
+
+        done.success = false;
+        d3.getResolver().progress(expected);
+        done.assertSuccess();
+    }
+
+// Sparse lists don't exist in java
+//    @Test
+//    public void testSome_should_resolve_sparse_array_input() {
+//
+//        Done<List<Integer>, Integer> done = new Done<>();
+//        When<Integer, Integer> when = new When<>();
+//        final List<Integer> input = Arrays.asList(null, 1, null, 2, 3);
+//
+//        when.some(input, 2,
+//                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+//                    @Override
+//                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+//                        Integer[] expected = {1, 2};
+//                        assertNotNull(results);
+//                        assertArrayEquals(expected, results.toArray(new Integer[2]));
+//                        return null;
+//                    }
+//                },
+//                fail.onFail
+//        ).then(done.onSuccess, done.onFail);
+//
+//        done.assertSuccess();
+//    }
+
+    @Test
     public void testSome_should_reject_with_all_rejected_input_values_if_resolving_howMany_becomes_impossible() {
 
 
@@ -142,7 +180,7 @@ public class SomeTest {
         When<Integer, Integer> when = new When<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.reject(3));
 
-        when.somePromises(input, 2,
+        when.some(input, 2,
                 fail.onSuccess,
                 new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
@@ -165,29 +203,29 @@ public class SomeTest {
 //        });
 //    },
 
-    @Test
-    public void testSome_should_accept_a_promise_for_an_array() {
-
-        When<Integer, Integer> when = new When<>();
-        When<List<Integer>, Integer> w1 = new When<>();
-        final List<Integer> expected = Arrays.asList(1, 2, 3);
-        Promise<List<Integer>, Integer> input = w1.resolve(expected);
-        Done<List<Integer>, Integer> done = new Done<>();
-
-        when.somePromise(input, 2,
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
-                    @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
-                        Integer[] slice = expected.subList(0, 2).toArray(new Integer[2]);
-                        assertArrayEquals(slice, results.toArray(new Integer[2]));
-                        return null;
-                    }
-                },
-                fail.onFail
-        ).then(done.onSuccess, done.onFail);
-
-        done.assertSuccess();
-    }
+//    @Test
+//    public void testSome_should_accept_a_promise_for_an_array() {
+//
+//        When<Integer, Integer> when = new When<>();
+//        When<List<Integer>, Integer> w1 = new When<>();
+//        final List<Integer> expected = Arrays.asList(1, 2, 3);
+//        Promise<List<Integer>, Integer> input = w1.resolve(expected);
+//        Done<List<Integer>, Integer> done = new Done<>();
+//
+//        when.somePromise(input, 2,
+//                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+//                    @Override
+//                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+//                        Integer[] slice = expected.subList(0, 2).toArray(new Integer[2]);
+//                        assertArrayEquals(slice, results.toArray(new Integer[2]));
+//                        return null;
+//                    }
+//                },
+//                fail.onFail
+//        ).then(done.onSuccess, done.onFail);
+//
+//        done.assertSuccess();
+//    }
 
 // Java is strongly typed so unit test is not relevant
 //            'should resolve to empty array when input promise does not resolve to array': function(done) {

@@ -174,7 +174,7 @@ public class WhenTest {
     @Test
     public void whenTest_should_assimilate_untrusted_promises() {
 
-        // unstrusted promise should never be returned by when()
+        // untrusted promise should never be returned by when()
         Promise<Integer, Integer> untrusted = new FakePromise<>();
         Promise<Integer, Integer> result = new When<Integer, Integer>().when(untrusted);
 
@@ -196,8 +196,7 @@ public class WhenTest {
                     public Promise<Integer, Integer> run(Integer value) {
                         return new FakePromise<>(value + 1);
                     }
-                },
-                null, null
+                }
         ).then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override

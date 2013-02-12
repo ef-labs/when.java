@@ -1,7 +1,5 @@
 package com.englishtown.promises;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  * User: adriangonzalez
@@ -11,6 +9,6 @@ import java.util.List;
  */
 public interface Reducer<T> {
 
-    T run(T previousValue, T currentValue, int currentIndex, List<T> list);
+    T run(T previousValue, T currentValue, int currentIndex, int total);
 
 }

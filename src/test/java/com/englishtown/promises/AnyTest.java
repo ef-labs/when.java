@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 public class AnyTest {
 
     private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private Fail<Integer, Integer> fail2 = new Fail<>();
 
     @Test
     public void testAny_should_resolve_to_undefined_with_empty_input_array() {
@@ -26,7 +27,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Promise<Integer, Integer>> input = new ArrayList<>();
 
-        when.anyPromises(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input, new Runnable<Promise<Integer, Integer>, Integer>() {
             @Override
             public Promise<Integer, Integer> run(Integer value) {
                 assertNull(value);
@@ -60,7 +61,8 @@ public class AnyTest {
                         assertNotNull(value.error);
                         return null;
                     }
-                }).then(done.onSuccess, done.onFail);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -72,15 +74,15 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.any(input,
+        when.anyValues(input,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
                         assertEquals(1, result.intValue());
                         return null;
                     }
-                },
-                fail.onFail).then(done.onSuccess, done.onFail);
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }
@@ -92,7 +94,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.anyPromises(input,
+        when.any(input,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -112,7 +114,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.resolve(3));
 
-        when.anyPromises(input,
+        when.any(input,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -132,7 +134,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.reject(3));
 
-        when.anyPromises(input,
+        when.any(input,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
@@ -160,7 +162,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.reject(3));
 
-        when.anyPromises(input,
+        when.any(input,
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer result) {
@@ -170,6 +172,43 @@ public class AnyTest {
                 },
                 fail.onFail).then(done.onSuccess, done.onFail);
 
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testAny_should_notify_progress() {
+
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d1 = when.defer();
+        Deferred<Integer, Integer> d2 = when.defer();
+        Deferred<Integer, Integer> d3 = when.defer();
+        final Done<List<Integer>, Integer> done = new Done<>();
+        List<Promise<Integer, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
+
+        final int expected = 5;
+
+        when.any(input,
+                fail2.onSuccess,
+                fail.onFail,
+                new Runnable<Value<Integer>, Value<Integer>>() {
+                    @Override
+                    public Value<Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.value.intValue());
+                        done.success = true;
+                        return null;
+                    }
+                });
+
+        done.success = false;
+        d1.getResolver().progress(expected);
+        done.assertSuccess();
+
+        done.success = false;
+        d2.getResolver().progress(expected);
+        done.assertSuccess();
+
+        done.success = false;
+        d3.getResolver().progress(expected);
         done.assertSuccess();
     }
 
@@ -180,28 +219,28 @@ public class AnyTest {
 //        });
 //    },
 
-    @Test
-    public void testAny_should_accept_a_promise_for_an_array() {
-
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-
-        List<Integer> expected = Arrays.asList(1, 2, 3);
-        When<List<Integer>, Integer> w1 = new When<>();
-        Promise<List<Integer>, Integer> input = w1.resolve(expected);
-
-        when.anyPromise(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
-                    @Override
-                    public Promise<Integer, Integer> run(Integer result) {
-                        assertEquals(1, result.intValue());
-                        return null;
-                    }
-                },
-                fail.onFail).then(done.onSuccess, done.onFail);
-
-        done.assertSuccess();
-    }
+//    @Test
+//    public void testAny_should_accept_a_promise_for_an_array() {
+//
+//        When<Integer, Integer> when = new When<>();
+//        Done<List<Integer>, Integer> done = new Done<>();
+//
+//        List<Integer> expected = Arrays.asList(1, 2, 3);
+//        When<List<Integer>, Integer> w1 = new When<>();
+//        Promise<List<Integer>, Integer> input = w1.resolve(expected);
+//
+//        when.anyPromise(input,
+//                new Runnable<Promise<Integer, Integer>, Integer>() {
+//                    @Override
+//                    public Promise<Integer, Integer> run(Integer result) {
+//                        assertEquals(1, result.intValue());
+//                        return null;
+//                    }
+//                },
+//                fail.onFail).then(done.onSuccess, done.onFail);
+//
+//        done.assertSuccess();
+//    }
 
     @Test
     public void testAny_should_allow_zero_handlers() {
@@ -211,7 +250,7 @@ public class AnyTest {
         Done<List<Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.any(input, null).then(
+        when.anyValues(input, null).then(
                 new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
                     public Promise<List<Integer>, Integer> run(List<Integer> value) {
