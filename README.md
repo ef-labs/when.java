@@ -21,7 +21,9 @@ Add a maven dependency to when.java
 Examples
 ---------
 
-The following demonstrates the most basic scenario where a resolution handler is registered and then triggered in the future.
+1\. The most basic scenario
+
+The following demonstrates registering a resolution handler that is triggered in the future.
 
 ```java
         // Create the when and deferred objects
@@ -42,4 +44,34 @@ The following demonstrates the most basic scenario where a resolution handler is
         // The callback value will be 10
         d.getResolver().resolve(10);
 
+```
+
+2\. Chaining callbacks
+
+The following deomonstrates chaining resolution handlers and how the value can be modified.
+
+```java
+        // Create the when and deferred objects
+        final When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d = when.defer();
+
+        // Register chained callbacks
+        Promise<Integer, Integer> p = d.getPromise();
+        p.then(new Runnable<Promise<Integer, Integer>, Integer>() {
+            @Override
+            public Promise<Integer, Integer> run(Integer value) {
+                return when.resolve(value * 2);
+            }
+        }).then(new Runnable<Promise<Integer, Integer>, Integer>() {
+            @Override
+            public Promise<Integer, Integer> run(Integer integer) {
+                // Do something
+                return null;
+            }
+        });
+
+        // Use the resolver to trigger the callbacks registered above.
+        // The first callback value will be 10
+        // The second callback value will be 20
+        d.getResolver().resolve(10);
 ```
