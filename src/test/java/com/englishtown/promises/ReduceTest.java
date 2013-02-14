@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,14 +41,14 @@ public class ReduceTest {
     private Fail<Integer, Integer> fail = new Fail<>();
     private Fail<String, Integer> fail2 = new Fail<>();
 
-    private Reducer<Integer> plus = new Reducer<Integer>() {
+    private Reducer<Integer, Integer> plus = new Reducer<Integer, Integer>() {
         @Override
         public Integer run(Integer previousValue, Integer currentValue, int currentIndex, int total) {
             return (previousValue == null ? 0 : previousValue) + (currentValue == null ? 0 : currentValue);
         }
     };
 
-    Reducer<String> plus2 = new Reducer<String>() {
+    Reducer<String, String> plus2 = new Reducer<String, String>() {
         @Override
         public String run(String previousValue, String currentValue, int currentIndex, int total) {
             return previousValue + currentValue;
@@ -244,7 +243,7 @@ public class ReduceTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> result) {
-                        assertEquals(2, result.value.intValue());
+                        assertEquals(4, result.value.intValue());
                         return null;
                     }
                 }
@@ -330,7 +329,7 @@ public class ReduceTest {
         Deferred<String, Integer> d3 = when.defer();
         List<Promise<String, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
 
-        when.reduce(input, plus2, "").then(
+        when.reduce(input, plus2).then(
                 new Runnable<Promise<String, Integer>, String>() {
                     @Override
                     public Promise<String, Integer> run(String value) {
@@ -409,19 +408,45 @@ public class ReduceTest {
 //        fail
 //        ).always(done);
 //    },
-//
-//            'should provide correct basis value': function(done) {
-//        function insertIntoArray(arr, val, i) {
-//            arr[i] = val;
-//            return arr;
-//        }
-//
-//        when.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
-//                function(result) {
-//            assert.equals(result, [1,2,3]);
-//        },
-//        fail
-//        ).always(done);
-//    }
-//
+
+    @Test
+    public void testReduce_should_provide_correct_basis_value() {
+
+        Reducer<List<Integer>, Integer> insertIntoArray = new Reducer<List<Integer>, Integer>() {
+            @Override
+            public List<Integer> run(List<Integer> previousValue, Integer currentValue, int currentIndex, int total) {
+                previousValue.add(currentIndex, currentValue);
+                return previousValue;
+            }
+        };
+
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d1 = when.defer();
+        Deferred<Integer, Integer> d2 = when.defer();
+        Deferred<Integer, Integer> d3 = when.defer();
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        Fail<List<Integer>, Integer> fail = new Fail<>();
+
+        when.reduce(
+                Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise()),
+                insertIntoArray,
+                new ArrayList<Integer>()
+        ).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+            @Override
+            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                Integer[] expected = {1, 2, 3};
+                assertArrayEquals(expected, value.toArray(new Integer[value.size()]));
+                return null;
+            }
+        },
+        fail.onFail).then(done.onSuccess, done.onFail);
+
+        d1.getResolver().resolve(1);
+        d3.getResolver().resolve(3);
+        d2.getResolver().resolve(2);
+
+        done.assertSuccess();
+    }
+
 }

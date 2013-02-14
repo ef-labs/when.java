@@ -41,7 +41,7 @@ import java.util.List;
  * A Java implementation of the CommonJS Promises/A specification.
  * http://wiki.commonjs.org/wiki/Promises/A
  *
- * @param <TResolve> the type passed to fulfillment or rejection handlers
+ * @param <TResolve>  the type passed to fulfillment or rejection handlers
  * @param <TProgress> the type passed to progress handlers
  */
 public class When<TResolve, TProgress> {
@@ -1130,9 +1130,9 @@ public class When<TResolve, TProgress> {
      * @param reduceFunc the reduce function
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduce(
+    public <T> Promise<T, TProgress> reduce(
             List<Promise<TResolve, TProgress>> promises,
-            final Reducer<TResolve> reduceFunc) {
+            final Reducer<T, TResolve> reduceFunc) {
         return reduceInner(promises, reduceFunc, null);
     }
 
@@ -1144,11 +1144,12 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduce(
+    public <T> Promise<T, TProgress> reduce(
             List<Promise<TResolve, TProgress>> promises,
-            final Reducer<TResolve> reduceFunc,
-            TResolve initialValue) {
-        return reduce(promises, reduceFunc, resolve(initialValue));
+            final Reducer<T, TResolve> reduceFunc,
+            T initialValue) {
+        When<T, TProgress> when = new When<>();
+        return reduce(promises, reduceFunc, when.resolve(initialValue));
     }
 
     /**
@@ -1159,10 +1160,10 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduce(
+    public <T> Promise<T, TProgress> reduce(
             List<Promise<TResolve, TProgress>> promises,
-            final Reducer<TResolve> reduceFunc,
-            final Promise<TResolve, TProgress> initialValue) {
+            final Reducer<T, TResolve> reduceFunc,
+            final Promise<T, TProgress> initialValue) {
         return reduceInner(promises, reduceFunc, new Value<>(initialValue));
     }
 
@@ -1173,9 +1174,9 @@ public class When<TResolve, TProgress> {
      * @param reduceFunc the reduce function
      * @return a resolved {@link Promise} for the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduceValues(
+    public <T> Promise<T, TProgress> reduceValues(
             List<TResolve> values,
-            final Reducer<TResolve> reduceFunc) {
+            final Reducer<T, TResolve> reduceFunc) {
         return reduceInner(resolveValues(values), reduceFunc, null);
     }
 
@@ -1187,11 +1188,12 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a resolved {@link Promise} for the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduceValues(
+    public <T> Promise<T, TProgress> reduceValues(
             List<TResolve> values,
-            final Reducer<TResolve> reduceFunc,
-            final TResolve initialValue) {
-        return reduceValues(values, reduceFunc, resolve(initialValue));
+            final Reducer<T, TResolve> reduceFunc,
+            final T initialValue) {
+        When<T, TProgress> when = new When<>();
+        return reduceValues(values, reduceFunc, when.resolve(initialValue));
     }
 
     /**
@@ -1202,10 +1204,10 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a resolved {@link Promise} for the final reduced values.
      */
-    public Promise<TResolve, TProgress> reduceValues(
+    public <T> Promise<T, TProgress> reduceValues(
             List<TResolve> values,
-            final Reducer<TResolve> reduceFunc,
-            final Promise<TResolve, TProgress> initialValue) {
+            final Reducer<T, TResolve> reduceFunc,
+            final Promise<T, TProgress> initialValue) {
         return reduceInner(resolveValues(values), reduceFunc, new Value<>(initialValue));
     }
 
@@ -1217,11 +1219,12 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reducePromise(
+    public <T> Promise<T, TProgress> reducePromise(
             Promise<List<TResolve>, TProgress> promise,
-            final Reducer<TResolve> reduceFunc,
-            final TResolve initialValue) {
-        return reducePromise(promise, reduceFunc, resolve(initialValue));
+            final Reducer<T, TResolve> reduceFunc,
+            final T initialValue) {
+        When<T, TProgress> when = new When<>();
+        return reducePromise(promise, reduceFunc, when.resolve(initialValue));
     }
 
     /**
@@ -1232,12 +1235,12 @@ public class When<TResolve, TProgress> {
      * @param initialValue the initial value. If null is provided, it will be used as the initial value.
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    public Promise<TResolve, TProgress> reducePromise(
+    public <T> Promise<T, TProgress> reducePromise(
             Promise<List<TResolve>, TProgress> promise,
-            final Reducer<TResolve> reduceFunc,
-            final Promise<TResolve, TProgress> initialValue) {
+            final Reducer<T, TResolve> reduceFunc,
+            final Promise<T, TProgress> initialValue) {
 
-        final Deferred<TResolve, TProgress> d1 = deferInner();
+        final Deferred<T, TProgress> d1 = new When<T, TProgress>().defer();
         final When<List<TResolve>, TProgress> w2 = new When<>();
 
         w2.when(promise,
@@ -1251,7 +1254,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>>() {
                     @Override
                     public Promise<List<TResolve>, TProgress> run(Value<List<TResolve>> value) {
-                        d1.getResolver().reject(new Value<TResolve>(null, value.error));
+                        d1.getResolver().reject(new Value<T>(null, value.error));
                         return null;
                     }
                 }
@@ -1269,52 +1272,105 @@ public class When<TResolve, TProgress> {
      * @param initialValue the optional initial value
      * @return a {@link Promise} that will resolve to the final reduced values.
      */
-    private Promise<TResolve, TProgress> reduceInner(
+    private <T> Promise<T, TProgress> reduceInner(
             List<Promise<TResolve, TProgress>> promises,
-            final Reducer<TResolve> reduceFunc,
-            final Value<Promise<TResolve, TProgress>> initialValue) {
+            final Reducer<T, TResolve> reduceFunc,
+            final Value<Promise<T, TProgress>> initialValue) {
 
         final When<List<Promise<TResolve, TProgress>>, TProgress> w1 = new When<>();
-        final Deferred<TResolve, TProgress> d2 = deferInner();
+        final When<T, TProgress> w2 = new When<>();
+        final Deferred<T, TProgress> d2 = w2.defer();
 
         w1.when(promises, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>, List<Promise<TResolve, TProgress>>>() {
             @Override
-            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve,
-                    TProgress>> array) {
+            public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(List<Promise<TResolve, TProgress>> array) {
 
                 // Wrap the supplied reduceFunc with one that handles promises and then
                 // delegates to the supplied.
-                Reducer<Promise<TResolve, TProgress>> reducerWrapper = new Reducer<Promise<TResolve, TProgress>>() {
+                Reducer<Promise<T, TProgress>, Promise<TResolve, TProgress>> reducerWrapper = new Reducer<Promise<T, TProgress>, Promise<TResolve, TProgress>>() {
                     @Override
-                    public Promise<TResolve, TProgress> run(
-                            Promise<TResolve, TProgress> current,
+                    public Promise<T, TProgress> run(
+                            Promise<T, TProgress> current,
                             final Promise<TResolve, TProgress> val,
                             final int i,
                             final int total) {
 
-                        return when(current, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                            @Override
-                            public Promise<TResolve, TProgress> run(final TResolve c) {
-                                return when(val, new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                        final Deferred<T, TProgress> d3 = w2.defer();
+
+                        return w2.when(current,
+                                new Runnable<Promise<T, TProgress>, T>() {
                                     @Override
-                                    public Promise<TResolve, TProgress> run(TResolve value) {
-                                        return resolve(reduceFunc.run(c, value, i, total));
+                                    public Promise<T, TProgress> run(final T c) {
+                                        when(val,
+                                                new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                                    @Override
+                                                    public Promise<TResolve, TProgress> run(TResolve v) {
+                                                        final T value = reduceFunc.run(c, v, i, total);
+                                                        if (value instanceof Promise) {
+                                                            When<Object, Object> w = new When<>();
+                                                            w.when((Promise<Object, Object>) value, new Runnable<Promise<Object, Object>, Object>() {
+                                                                @Override
+                                                                public Promise<Object, Object> run(Object obj) {
+                                                                    d3.getResolver().resolve(value);
+                                                                    return null;
+                                                                }
+                                                            });
+                                                        } else {
+                                                            d3.getResolver().resolve(value);
+                                                        }
+                                                        return null;
+                                                    }
+                                                },
+                                                new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
+                                                    @Override
+                                                    public Promise<TResolve, TProgress> run(Value<TResolve> v) {
+                                                        final T value = reduceFunc.run(c, v.value, i, total);
+                                                        if (value instanceof Promise) {
+                                                            When<Object, Object> w = new When<>();
+                                                            w.when((Promise<Object, Object>) value, new Runnable<Promise<Object, Object>, Object>() {
+                                                                @Override
+                                                                public Promise<Object, Object> run(Object obj) {
+                                                                    d3.getResolver().reject(value);
+                                                                    return null;
+                                                                }
+                                                            });
+                                                        } else {
+                                                            d3.getResolver().reject(value);
+                                                        }
+                                                        return null;
+                                                    }
+                                                }
+                                        );
+                                        return d3.getPromise();
                                     }
                                 });
-                            }
-                        });
+
                     }
                 };
 
-                Promise<TResolve, TProgress> p = reduceList(array, reducerWrapper, initialValue);
-                d2.getResolver().resolve(p);
+                reduceList(array, reducerWrapper, initialValue).then(
+                        new Runnable<Promise<T, TProgress>, T>() {
+                            @Override
+                            public Promise<T, TProgress> run(T value) {
+                                d2.getResolver().resolve(value);
+                                return null;
+                            }
+                        },
+                        new Runnable<Promise<T, TProgress>, Value<T>>() {
+                            @Override
+                            public Promise<T, TProgress> run(Value<T> value) {
+                                d2.getResolver().reject(value);
+                                return null;
+                            }
+                        }
+                );
                 return null;
             }
         }).then(null, new Runnable<Promise<List<Promise<TResolve, TProgress>>, TProgress>,
                 Value<List<Promise<TResolve, TProgress>>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
-                d2.getResolver().reject(new Value<TResolve>(null, value.error));
+                d2.getResolver().reject(new Value<T>(null, value.error));
                 return null;
             }
         });
@@ -1322,8 +1378,8 @@ public class When<TResolve, TProgress> {
         return d2.getPromise();
     }
 
-    private static <T> T reduceList(List<T> list, Reducer<T> reduceFunc, Value<T> initialValue) {
-        T reduced;
+    private static <T1, T2> T1 reduceList(List<T2> list, Reducer<T1, T2> reduceFunc, Value<T1> initialValue) {
+        T1 reduced;
 
         int i = 0;
         int len = (list == null ? 0 : list.size());
@@ -1334,7 +1390,7 @@ public class When<TResolve, TProgress> {
             if (i >= len) {
                 throw new RuntimeException("No values to reduce.");
             }
-            reduced = list.get(i++);
+            reduced = (T1) list.get(i++);
         } else {
             // If initialValue provided, use it
             reduced = initialValue.value;
@@ -1415,6 +1471,95 @@ public class When<TResolve, TProgress> {
                 }
         );
 
+    }
+
+    /**
+     * Run list of tasks in sequence with no overlap
+     *
+     * @param tasks tasks to be executed
+     * @return {@link Promise} for a list containing the result of each task in the in the list position
+     *         corresponding to the position of the task in the task list
+     */
+    public Promise<List<TResolve>, TProgress> sequence(List<Runnable<Promise<TResolve, TProgress>, Void>> tasks) {
+        return sequence(tasks, null);
+    }
+
+    /**
+     * Run list of tasks in sequence with no overlap
+     *
+     * @param tasks  tasks to be executed
+     * @param arg    argument to be passed to all tasks
+     * @param <TArg> the argument type being passed to each task
+     * @return {@link Promise} for a list containing the result of each task in the in the list position
+     *         corresponding to the position of the task in the task list
+     */
+    public <TArg> Promise<List<TResolve>, TProgress> sequence(
+            List<Runnable<Promise<TResolve, TProgress>, TArg>> tasks,
+            final TArg arg) {
+
+        When<Runnable<Promise<TResolve, TProgress>, TArg>, TProgress> w1 = new When<>();
+        final When<List<TResolve>, TProgress> w2 = new When<>();
+        final Deferred<List<TResolve>, TProgress> d1 = w2.defer();
+        Promise<List<TResolve>, TProgress> list = w2.resolve(new ArrayList<TResolve>());
+
+        w1.reduceValues(tasks, new Reducer<Promise<List<TResolve>, TProgress>, Runnable<Promise<TResolve, TProgress>,
+                TArg>>() {
+            @Override
+            public Promise<List<TResolve>, TProgress> run(
+                    final Promise<List<TResolve>, TProgress> results,
+                    Runnable<Promise<TResolve, TProgress>, TArg> task,
+                    int currentIndex,
+                    int total) {
+                final Deferred<List<TResolve>, TProgress> d2 = w2.defer();
+
+                when(task.run(arg), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                    @Override
+                    public Promise<TResolve, TProgress> run(final TResolve value) {
+                        w2.when(results, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                            @Override
+                            public Promise<List<TResolve>, TProgress> run(List<TResolve> results) {
+                                results.add(value);
+                                d2.getResolver().resolve(results);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+
+                return d2.getPromise();
+            }
+        }, list
+        ).then(
+                new Runnable<Promise<Promise<List<TResolve>, TProgress>, TProgress>, Promise<List<TResolve>, TProgress>>() {
+                    @Override
+                    public Promise<Promise<List<TResolve>, TProgress>, TProgress> run(Promise<List<TResolve>, TProgress> value) {
+                        w2.when(value, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                            @Override
+                            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                                d1.getResolver().resolve(value);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                },
+                new Runnable<Promise<Promise<List<TResolve>, TProgress>, TProgress>, Value<Promise<List<TResolve>, TProgress>>>() {
+                    @Override
+                    public Promise<Promise<List<TResolve>, TProgress>, TProgress> run(Value<Promise<List<TResolve>, TProgress>> value) {
+                        w2.when(value.value, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                            @Override
+                            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
+                                d1.getResolver().reject(value);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                }
+        );
+
+        return d1.getPromise();
     }
 
     /**

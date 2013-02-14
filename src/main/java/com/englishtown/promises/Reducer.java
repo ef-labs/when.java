@@ -28,8 +28,8 @@ package com.englishtown.promises;
  * Time: 3:35 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Reducer<T> {
+public interface Reducer<TPrev, TCurr> {
 
-    T run(T previousValue, T currentValue, int currentIndex, int total);
+    TPrev run(TPrev previousValue, TCurr currentValue, int currentIndex, int total);
 
 }
