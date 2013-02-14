@@ -22,11 +22,10 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 2/7/13
- * Time: 6:00 PM
- * To change this template use File | Settings | File Templates.
+ * Extends the standard {@link Promise} with additional functionality
+ *
+ * @param <TResolve>  the type passed to fulfillment or rejection handlers
+ * @param <TProgress> the type passed to progress handlers
  */
 public interface PromiseExt<TResolve, TProgress> extends Promise<TResolve, TProgress> {
 
@@ -49,7 +48,7 @@ public interface PromiseExt<TResolve, TProgress> extends Promise<TResolve, TProg
      * Shortcut for .then(onFulfilledOrRejected, onFulfilledOrRejected, onProgress)
      *
      * @param onFulfilledOrRejected a callback for when a promise is fulfilled or rejected
-     * @param onProgress a callback for progress notifications
+     * @param onProgress            a callback for progress notifications
      * @return a new {@link Promise}
      */
     Promise<TResolve, TProgress> always(

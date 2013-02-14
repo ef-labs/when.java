@@ -22,14 +22,21 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/31/13
- * Time: 2:29 AM
- * To change this template use File | Settings | File Templates.
+ * A callback with a return and two arguments
+ *
+ * @param <TRet>  the return type
+ * @param <TArg1> the first argument type
+ * @param <TArg2> the second argument type
  */
 interface Runnable2<TRet, TArg1, TArg2> {
 
+    /**
+     * Run the callback
+     *
+     * @param a1 first argument
+     * @param a2 second argument
+     * @return the callback return
+     */
     TRet run(TArg1 a1, TArg2 a2);
 
 }

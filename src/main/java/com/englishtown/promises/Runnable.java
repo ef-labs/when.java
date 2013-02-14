@@ -22,14 +22,19 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/23/13
- * Time: 12:06 PM
- * To change this template use File | Settings | File Templates.
+ * A callback with a return and one argument
+ *
+ * @param <TRet> the return type
+ * @param <TArg> the argument type
  */
 public interface Runnable<TRet, TArg> {
 
+    /**
+     * Runs the callback
+     *
+     * @param value the callback argument
+     * @return the callback return
+     */
     TRet run(TArg value);
 
 }

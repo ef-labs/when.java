@@ -22,14 +22,22 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 2/5/13
- * Time: 3:35 PM
- * To change this template use File | Settings | File Templates.
+ * A standard reduce callback function
+ *
+ * @param <TPrev> the type previously reduced and returned
+ * @param <TCurr> the current type to be reduced
  */
 public interface Reducer<TPrev, TCurr> {
 
+    /**
+     * A standard reduce function
+     *
+     * @param previousValue the previously reduced value or initial value
+     * @param currentValue  the current value to reduce
+     * @param currentIndex  the current value's index
+     * @param total         the total number of values to reduce
+     * @return the reduced value
+     */
     TPrev run(TPrev previousValue, TCurr currentValue, int currentIndex, int total);
 
 }

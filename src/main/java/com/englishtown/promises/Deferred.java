@@ -22,16 +22,26 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/29/13
- * Time: 5:59 AM
- * To change this template use File | Settings | File Templates.
+ * A deferred contains a {@link Resolver} for an associated {@link Promise}, either of which may be safely handed
+ * out
+ *
+ * @param <TResolve>  the type passed to fulfillment or rejection handlers
+ * @param <TProgress> the type passed to progress handlers
  */
 public interface Deferred<TResolve, TProgress> {
 
+    /**
+     * Gets the {@link Resolver}
+     *
+     * @return the resolver
+     */
     Resolver<TResolve, TProgress> getResolver();
 
+    /**
+     * Gets the {@link Promise}
+     *
+     * @return the promise
+     */
     Promise<TResolve, TProgress> getPromise();
 
 }

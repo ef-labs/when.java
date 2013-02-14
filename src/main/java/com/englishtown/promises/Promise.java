@@ -22,17 +22,29 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/23/13
- * Time: 12:13 PM
- * To change this template use File | Settings | File Templates.
+ * A {@link Thenable} object that "promises" to fulfill or reject either immediately or at some point in the future.
+ *
+ * @param <TResolve>  the type passed to fulfillment or rejection handlers
+ * @param <TProgress> the type passed to progress handlers
  */
 public interface Promise<TResolve, TProgress> extends Thenable<TResolve, TProgress> {
 
+    /**
+     * Registers a callback for when a promise resolves
+     *
+     * @param onFulfilled resolution handler
+     * @return a new {@link Promise} to allow chaining callback registration
+     */
     Promise<TResolve, TProgress> then(
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled);
 
+    /**
+     * Registers callbacks for when a promise resolves or rejects
+     *
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @return a new {@link Promise} to allow chaining callback registration
+     */
     Promise<TResolve, TProgress> then(
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected);

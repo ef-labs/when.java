@@ -22,14 +22,21 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/23/13
- * Time: 1:59 PM
- * To change this template use File | Settings | File Templates.
+ * A Thenable object allows registering callbacks for when a promise resolves, rejects, or receives progress.
+ *
+ * @param <TResolve>  the type of data received when resolved or rejected
+ * @param <TProgress> the type of data received when there's progress
  */
 public interface Thenable<TResolve, TProgress> {
 
+    /**
+     * Registers callbacks for when a promise resolves, rejects or receives progress
+     *
+     * @param onFulfilled resolution handler
+     * @param onRejected  rejection handler
+     * @param onProgress  progress handler
+     * @return a new {@link Promise} to allow chaining callback registration
+     */
     public Promise<TResolve, TProgress> then(
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,

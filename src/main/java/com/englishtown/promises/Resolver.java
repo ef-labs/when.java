@@ -22,24 +22,59 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/29/13
- * Time: 6:01 AM
- * To change this template use File | Settings | File Templates.
+ * Resolves a promise
+ *
+ * @param <TResolve>  the resolved type
+ * @param <TProgress> the progress type
  */
 public interface Resolver<TResolve, TProgress> {
 
+    /**
+     * Resolves the promise to trigger onResolve handlers
+     *
+     * @param value the resolved value
+     * @return an already-fulfilled {@link Promise} for the resolved value
+     */
     Promise<TResolve, TProgress> resolve(TResolve value);
 
+    /**
+     * Resolves the promise to trigger onResolve handlers
+     *
+     * @param value a resolved {@link Promise}
+     * @return an already-fulfilled {@link Promise} for the resolved value
+     */
     Promise<TResolve, TProgress> resolve(Promise<TResolve, TProgress> value);
 
+    /**
+     * Rejects the promise to trigger onReject handlers
+     *
+     * @param reason the rejection reason
+     * @return a rejected {@link Promise}
+     */
     Promise<TResolve, TProgress> reject(TResolve reason);
 
+    /**
+     * Rejects the promise to trigger onReject handlers
+     *
+     * @param reason a rejected {@link Promise}
+     * @return a rejected {@link Promise}
+     */
     Promise<TResolve, TProgress> reject(Value<TResolve> reason);
 
+    /**
+     * Triggers the onProgress handlers with progress information
+     *
+     * @param update the progress information
+     * @return either the same progress information or modified progress information.
+     */
     Value<TProgress> progress(TProgress update);
 
+    /**
+     * Triggers the onProgress handlers with progress information which may contain an exception
+     *
+     * @param update the progress information
+     * @return either the same progress information or modified progress information.
+     */
     Value<TProgress> progress(Value<TProgress> update);
 
 }

@@ -22,20 +22,29 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/23/13
- * Time: 4:26 PM
- * To change this template use File | Settings | File Templates.
+ * A value holder to allow modifying a value inside an anonymous inner class
+ *
+ * @param <T> the type of value in the holder
  */
 class ValueHolder<T> {
 
+    /**
+     * Constructor with an uninitialized value
+     */
     public ValueHolder() {
     }
 
+    /**
+     * Constructor with an initialized value
+     *
+     * @param value the initial value
+     */
     public ValueHolder(T value) {
         this.value = value;
     }
 
+    /**
+     * The actual value
+     */
     public T value;
 }

@@ -26,20 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A lightweight CommonJS Promises/A and when() implementation
- * when is part of the cujo.js family of libraries (http://cujojs.com/)
- * <p/>
- * Licensed under the MIT License at:
- * http://www.opensource.org/licenses/mit-license.php
- *
- * @version 1.7.1
- *
- * MIT License (c) copyright B Cavalier & J Hann
- */
-
-/**
  * A Java implementation of the CommonJS Promises/A specification.
  * http://wiki.commonjs.org/wiki/Promises/A
+ * <p/>
+ * Based on the when.js 1.7.1 library (c) copyright B Cavalier & J Hann (https://github.com/cujojs/when)
  *
  * @param <TResolve>  the type passed to fulfillment or rejection handlers
  * @param <TProgress> the type passed to progress handlers
@@ -152,22 +142,22 @@ public class When<TResolve, TProgress> {
     }
 
     /**
-     * Returns the promise if it is a {@link PromiseImpl}, a new {@link PromiseImpl} if it is a foreign
+     * Returns the promise if it is a PromiseImpl, a new PromiseImpl if it is a foreign
      * promise, or a new, already-fulfilled {@link Promise} if it is null.
      *
      * @param promise the promise to resolve
-     * @return Guarantee to return a trusted {@link PromiseImpl}
+     * @return Guarantee to return a trusted PromiseImpl
      */
     public Promise<TResolve, TProgress> resolvePromise(Promise<TResolve, TProgress> promise) {
         return resolve(promise);
     }
 
     /**
-     * Returns the promise if it is a {@link PromiseImpl}, a new {@link PromiseImpl} if it is a "foreign"
+     * Returns the promise if it is a PromiseImpl, a new PromiseImpl if it is a "foreign"
      * promise, or a new, already-fulfilled {@link Promise} if it is null.
      *
      * @param promise the promise to resolve
-     * @return Guarantee to return a trusted {@link PromiseImpl}
+     * @return Guarantee to return a trusted PromiseImpl
      */
     private PromiseImpl resolve(Promise<TResolve, TProgress> promise) {
 
@@ -264,7 +254,7 @@ public class When<TResolve, TProgress> {
      */
     private class PromiseImpl implements PromiseExt<TResolve, TProgress> {
 
-        private Thenable<TResolve, TProgress> __then;
+        private final Thenable<TResolve, TProgress> __then;
 
         PromiseImpl(Thenable<TResolve, TProgress> then) {
             __then = then;
@@ -439,10 +429,10 @@ public class When<TResolve, TProgress> {
      */
     private class ResolverImpl implements Resolver<TResolve, TProgress> {
 
-        public Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
-        public Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise;
-        public Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject;
-        public Runnable<Value<TProgress>, Value<TProgress>> progress;
+        public final Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
+        public final Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise;
+        public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject;
+        public final Runnable<Value<TProgress>, Value<TProgress>> progress;
 
         public ResolverImpl(
                 Runnable<Promise<TResolve, TProgress>, TResolve> resolve,
@@ -651,7 +641,7 @@ public class When<TResolve, TProgress> {
                 promiseReject,
                 promiseProgress);
 
-        // The full Deferred object, with {@link PromiseImpl} and {@link ResolverImpl}
+        // The full Deferred object, with PromiseImpl and ResolverImpl
         return new DeferredImpl(promise, resolver);
     }
 

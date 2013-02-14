@@ -22,24 +22,40 @@
 package com.englishtown.promises;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/23/13
- * Time: 3:03 PM
- * To change this template use File | Settings | File Templates.
+ * A value wrapper that can also hold error information for rejections and progress.
+ *
+ * @param <T> the type of value
  */
 public class Value<T> {
 
+    /**
+     * Constructor for a value without an exception
+     *
+     * @param value the underlying value
+     */
     public Value(T value) {
         this.value = value;
     }
 
+    /**
+     * Constructor for a value with an exception
+     *
+     * @param value the underlying value
+     * @param error the associated exception
+     */
     public Value(T value, RuntimeException error) {
         this.value = value;
         this.error = error;
     }
 
+    /**
+     * The actual value (may be null)
+     */
     public T value;
+
+    /**
+     * The associated exception (may be null)
+     */
     public RuntimeException error;
 
 }
