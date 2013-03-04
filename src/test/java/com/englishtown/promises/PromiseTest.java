@@ -69,17 +69,17 @@ public class PromiseTest {
     }
 
     @Test
-    public void testPromise_should_allow_a_single_callback_function() {
+    public void testThen_should_allow_a_single_callback_function() {
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess));
     }
 
     @Test
-    public void testPromise_should_allow_a_callback_and_errback_function() {
+    public void testThen_should_allow_a_callback_and_errback_function() {
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail));
     }
 
     @Test
-    public void testPromise_should_allow_a_callback_errback_and_progback_function() {
+    public void testThen_should_allow_a_callback_errback_and_progback_function() {
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(onSuccess, onFail, onProgress));
     }
 
@@ -95,8 +95,86 @@ public class PromiseTest {
 //        assert.isFunction(defer().promise.then(undef, undef, undef).then);
 //    },
 
+
+//    'should ignore non-functions': {
+//        'when fulfillment handler': {
+//            'is empty string': function(done) {
+//                when.resolve(true).then('').then(assert, fail).always(done);
+//            },
+//            'is false': function(done) {
+//                when.resolve(true).then(false).then(assert, fail).always(done);
+//            },
+//            'is true': function(done) {
+//                when.resolve(true).then(true).then(assert, fail).always(done);
+//            },
+//            'is object': function(done) {
+//                when.resolve(true).then({}).then(assert, fail).always(done);
+//            },
+//            'is falsey': function(done) {
+//                when.resolve(true).then(0).then(assert, fail).always(done);
+//            },
+//            'is truthy': function(done) {
+//                when.resolve(true).then(1).then(assert, fail).always(done);
+//            }
+//        },
+//
+//        'when rejection handler': {
+//            'is empty string': function(done) {
+//                when.reject(true).then(null, '').then(fail, assert).always(done);
+//            },
+//            'is false': function(done) {
+//                when.reject(true).then(null, false).then(fail, assert).always(done);
+//            },
+//            'is true': function(done) {
+//                when.reject(true).then(null, true).then(fail, assert).always(done);
+//            },
+//            'is object': function(done) {
+//                when.reject(true).then(null, {}).then(fail, assert).always(done);
+//            },
+//            'is falsey': function(done) {
+//                when.reject(true).then(null, 0).then(fail, assert).always(done);
+//            },
+//            'is truthy': function(done) {
+//                when.reject(true).then(null, 1).then(fail, assert).always(done);
+//            }
+//        },
+//
+//        'when progress handler': {
+//            'is empty string': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, '').then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            },
+//            'is false': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, false).then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            },
+//            'is true': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, true).then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            },
+//            'is object': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, {}).then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            },
+//            'is falsey': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, 0).then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            },
+//            'is truthy': function(done) {
+//                var d = when.defer();
+//                d.promise.then(null, null, 1).then(fail, fail, assert).then(null, null, done);
+//                d.notify(true);
+//            }
+//        }
+//    }
+
     @Test
-    public void testPromise_should_allow_functions_and_null_or_undefined_to_be_mixed() {
+    public void testThen_should_allow_functions_and_null_or_undefined_to_be_mixed() {
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail));
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, null, onProgress));
         assertNotNull(new When<Integer, Integer>().defer().getPromise().then(null, onFail, onProgress));
@@ -317,16 +395,17 @@ public class PromiseTest {
     }
 
     @Test
-    public void testPromise_should_switch_from_callbacks_to_errbacks_when_callback_throws() {
+    public void testWhen_an_exception_is_thrown_a_resolved_promise_should_reject_if_the_exception_is_a_value() {
 
         Done<Integer, Integer> done = new Done<>();
         Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+        final RuntimeException err = new RuntimeException();
 
         d.getPromise().then(
                 new Runnable<Promise<Integer, Integer>, Integer>() {
                     @Override
                     public Promise<Integer, Integer> run(Integer value) {
-                        throw new RuntimeException();
+                        throw err;
                     }
                 },
                 fail.onFail
@@ -335,30 +414,154 @@ public class PromiseTest {
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertNotNull(value.error);
+                        assertEquals(err, value.error);
                         return null;
                     }
                 }
         ).then(done.onSuccess, done.onFail);
 
-        d.getResolver().resolve(1);
+        d.getResolver().resolve((Integer) null);
         done.assertSuccess();
 
     }
 
+//            'should reject if the exception is a resolved promise': function(done) {
+//                var d, expected;
+//
+//                d = when.defer();
+//                expected = when.resolve();
+//
+//                d.promise.then(
+//                        function() {
+//                    throw expected;
+//                },
+//                fail
+//                ).then(
+//                        fail,
+//                        function(val) {
+//                    assert.same(val, expected);
+//                }
+//                ).always(done);
+//
+//                d.resolve();
+//            },
+//
+//            'should reject if the exception is a rejected promise': function(done) {
+//                var d, expected;
+//
+//                d = when.defer();
+//                expected = when.reject();
+//
+//                d.promise.then(
+//                        function() {
+//                    throw expected;
+//                },
+//                fail
+//                ).then(
+//                        fail,
+//                        function(val) {
+//                    assert.same(val, expected);
+//                }
+//                ).always(done);
+//
+//                d.resolve();
+//            }
+//
+//        },
+//
+//        'a rejected promise': {
+//
+
     @Test
-    public void testPromise_should_switch_from_errbacks_to_callbacks_when_errback_does_not_explicitly_propagate() {
+    public void testWhen_an_exception_is_thrown_a_rejected_promise_should_reject_if_the_exception_is_a_value() {
 
         Done<Integer, Integer> done = new Done<>();
         Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+        final RuntimeException err = new RuntimeException();
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        When<Integer, Integer> w1 = new When<>();
-                        return w1.resolve(value.value + 1);
+                        throw err;
+                    }
+                }
+        ).then(
+                fail.onSuccess,
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(err, value.error);
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        d.getResolver().reject((Integer) null);
+        done.assertSuccess();
+
+    }
+
+//
+//            'should reject if the exception is a resolved promise': function(done) {
+//                var d, expected;
+//
+//                d = when.defer();
+//                expected = when.resolve();
+//
+//                d.promise.then(
+//                        null,
+//                        function() {
+//                    throw expected
+//                }
+//                ).then(
+//                        fail,
+//                        function(val) {
+//                    assert.same(val, expected);
+//                }
+//                ).always(done);
+//
+//                d.reject();
+//            },
+//
+//            'should reject if the exception is a rejected promise': function(done) {
+//                var d, expected;
+//
+//                d = when.defer();
+//                expected = when.reject();
+//
+//                d.promise.then(
+//                        null,
+//                        function() {
+//                    throw expected;
+//                }
+//                ).then(
+//                        fail,
+//                        function(val) {
+//                    assert.same(val, expected);
+//                }
+//                ).always(done);
+//
+//                d.reject();
+//            }
+//
+//        }
+//    },
+
+    @Test
+    public void testPromise_should_switch_from_errbacks_to_callbacks_when_errback_does_not_explicitly_propagate() {
+
+        Done<Integer, Integer> done = new Done<>();
+        final When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d = when.defer();
+
+        d.getPromise().then(
+                fail.onSuccess,
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                        return when.resolve(value.value + 1);
                     }
                 }
         ).then(
@@ -374,23 +577,23 @@ public class PromiseTest {
 
         d.getResolver().reject(1);
         done.assertSuccess();
-
     }
 
     @Test
     public void testPromise_should_switch_from_errbacks_to_callbacks_when_errback_returns_a_resolution() {
 
         Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
+        final When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d = when.defer();
 
         d.getPromise().then(
                 fail.onSuccess,
                 new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public Promise<Integer, Integer> run(Value<Integer> value) {
-                        Deferred<Integer, Integer> d1 = new When<Integer, Integer>().defer();
-                        d1.getResolver().resolve(value.value + 1);
-                        return d1.getPromise();
+                        Deferred<Integer, Integer> d = when.defer();
+                        d.getResolver().resolve(value.value + 1);
+                        return d.getPromise();
                     }
                 }
         ).then(
@@ -402,36 +605,6 @@ public class PromiseTest {
                     }
                 },
                 fail.onFail
-        ).then(done.onSuccess, done.onFail);
-
-        d.getResolver().reject(1);
-        done.assertSuccess();
-
-    }
-
-    @Test
-    public void testPromise_should_propagate_rejections_when_errback_throws() {
-
-        Done<Integer, Integer> done = new Done<>();
-        Deferred<Integer, Integer> d = new When<Integer, Integer>().defer();
-
-        d.getPromise().then(
-                fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
-                    @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        throw new RuntimeException();
-                    }
-                }
-        ).then(
-                fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
-                    @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertNotNull(value.error);
-                        return null;
-                    }
-                }
         ).then(done.onSuccess, done.onFail);
 
         d.getResolver().reject(1);
@@ -487,7 +660,7 @@ public class PromiseTest {
             }
         });
 
-        d.getResolver().progress(expected);
+        d.getResolver().notify(expected);
         done.assertSuccess();
 
     }
@@ -557,7 +730,7 @@ public class PromiseTest {
                     }
                 });
 
-        d.getResolver().progress(1);
+        d.getResolver().notify(1);
         done.assertSuccess();
     }
 

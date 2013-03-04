@@ -35,6 +35,9 @@ import static org.junit.Assert.assertEquals;
 public class ResolveTest {
 
     private Fail<Integer, Integer> fail = new Fail<>();
+    private Fail<Object, Object> fail2 = new Fail<>();
+    private final Object sentinel = new Object();
+    private final Object other = new Object();
 
     @Test
     public void testResolve_should_resolve_an_immediate_value() {
@@ -108,40 +111,101 @@ public class ResolveTest {
 
     }
 
-//            'should use valueOf immediate values': function(done) {
-//        // See https://github.com/kriskowal/q/issues/106
-//        var fake, expected;
-//
-//        expected = 1;
-//        fake = {
-//                valueOf: this.stub().returns(expected)
-//        };
-//
-//        when.resolve(fake).then(
-//                function(value) {
-//            assert.equals(value, expected);
-//        },
-//        fail
-//        ).always(done);
-//    },
-//
-//            'should use valueOf foreign promises': function(done) {
-//        // See https://github.com/kriskowal/q/issues/106
-//        var fake, expected;
-//
-//        expected = 1;
-//        fake = {
-//                valueOf: function() {
-//            return this;
-//        },
-//        then: function(cb) {
-//            return cb(expected);
+    @Test
+    public void testResolve_when_assimilating_untrusted_thenables_should_trap_exceptions_during_assimilation() {
+
+        When<Object, Object> when = new When<>();
+        Done<Object, Object> done = new Done<>();
+        final RuntimeException err = new RuntimeException();
+
+        when.resolvePromise(new Thenable<Object, Object>() {
+            @Override
+            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+                throw err;
+            }
+        }).then(
+                fail2.onSuccess,
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Value<Object> value) {
+                        assertEquals(err, value.error);
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testResolve_when_assimilating_untrusted_thenables_should_ignore_exceptions_after_fulfillment() {
+
+        When<Object, Object> when = new When<>();
+        Done<Object, Object> done = new Done<>();
+
+        when.resolvePromise(new Thenable<Object, Object>() {
+            @Override
+            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+                onFulfilled.run(sentinel);
+                throw new RuntimeException();
+            }
+        }
+        ).then(
+                new Runnable<Promise<Object, Object>, Object>() {
+                    @Override
+                    public Promise<Object, Object> run(Object value) {
+                        assertEquals(sentinel, value);
+                        return null;
+                    }
+                },
+                fail2.onFail
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testResolve_when_assimilating_untrusted_thenables_should_ignore_exceptions_after_rejection() {
+
+        When<Object, Object> when = new When<>();
+        Done<Object, Object> done = new Done<>();
+
+        when.resolvePromise(new Thenable<Object, Object>() {
+            @Override
+            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+                onRejected.run(new Value<Object>(sentinel));
+                throw new RuntimeException();
+            }
+        }
+        ).then(
+                fail2.onSuccess,
+                new Runnable<Promise<Object, Object>, Value<Object>>() {
+                    @Override
+                    public Promise<Object, Object> run(Value<Object> value) {
+                        assertEquals(sentinel, value.value);
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+// Cannot do in Java with strong typing, onFulfilled must be called with TResolve
+//    @Test
+//    public void testResolve_when_assimilating_untrusted_thenables_should_assimilate_thenable_used_as_fulfillment_value() {
+//        when.resolve({
+//                then:function(onFulfilled) {
+//            onFulfilled({
+//                    then:function(onFulfilled) {
+//                onFulfilled(sentinel);
+//            }
+//            });
+//            throw other;
 //        }
-//        };
-//
-//        when.resolve(fake).then(
-//                function(value) {
-//            assert.equals(value, expected);
+//        }).then(
+//                function(val) {
+//            assert.same(val, sentinel);
 //        },
 //        fail
 //        ).always(done);

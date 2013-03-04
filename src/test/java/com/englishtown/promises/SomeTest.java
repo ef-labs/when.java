@@ -157,15 +157,15 @@ public class SomeTest {
         );
 
         done.success = false;
-        d1.getResolver().progress(expected);
+        d1.getResolver().notify(expected);
         done.assertSuccess();
 
         done.success = false;
-        d2.getResolver().progress(expected);
+        d2.getResolver().notify(expected);
         done.assertSuccess();
 
         done.success = false;
-        d3.getResolver().progress(expected);
+        d3.getResolver().notify(expected);
         done.assertSuccess();
     }
 

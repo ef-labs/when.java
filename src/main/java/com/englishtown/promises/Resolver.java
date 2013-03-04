@@ -67,7 +67,7 @@ public interface Resolver<TResolve, TProgress> {
      * @param update the progress information
      * @return either the same progress information or modified progress information.
      */
-    Value<TProgress> progress(TProgress update);
+    Value<TProgress> notify(TProgress update);
 
     /**
      * Triggers the onProgress handlers with progress information which may contain an exception
@@ -75,6 +75,6 @@ public interface Resolver<TResolve, TProgress> {
      * @param update the progress information
      * @return either the same progress information or modified progress information.
      */
-    Value<TProgress> progress(Value<TProgress> update);
+    Value<TProgress> notify(Value<TProgress> update);
 
 }
