@@ -32,36 +32,36 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 4:55 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class PromiseTest {
 
-    private Runnable<Promise<Integer, Integer>, Integer> onSuccess = new Runnable<Promise<Integer, Integer>, Integer>() {
+    private final Runnable<Promise<Integer, Integer>, Integer> onSuccess = new Runnable<Promise<Integer, Integer>, Integer>() {
         @Override
         public Promise<Integer, Integer> run(Integer value) {
             return null;
         }
     };
 
-    private Runnable<Promise<Integer, Integer>, Value<Integer>> onFail = new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+    private final Runnable<Promise<Integer, Integer>, Value<Integer>> onFail = new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
         @Override
         public Promise<Integer, Integer> run(Value<Integer> value) {
             return null;
         }
     };
 
-    private Runnable<Value<Integer>, Value<Integer>> onProgress = new Runnable<Value<Integer>, Value<Integer>>() {
+    private final Runnable<Value<Integer>, Value<Integer>> onProgress = new Runnable<Value<Integer>, Value<Integer>>() {
         @Override
         public Value<Integer> run(Value<Integer> value) {
             return value;
         }
     };
 
-    private Fail<Integer, Integer> fail = new Fail<>();
-    private Fail<Object, Object> fail2 = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<Object, Object> fail2 = new Fail<>();
 
-    private Object sentinel = new Object();
-    private Object other = new Object();
+    private final Object sentinel = new Object();
+    private final Object other = new Object();
 
     @Test
     public void testPromise_should_return_a_promise() {

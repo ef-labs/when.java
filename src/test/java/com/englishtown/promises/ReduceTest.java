@@ -34,21 +34,21 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/5/13
  * Time: 4:31 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class ReduceTest {
 
-    private Fail<Integer, Integer> fail = new Fail<>();
-    private Fail<String, Integer> fail2 = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<String, Integer> fail2 = new Fail<>();
 
-    private Reducer<Integer, Integer> plus = new Reducer<Integer, Integer>() {
+    private final Reducer<Integer, Integer> plus = new Reducer<Integer, Integer>() {
         @Override
         public Integer run(Integer previousValue, Integer currentValue, int currentIndex, int total) {
             return (previousValue == null ? 0 : previousValue) + (currentValue == null ? 0 : currentValue);
         }
     };
 
-    Reducer<String, String> plus2 = new Reducer<String, String>() {
+    private final Reducer<String, String> plus2 = new Reducer<String, String>() {
         @Override
         public String run(String previousValue, String currentValue, int currentIndex, int total) {
             return previousValue + currentValue;

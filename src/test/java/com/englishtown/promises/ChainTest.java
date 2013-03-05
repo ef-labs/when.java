@@ -30,11 +30,11 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/2/13
  * Time: 6:32 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class ChainTest {
 
-    private Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
 
     @Test
     public void testChain_should_return_a_promise_for_an_input_value() {

@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 2:12 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class DeferTest {
 
@@ -98,7 +98,7 @@ public class DeferTest {
 
     private class FakeRejected<TResolve, TProgress> implements Promise<TResolve, TProgress> {
 
-        private Value<TResolve> reason;
+        private final Value<TResolve> reason;
 
         public FakeRejected(Value<TResolve> reason) {
             this.reason = reason;
@@ -332,7 +332,7 @@ public class DeferTest {
 
         Deferred<Object, Object> d = new When<>().defer();
         Done<Object, Object> done = new Done<>();
-        final Promise<Object, Object> expected = new FakeRejected<>(new Value<Object>(sentinel));
+        final Promise<Object, Object> expected = new FakeRejected<>(new Value<>(sentinel));
 
         d.getPromise().then(
                 fail.onSuccess,

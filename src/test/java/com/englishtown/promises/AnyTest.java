@@ -34,12 +34,12 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/2/13
  * Time: 5:42 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class AnyTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
-    private Fail<Integer, Integer> fail2 = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<Integer, Integer> fail2 = new Fail<>();
 
     @Test
     public void testAny_should_resolve_to_undefined_with_empty_input_array() {

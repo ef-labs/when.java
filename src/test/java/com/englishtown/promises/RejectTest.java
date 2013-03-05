@@ -30,11 +30,11 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 5:55 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class RejectTest {
 
-    private Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
 
     @Test
     public void testReject_should_reject_an_immediate_value() {

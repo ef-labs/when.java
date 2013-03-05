@@ -29,15 +29,15 @@ import static org.junit.Assert.assertTrue;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 2:41 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class Done<TResolve, TProgress> {
 
     public boolean success;
     public boolean failed;
 
-    public Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
+    public final Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
+    public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
 
     public void assertSuccess() {
         assertTrue(success);

@@ -30,14 +30,14 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 6:02 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class ResolveTest {
 
-    private Fail<Integer, Integer> fail = new Fail<>();
-    private Fail<Object, Object> fail2 = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<Object, Object> fail2 = new Fail<>();
     private final Object sentinel = new Object();
-    private final Object other = new Object();
+//    private final Object other = new Object();
 
     @Test
     public void testResolve_should_resolve_an_immediate_value() {
@@ -173,7 +173,7 @@ public class ResolveTest {
         when.resolvePromise(new Thenable<Object, Object>() {
             @Override
             public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
-                onRejected.run(new Value<Object>(sentinel));
+                onRejected.run(new Value<>(sentinel));
                 throw new RuntimeException();
             }
         }

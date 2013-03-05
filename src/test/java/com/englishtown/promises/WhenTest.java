@@ -30,14 +30,14 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 6:18 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class WhenTest {
 
-    private Fail<Integer, Integer> fail = new Fail<>();
-    private Fail<Boolean, Integer> fail2 = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
+    private final Fail<Boolean, Integer> fail2 = new Fail<>();
 
-    private FakePromise<Integer, Integer> fakePromise = new FakePromise<>();
+    private final FakePromise<Integer, Integer> fakePromise = new FakePromise<>();
 
     private class FakePromise<TResolve, TProgress> implements Promise<TResolve, TProgress> {
 
@@ -71,7 +71,7 @@ public class WhenTest {
 
     private class Constant<T> implements Runnable<Promise<T, Integer>, T> {
 
-        private T value;
+        private final T value;
 
         private Constant(T value) {
             this.value = value;

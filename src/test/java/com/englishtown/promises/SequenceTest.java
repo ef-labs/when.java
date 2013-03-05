@@ -34,11 +34,11 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/13/13
  * Time: 1:14 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class SequenceTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
     private Runnable<Promise<Integer, Integer>, Void> createTask(final int y) {
         return new Runnable<Promise<Integer, Integer>, Void>() {

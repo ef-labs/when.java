@@ -34,13 +34,13 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 1/31/13
  * Time: 5:10 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class MapTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
-    Runnable<Integer, Integer> mapper = new Runnable<Integer, Integer>() {
+    private final Runnable<Integer, Integer> mapper = new Runnable<Integer, Integer>() {
         @Override
         public Integer run(Integer value) {
             return (value == null ? null : value * 2);
