@@ -77,6 +77,6 @@ public interface PromiseExt<TResolve, TProgress> extends Promise<TResolve, TProg
      * @param promise the promise to be returned
      * @return an {@link Promise} that fulfill with its value or reject with its reason.
      */
-    Promise<TResolve, TProgress> yield(Promise<TResolve, TProgress> promise);
+    Promise<TResolve, TProgress> yield(Thenable<TResolve, TProgress> promise);
 
 }

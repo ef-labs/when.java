@@ -70,7 +70,7 @@ public class When<TResolve, TProgress> {
      * @return a new {@link Promise} that will complete with the completion value of promise.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise) {
+            Thenable<TResolve, TProgress> promise) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         return when(promise, null, null, null);
@@ -86,7 +86,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled is not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
         return when(promise, onFulfilled, null, null);
     }
@@ -102,7 +102,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled and/or onRejected are not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
         return when(promise, onFulfilled, onRejected, null);
@@ -120,7 +120,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled and/or onRejected are not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
@@ -227,7 +227,7 @@ public class When<TResolve, TProgress> {
      * @param promise the rejected value of the returned {@link Promise}
      * @return a rejected {@link Promise}
      */
-    public Promise<TResolve, TProgress> reject(Promise<TResolve, TProgress> promise) {
+    public Promise<TResolve, TProgress> reject(Thenable<TResolve, TProgress> promise) {
         return when(
                 promise,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
@@ -328,7 +328,7 @@ public class When<TResolve, TProgress> {
         }
 
         @Override
-        public Promise<TResolve, TProgress> yield(final Promise<TResolve, TProgress> promise) {
+        public Promise<TResolve, TProgress> yield(final Thenable<TResolve, TProgress> promise) {
             return this.then(
                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                         @Override
