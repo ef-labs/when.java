@@ -338,4 +338,45 @@ public class ChainTest {
 
     }
 
+    @Test
+    public void testChain_should_return_a_promise_that_forwards_progress_to_provided_resolver() {
+
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d;
+        Deferred<Integer, Integer> input;
+        final Integer expected = 5;
+        final Value<Boolean> success1 = new Value<>(false);
+        final Value<Boolean> success2 = new Value<>(false);
+
+        input = when.defer();
+        d = when.defer();
+
+        d.getPromise().then(null, null, new Runnable<Value<Integer>, Value<Integer>>() {
+            @Override
+            public Value<Integer> run(Value<Integer> progress) {
+                assertEquals(expected, progress.value);
+                success1.value = true;
+                return progress;
+            }
+        });
+
+        when.chain(input.getPromise(), d.getResolver()).then(
+                fail.onSuccess,
+                fail.onFail,
+                new Runnable<Value<Integer>, Value<Integer>>() {
+                    @Override
+                    public Value<Integer> run(Value<Integer> progress) {
+                        assertEquals(expected, progress.value);
+                        success2.value = true;
+                        return progress;
+                    }
+                }
+        );
+
+        input.getResolver().notify(expected);
+        assertTrue(success1.value);
+        assertTrue(success2.value);
+
+    }
+
 }
