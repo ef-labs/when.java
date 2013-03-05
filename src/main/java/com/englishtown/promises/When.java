@@ -1515,20 +1515,37 @@ public class When<TResolve, TProgress> {
                     int total) {
                 final Deferred<List<TResolve>, TProgress> d2 = w2.defer();
 
-                when(task.run(arg), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                    @Override
-                    public Promise<TResolve, TProgress> run(final TResolve value) {
-                        w2.when(results, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                Promise<TResolve, TProgress> taskResult;
+
+                try {
+                    taskResult = task.run(arg);
+                } catch (RuntimeException ex) {
+                    taskResult = rejected(new Value<TResolve>(null, ex));
+                }
+
+                when(taskResult,
+                        new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                             @Override
-                            public Promise<List<TResolve>, TProgress> run(List<TResolve> results) {
-                                results.add(value);
-                                d2.getResolver().resolve(results);
+                            public Promise<TResolve, TProgress> run(final TResolve value) {
+                                w2.when(results, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                                    @Override
+                                    public Promise<List<TResolve>, TProgress> run(List<TResolve> results) {
+                                        results.add(value);
+                                        d2.getResolver().resolve(results);
+                                        return null;
+                                    }
+                                });
                                 return null;
                             }
-                        });
-                        return null;
-                    }
-                });
+                        },
+                        new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
+                            @Override
+                            public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+                                d1.getResolver().reject(new Value<>(Arrays.asList(value.value), value.error));
+                                return null;
+                            }
+                        }
+                );
 
                 return d2.getPromise();
             }
@@ -1541,19 +1558,6 @@ public class When<TResolve, TProgress> {
                             @Override
                             public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
                                 d1.getResolver().resolve(value);
-                                return null;
-                            }
-                        });
-                        return null;
-                    }
-                },
-                new Runnable<Promise<Promise<List<TResolve>, TProgress>, TProgress>, Value<Promise<List<TResolve>, TProgress>>>() {
-                    @Override
-                    public Promise<Promise<List<TResolve>, TProgress>, TProgress> run(Value<Promise<List<TResolve>, TProgress>> value) {
-                        w2.when(value.value, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
-                            @Override
-                            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
-                                d1.getResolver().reject(value);
                                 return null;
                             }
                         });
