@@ -34,11 +34,11 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/13/13
  * Time: 1:14 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class SequenceTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
     private Runnable<Promise<Integer, Integer>, Void> createTask(final int y) {
         return new Runnable<Promise<Integer, Integer>, Void>() {
@@ -165,6 +165,102 @@ public class SequenceTest {
         d1.getResolver().resolve(1);
         d3.getResolver().resolve(3);
         d2.getResolver().resolve(2);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testSequence_should_execute_tasks_with_reject() {
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+                Arrays.asList(
+                        createTask(when.resolve(1)),
+                        createTask(when.resolve(2)),
+                        createTask(when.reject(3)));
+
+        when.sequence(tasks).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                        assertNotNull(value);
+                        Integer[] expected = {3};
+                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testSequence_should_execute_delayed_tasks_with_reject() {
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        Deferred<Integer, Integer> d1 = when.defer();
+        Deferred<Integer, Integer> d2 = when.defer();
+        Deferred<Integer, Integer> d3 = when.defer();
+        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+                Arrays.asList(
+                        createTask(d1.getPromise()),
+                        createTask(d2.getPromise()),
+                        createTask(d3.getPromise()));
+
+        when.sequence(tasks).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                        assertNotNull(value);
+                        Integer[] expected = {2};
+                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        d1.getResolver().resolve(1);
+        d3.getResolver().resolve(3);
+        d2.getResolver().reject(2);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testSequence_should_execute_tasks_with_exception_and_reject() {
+
+        Done<List<Integer>, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+        final RuntimeException ex = new RuntimeException();
+
+        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+                Arrays.asList(
+                        createTask(when.resolve(1)),
+                        createTask(when.resolve(2)),
+                        new Runnable<Promise<Integer, Integer>, Void>() {
+                            @Override
+                            public Promise<Integer, Integer> run(Void value) {
+                                throw ex;
+                            }
+                        });
+
+        when.sequence(tasks).then(
+                fail.onSuccess,
+                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                    @Override
+                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                        assertNotNull(value);
+                        assertEquals(ex, value.error);
+                        assertEquals(1, value.value.size());
+                        assertNull(value.value.get(0));
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
 
         done.assertSuccess();
     }

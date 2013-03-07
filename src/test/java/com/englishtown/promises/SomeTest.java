@@ -34,11 +34,11 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/2/13
  * Time: 3:06 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class SomeTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
     @Test
     public void testSome_should_resolve_empty_input() {
@@ -157,15 +157,15 @@ public class SomeTest {
         );
 
         done.success = false;
-        d1.getResolver().progress(expected);
+        d1.getResolver().notify(expected);
         done.assertSuccess();
 
         done.success = false;
-        d2.getResolver().progress(expected);
+        d2.getResolver().notify(expected);
         done.assertSuccess();
 
         done.success = false;
-        d3.getResolver().progress(expected);
+        d3.getResolver().notify(expected);
         done.assertSuccess();
     }
 

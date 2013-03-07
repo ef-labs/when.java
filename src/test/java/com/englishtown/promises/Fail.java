@@ -28,13 +28,13 @@ import static org.junit.Assert.fail;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 5:32 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class Fail<TResolve, TProgress> {
 
 
-    public Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
+    public final Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
+    public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
 
     private class SuccessCallback implements Runnable<Promise<TResolve, TProgress>, TResolve> {
         @Override

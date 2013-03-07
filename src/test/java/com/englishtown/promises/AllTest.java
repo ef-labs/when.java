@@ -34,11 +34,11 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 3:15 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class AllTest {
 
-    private Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
     @Test
     public void testAll_should_resolve_empty_input() {

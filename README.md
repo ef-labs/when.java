@@ -3,7 +3,7 @@ When.java
 
 When.java is a Java implementation of the [CommonJS](http://wiki.commonjs.org/wiki/Promises) [Promises/A](http://wiki.commonjs.org/wiki/Promises/A) specification.
 
-It is a port of the [cujojs/when](https://github.com/cujojs/when) v1.7.1 by Brian Cavalier and John Hann.
+It is a port of the [cujojs/when](https://github.com/cujojs/when) v1.8.1 by Brian Cavalier and John Hann.
 
 
 Getting started
@@ -48,7 +48,7 @@ The following demonstrates registering a resolution handler that is triggered in
 
 2\. Chaining callbacks
 
-The following deomonstrates chaining resolution handlers and how the value can be modified.
+The following demonstrates chaining resolution handlers and how the value can be modified.
 
 ```java
         // Create the when and deferred objects

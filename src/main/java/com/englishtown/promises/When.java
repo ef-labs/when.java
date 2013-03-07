@@ -29,7 +29,7 @@ import java.util.List;
  * A Java implementation of the CommonJS Promises/A specification.
  * http://wiki.commonjs.org/wiki/Promises/A
  * <p/>
- * Based on the when.js 1.7.1 library (c) copyright B Cavalier & J Hann (https://github.com/cujojs/when)
+ * Based on the when.js 1.8.1 library (c) copyright B Cavalier & J Hann (https://github.com/cujojs/when)
  *
  * @param <TResolve>  the type passed to fulfillment or rejection handlers
  * @param <TProgress> the type passed to progress handlers
@@ -70,7 +70,7 @@ public class When<TResolve, TProgress> {
      * @return a new {@link Promise} that will complete with the completion value of promise.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise) {
+            Thenable<TResolve, TProgress> promise) {
         // Get a trusted promise for the input promiseOrValue, and then
         // register promise handlers
         return when(promise, null, null, null);
@@ -86,7 +86,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled is not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled) {
         return when(promise, onFulfilled, null, null);
     }
@@ -102,7 +102,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled and/or onRejected are not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected) {
         return when(promise, onFulfilled, onRejected, null);
@@ -120,7 +120,7 @@ public class When<TResolve, TProgress> {
      *         completion value of promise if onFulfilled and/or onRejected are not supplied.
      */
     public Promise<TResolve, TProgress> when(
-            Promise<TResolve, TProgress> promise,
+            Thenable<TResolve, TProgress> promise,
             Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
             Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
@@ -148,7 +148,7 @@ public class When<TResolve, TProgress> {
      * @param promise the promise to resolve
      * @return Guarantee to return a trusted PromiseImpl
      */
-    public Promise<TResolve, TProgress> resolvePromise(Promise<TResolve, TProgress> promise) {
+    public Promise<TResolve, TProgress> resolvePromise(Thenable<TResolve, TProgress> promise) {
         return resolve(promise);
     }
 
@@ -159,7 +159,7 @@ public class When<TResolve, TProgress> {
      * @param promise the promise to resolve
      * @return Guarantee to return a trusted PromiseImpl
      */
-    private PromiseImpl resolve(Promise<TResolve, TProgress> promise) {
+    private PromiseImpl resolve(Thenable<TResolve, TProgress> promise) {
 
         // Handle null promise
         if (promise == null) {
@@ -169,43 +169,54 @@ public class When<TResolve, TProgress> {
         if (PromiseImpl.class.isInstance(promise)) {
             // It's a when.js promise, so we trust it
             return (PromiseImpl) promise;
-
         } else {
+            // Assimilate foreign promises
+            return assimilate(promise);
+        }
 
-            // It's not a when.js promise. See if it's a foreign promise or a value.
-            // It's a thenable, but we don't know where it came from, so don't trust
-            // its implementation entirely.  Introduce a trusted middleman when.js promise
-            final DeferredImpl deferred = deferInner();
+    }
 
-            // IMPORTANT: This is the only place when.js should ever call .then() on an
-            // untrusted promise. Don't expose the return value to the untrusted promise
-            promise.then(
+    /**
+     * Assimilate an untrusted thenable by introducing a trusted middle man.
+     * Not a perfect strategy, but possibly the best we can do.
+     * IMPORTANT: This is the only place when.js should ever call an untrusted
+     * thenable's then(). Don't expose the return value to the untrusted thenable
+     *
+     * @param thenable An untrusted Thenable instance
+     * @return trusted PromiseImpl
+     */
+    private PromiseImpl assimilate(Thenable<TResolve, TProgress> thenable) {
+        final DeferredImpl d = deferInner();
+
+        try {
+            thenable.then(
                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                         @Override
                         public Promise<TResolve, TProgress> run(TResolve value) {
-                            deferred.resolver.resolve(value);
+                            d.resolver.resolve(value);
                             return null;
                         }
                     },
                     new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
                         public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
-                            deferred.resolver.reject(reason);
+                            d.resolver.reject(reason);
                             return null;
                         }
                     },
                     new Runnable<Value<TProgress>, Value<TProgress>>() {
                         @Override
                         public Value<TProgress> run(Value<TProgress> update) {
-                            deferred.resolver.progress(update);
+                            d.resolver.notify(update);
                             return null;
                         }
                     }
             );
-
-            return deferred.promise;
-
+        } catch (RuntimeException e) {
+            d.resolver.reject(new Value<TResolve>(null, e));
         }
+
+        return d.promise;
 
     }
 
@@ -216,7 +227,7 @@ public class When<TResolve, TProgress> {
      * @param promise the rejected value of the returned {@link Promise}
      * @return a rejected {@link Promise}
      */
-    public Promise<TResolve, TProgress> reject(Promise<TResolve, TProgress> promise) {
+    public Promise<TResolve, TProgress> reject(Thenable<TResolve, TProgress> promise) {
         return when(
                 promise,
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
@@ -254,10 +265,10 @@ public class When<TResolve, TProgress> {
      */
     private class PromiseImpl implements PromiseExt<TResolve, TProgress> {
 
-        private final Thenable<TResolve, TProgress> __then;
+        private final Thenable<TResolve, TProgress> then;
 
         PromiseImpl(Thenable<TResolve, TProgress> then) {
-            __then = then;
+            this.then = then;
         }
 
         @Override
@@ -275,7 +286,7 @@ public class When<TResolve, TProgress> {
                 Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
                 Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
                 Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-            return __then.then(onFulfilled, onRejected, onProgress);
+            return this.then.then(onFulfilled, onRejected, onProgress);
         }
 
         @Override
@@ -317,7 +328,7 @@ public class When<TResolve, TProgress> {
         }
 
         @Override
-        public Promise<TResolve, TProgress> yield(final Promise<TResolve, TProgress> promise) {
+        public Promise<TResolve, TProgress> yield(final Thenable<TResolve, TProgress> promise) {
             return this.then(
                     new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                         @Override
@@ -380,7 +391,7 @@ public class When<TResolve, TProgress> {
      * @param reason the reason for the rejection
      * @return a new rejected {@link Promise}.
      */
-    private Promise<TResolve, TProgress> rejected(final Value<TResolve> reason) {
+    private PromiseImpl rejected(final Value<TResolve> reason) {
         return new PromiseImpl(new Thenable<TResolve, TProgress>() {
 
             @Override
@@ -432,17 +443,17 @@ public class When<TResolve, TProgress> {
         public final Runnable<Promise<TResolve, TProgress>, TResolve> resolve;
         public final Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise;
         public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject;
-        public final Runnable<Value<TProgress>, Value<TProgress>> progress;
+        public final Runnable<Value<TProgress>, Value<TProgress>> notify;
 
         public ResolverImpl(
                 Runnable<Promise<TResolve, TProgress>, TResolve> resolve,
                 Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> resolvePromise,
                 Runnable<Promise<TResolve, TProgress>, Value<TResolve>> reject,
-                Runnable<Value<TProgress>, Value<TProgress>> progress) {
+                Runnable<Value<TProgress>, Value<TProgress>> notify) {
             this.resolve = resolve;
             this.resolvePromise = resolvePromise;
             this.reject = reject;
-            this.progress = progress;
+            this.notify = notify;
         }
 
         @Override
@@ -466,13 +477,13 @@ public class When<TResolve, TProgress> {
         }
 
         @Override
-        public Value<TProgress> progress(TProgress update) {
-            return progress(new Value<>(update, null));
+        public Value<TProgress> notify(TProgress update) {
+            return notify(new Value<>(update, null));
         }
 
         @Override
-        public Value<TProgress> progress(Value<TProgress> update) {
-            return progress.run(update);
+        public Value<TProgress> notify(Value<TProgress> update) {
+            return notify.run(update);
         }
     }
 
@@ -516,11 +527,11 @@ public class When<TResolve, TProgress> {
                         public Value<TProgress> run(Value<TProgress> update) {
                             try {
                                 // Allow progress handler to transform progress event
-                                deferred.resolver.progress(onProgress.run(update));
+                                deferred.resolver.notify(onProgress.run(update));
 
                             } catch (RuntimeException e) {
                                 // Use caught value as progress
-                                deferred.resolver.progress(new Value<TProgress>(null, e));
+                                deferred.resolver.notify(new Value<TProgress>(null, e));
 
                             }
 
@@ -531,7 +542,7 @@ public class When<TResolve, TProgress> {
                     progressHandler.value = new Runnable<Value<TProgress>, Value<TProgress>>() {
                         @Override
                         public Value<TProgress> run(Value<TProgress> update) {
-                            deferred.resolver.progress(update);
+                            deferred.resolver.notify(update);
                             return null;
                         }
                     };
@@ -553,8 +564,8 @@ public class When<TResolve, TProgress> {
         };
 
         // Issue a progress event, notifying all progress listeners
-        final ValueHolder<Runnable<Value<TProgress>, Value<TProgress>>> _progress = new ValueHolder<>();
-        _progress.value = new Runnable<Value<TProgress>, Value<TProgress>>() {
+        final ValueHolder<Runnable<Value<TProgress>, Value<TProgress>>> _notify = new ValueHolder<>();
+        _notify.value = new Runnable<Value<TProgress>, Value<TProgress>>() {
             @Override
             public Value<TProgress> run(Value<TProgress> update) {
                 processQueue(progressHandlers, update);
@@ -564,70 +575,71 @@ public class When<TResolve, TProgress> {
 
         // Transition from pre-resolution state to post-resolution state, notifying all listeners of the resolution
         // or rejection
-        final ValueHolder<Runnable<Promise<TResolve, TProgress>, TResolve>> _resolve = new ValueHolder<>();
+        final ValueHolder<Runnable<Promise<TResolve, TProgress>, PromiseImpl>> _resolve = new ValueHolder<>();
 
-        final Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> _resolvePromise =
-                new Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>>() {
+        _resolve.value = new Runnable<Promise<TResolve, TProgress>, PromiseImpl>() {
+            @Override
+            public Promise<TResolve, TProgress> run(PromiseImpl p) {
+
+                // Replace _then with one that directly notifies with the result.
+                _then.value = p.then;
+                // Replace _resolve so that this Deferred can only be resolved once
+                _resolve.value = new Runnable<Promise<TResolve, TProgress>, PromiseImpl>() {
                     @Override
-                    public Promise<TResolve, TProgress> run(Promise<TResolve, TProgress> p1) {
-                        PromiseImpl p2 = resolve(p1);
-
-                        // Replace _then with one that directly notifies with the result.
-                        _then.value = p2.__then;
-                        // Replace _resolve so that this Deferred can only be resolved once
-                        _resolve.value = identity;
-                        // Make _progress null, to disallow progress for the resolved promise.
-                        _progress.value = null;
-
-                        // Notify handlers
-                        processQueue(handlers, p2);
-
-                        // Free progressHandlers array since we'll never issue progress events
-                        progressHandlers.clear();
-                        handlers.clear();
-
-                        return p2;
+                    public Promise<TResolve, TProgress> run(PromiseImpl promise) {
+                        return promise;
+                    }
+                };
+                // Make _notify identity, to disallow progress for the resolved promise.
+                _notify.value = new Runnable<Value<TProgress>, Value<TProgress>>() {
+                    @Override
+                    public Value<TProgress> run(Value<TProgress> progress) {
+                        return progress;
                     }
                 };
 
-        _resolve.value = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-            @Override
-            public Promise<TResolve, TProgress> run(TResolve value) {
-                return _resolvePromise.run(resolve(value));
+                // Notify handlers
+                processQueue(handlers, p);
+
+                // Free progressHandlers array since we'll never issue progress events
+                progressHandlers.clear();
+                handlers.clear();
+
+                return p;
             }
         };
 
         // Wrappers to allow replacing implementations
+        Thenable<TResolve, TProgress> promiseThen = new Thenable<TResolve, TProgress>() {
+            @Override
+            public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
+                return _then.value.then(onFulfilled, onRejected, onProgress);
+            }
+        };
         Runnable<Promise<TResolve, TProgress>, TResolve> promiseResolve = new Runnable<Promise<TResolve, TProgress>, TResolve>() {
             @Override
             public Promise<TResolve, TProgress> run(TResolve value) {
-                return _resolve.value.run(value);
+                return _resolve.value.run(fulfilled(value));
             }
         };
         Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>> promiseResolvePromise = new
                 Runnable<Promise<TResolve, TProgress>, Promise<TResolve, TProgress>>() {
                     @Override
                     public Promise<TResolve, TProgress> run(Promise<TResolve, TProgress> promise) {
-                        return _resolvePromise.run(promise);
+                        return _resolve.value.run(resolve(promise));
                     }
                 };
         Runnable<Promise<TResolve, TProgress>, Value<TResolve>> promiseReject = new Runnable<Promise<TResolve,
                 TProgress>, Value<TResolve>>() {
             @Override
             public Promise<TResolve, TProgress> run(Value<TResolve> reason) {
-                return _resolvePromise.run(resolve(rejected(reason)));
+                return _resolve.value.run(rejected(reason));
             }
         };
-        Runnable<Value<TProgress>, Value<TProgress>> promiseProgress = new Runnable<Value<TProgress>, Value<TProgress>>() {
+        Runnable<Value<TProgress>, Value<TProgress>> promiseNotify = new Runnable<Value<TProgress>, Value<TProgress>>() {
             @Override
             public Value<TProgress> run(Value<TProgress> value) {
-                return (_progress.value != null ? _progress.value.run(value) : null);
-            }
-        };
-        Thenable<TResolve, TProgress> promiseThen = new Thenable<TResolve, TProgress>() {
-            @Override
-            public Promise<TResolve, TProgress> then(Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled, Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected, Runnable<Value<TProgress>, Value<TProgress>> onProgress) {
-                return _then.value.then(onFulfilled, onRejected, onProgress);
+                return _notify.value.run(value);
             }
         };
 
@@ -639,7 +651,7 @@ public class When<TResolve, TProgress> {
                 promiseResolve,
                 promiseResolvePromise,
                 promiseReject,
-                promiseProgress);
+                promiseNotify);
 
         // The full Deferred object, with PromiseImpl and ResolverImpl
         return new DeferredImpl(promise, resolver);
@@ -727,7 +739,7 @@ public class When<TResolve, TProgress> {
                     d1.getResolver().resolve(values);
 
                 } else {
-                    Runnable<Value<TProgress>, Value<TProgress>> progress = d1.resolver.progress;
+                    Runnable<Value<TProgress>, Value<TProgress>> notify = d1.resolver.notify;
 
                     final ValueHolder<Runnable<Promise<TResolve, TProgress>, TResolve>> fulfillOne = new ValueHolder<>();
                     final ValueHolder<Runnable<Promise<TResolve, TProgress>, Value<TResolve>>> rejectOne = new ValueHolder<>();
@@ -780,7 +792,7 @@ public class When<TResolve, TProgress> {
 
                     for (int i = 0; i < len; ++i) {
                         if (i < promises.size()) {
-                            when(promises.get(i), fulfiller, rejecter, progress);
+                            when(promises.get(i), fulfiller, rejecter, notify);
                         }
                     }
                 }
@@ -1456,7 +1468,8 @@ public class When<TResolve, TProgress> {
                 new Runnable<Value<TProgress>, Value<TProgress>>() {
                     @Override
                     public Value<TProgress> run(Value<TProgress> value) {
-                        return resolver.progress(value);
+                        resolver.notify(value);
+                        return value;
                     }
                 }
         );
@@ -1502,20 +1515,37 @@ public class When<TResolve, TProgress> {
                     int total) {
                 final Deferred<List<TResolve>, TProgress> d2 = w2.defer();
 
-                when(task.run(arg), new Runnable<Promise<TResolve, TProgress>, TResolve>() {
-                    @Override
-                    public Promise<TResolve, TProgress> run(final TResolve value) {
-                        w2.when(results, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                Promise<TResolve, TProgress> taskResult;
+
+                try {
+                    taskResult = task.run(arg);
+                } catch (RuntimeException ex) {
+                    taskResult = rejected(new Value<TResolve>(null, ex));
+                }
+
+                when(taskResult,
+                        new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                             @Override
-                            public Promise<List<TResolve>, TProgress> run(List<TResolve> results) {
-                                results.add(value);
-                                d2.getResolver().resolve(results);
+                            public Promise<TResolve, TProgress> run(final TResolve value) {
+                                w2.when(results, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
+                                    @Override
+                                    public Promise<List<TResolve>, TProgress> run(List<TResolve> results) {
+                                        results.add(value);
+                                        d2.getResolver().resolve(results);
+                                        return null;
+                                    }
+                                });
                                 return null;
                             }
-                        });
-                        return null;
-                    }
-                });
+                        },
+                        new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
+                            @Override
+                            public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+                                d1.getResolver().reject(new Value<>(Arrays.asList(value.value), value.error));
+                                return null;
+                            }
+                        }
+                );
 
                 return d2.getPromise();
             }
@@ -1528,19 +1558,6 @@ public class When<TResolve, TProgress> {
                             @Override
                             public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
                                 d1.getResolver().resolve(value);
-                                return null;
-                            }
-                        });
-                        return null;
-                    }
-                },
-                new Runnable<Promise<Promise<List<TResolve>, TProgress>, TProgress>, Value<Promise<List<TResolve>, TProgress>>>() {
-                    @Override
-                    public Promise<Promise<List<TResolve>, TProgress>, TProgress> run(Value<Promise<List<TResolve>, TProgress>> value) {
-                        w2.when(value.value, new Runnable<Promise<List<TResolve>, TProgress>, List<TResolve>>() {
-                            @Override
-                            public Promise<List<TResolve>, TProgress> run(List<TResolve> value) {
-                                d1.getResolver().reject(value);
                                 return null;
                             }
                         });
