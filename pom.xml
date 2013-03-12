@@ -83,8 +83,8 @@
     </reporting>
 
     <issueManagement>
-        <system>JIRA</system>
-        <url>https://jira.englishtown.com/browse/when</url>
+        <system>Github Issues</system>
+        <url>https://github.com/englishtown/when.java/issues</url>
     </issueManagement>
 
     <distributionManagement>
