@@ -14,7 +14,7 @@ Add a maven dependency to when.java
     <dependency>
       <groupId>com.englishtown</groupId>
       <artifactId>when.java</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.1.0-SNAPSHOT</version>
     </dependency>
 ```
 
