@@ -43,8 +43,17 @@ public class Value<T> {
      * @param value the underlying value
      * @param error the associated exception
      */
-    public Value(T value, RuntimeException error) {
+    public Value(T value, Throwable error) {
         this.value = value;
+        this.error = error;
+    }
+
+    /**
+     * Constructor for a value with an exception
+     *
+     * @param error the associated exception
+     */
+    public Value(Throwable error) {
         this.error = error;
     }
 
@@ -56,6 +65,6 @@ public class Value<T> {
     /**
      * The associated exception (may be null)
      */
-    public RuntimeException error;
+    public Throwable error;
 
 }

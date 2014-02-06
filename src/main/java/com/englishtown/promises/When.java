@@ -213,7 +213,7 @@ public class When<TResolve, TProgress> {
                     }
             );
         } catch (RuntimeException e) {
-            d.resolver.reject(new Value<TResolve>(null, e));
+            d.resolver.reject(e);
         }
 
         return d.promise;
@@ -233,7 +233,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
                     @Override
                     public Promise<TResolve, TProgress> run(TResolve value) {
-                        return rejected(new Value<>(value, null));
+                        return rejected(new Value<>(value));
                     }
                 });
     }
@@ -376,7 +376,7 @@ public class When<TResolve, TProgress> {
                     return (onFulfilled != null ? resolve(onFulfilled.run(value)) : resolve(value));
 
                 } catch (RuntimeException e) {
-                    return rejected(new Value<TResolve>(null, e));
+                    return rejected(new Value<TResolve>(e));
 
                 }
 
@@ -404,7 +404,7 @@ public class When<TResolve, TProgress> {
                     return onRejected != null ? resolve(onRejected.run(reason)) : rejected(reason);
 
                 } catch (RuntimeException e) {
-                    return rejected(new Value<TResolve>(null, e));
+                    return rejected(new Value<TResolve>(e));
 
                 }
             }
@@ -468,7 +468,12 @@ public class When<TResolve, TProgress> {
 
         @Override
         public Promise<TResolve, TProgress> reject(TResolve reason) {
-            return reject(new Value<>(reason, null));
+            return reject(new Value<>(reason));
+        }
+
+        @Override
+        public Promise<TResolve, TProgress> reject(Throwable reason) {
+            return reject(new Value<TResolve>(reason));
         }
 
         @Override
@@ -478,7 +483,7 @@ public class When<TResolve, TProgress> {
 
         @Override
         public Value<TProgress> notify(TProgress update) {
-            return notify(new Value<>(update, null));
+            return notify(new Value<>(update));
         }
 
         @Override
@@ -531,7 +536,7 @@ public class When<TResolve, TProgress> {
 
                             } catch (RuntimeException e) {
                                 // Use caught value as progress
-                                deferred.resolver.notify(new Value<TProgress>(null, e));
+                                deferred.resolver.notify(new Value<TProgress>(e));
 
                             }
 
@@ -804,7 +809,7 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(new Value<List<TResolve>>(null, value.error));
+                d1.getResolver().reject(value.error);
                 return null;
             }
         });
@@ -1082,7 +1087,7 @@ public class When<TResolve, TProgress> {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(new Value<List<TResolve>>(null, value.error));
+                d1.getResolver().reject(value.error);
                 return null;
             }
         });
@@ -1256,7 +1261,7 @@ public class When<TResolve, TProgress> {
                 new Runnable<Promise<List<TResolve>, TProgress>, Value<List<TResolve>>>() {
                     @Override
                     public Promise<List<TResolve>, TProgress> run(Value<List<TResolve>> value) {
-                        d1.getResolver().reject(new Value<T>(null, value.error));
+                        d1.getResolver().reject(value.error);
                         return null;
                     }
                 }
@@ -1305,6 +1310,7 @@ public class When<TResolve, TProgress> {
                                     public Promise<T, TProgress> run(final T c) {
                                         when(val,
                                                 new Runnable<Promise<TResolve, TProgress>, TResolve>() {
+                                                    @SuppressWarnings("unchecked")
                                                     @Override
                                                     public Promise<TResolve, TProgress> run(TResolve v) {
                                                         final T value = reduceFunc.run(c, v, i, total);
@@ -1324,6 +1330,7 @@ public class When<TResolve, TProgress> {
                                                     }
                                                 },
                                                 new Runnable<Promise<TResolve, TProgress>, Value<TResolve>>() {
+                                                    @SuppressWarnings("unchecked")
                                                     @Override
                                                     public Promise<TResolve, TProgress> run(Value<TResolve> v) {
                                                         final T value = reduceFunc.run(c, v.value, i, total);
@@ -1372,7 +1379,7 @@ public class When<TResolve, TProgress> {
                 Value<List<Promise<TResolve, TProgress>>>>() {
             @Override
             public Promise<List<Promise<TResolve, TProgress>>, TProgress> run(Value<List<Promise<TResolve, TProgress>>> value) {
-                d2.getResolver().reject(new Value<T>(null, value.error));
+                d2.getResolver().reject(value.error);
                 return null;
             }
         });
@@ -1380,6 +1387,7 @@ public class When<TResolve, TProgress> {
         return d2.getPromise();
     }
 
+    @SuppressWarnings("unchecked")
     private static <T1, T2> T1 reduceList(List<T2> list, Reducer<T1, T2> reduceFunc, Value<T1> initialValue) {
         T1 reduced;
 
@@ -1520,7 +1528,7 @@ public class When<TResolve, TProgress> {
                 try {
                     taskResult = task.run(arg);
                 } catch (RuntimeException ex) {
-                    taskResult = rejected(new Value<TResolve>(null, ex));
+                    taskResult = rejected(new Value<TResolve>(ex));
                 }
 
                 when(taskResult,

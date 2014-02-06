@@ -23,14 +23,14 @@ package com.englishtown.promises;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 2:12 AM
- *
  */
 public class DeferTest {
 
@@ -670,7 +670,7 @@ public class DeferTest {
         );
 
         d.getResolver().notify(null);
-        d.getResolver().reject(null);
+        d.getResolver().reject((Value<Object>) null);
         done.assertSuccess();
     }
 

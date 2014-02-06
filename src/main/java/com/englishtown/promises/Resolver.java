@@ -56,6 +56,14 @@ public interface Resolver<TResolve, TProgress> {
     /**
      * Rejects the promise to trigger onReject handlers
      *
+     * @param reason the rejection reason
+     * @return a rejected {@link Promise}
+     */
+    Promise<TResolve, TProgress> reject(Throwable reason);
+
+    /**
+     * Rejects the promise to trigger onReject handlers
+     *
      * @param reason a rejected {@link Promise}
      * @return a rejected {@link Promise}
      */
