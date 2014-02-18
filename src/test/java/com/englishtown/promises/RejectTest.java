@@ -58,6 +58,48 @@ public class RejectTest {
     }
 
     @Test
+    public void testReject_should_reject_an_immediate_value_2() {
+        final Value<Integer> expected = new Value<>(123);
+
+        Done<Integer, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+
+        when.reject(expected).then(
+                fail.onSuccess,
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected.value.intValue(), value.value.intValue());
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testReject_should_reject_an_immediate_value_3() {
+        final Throwable error = new RuntimeException();
+
+        Done<Integer, Integer> done = new Done<>();
+        When<Integer, Integer> when = new When<>();
+
+        when.reject(error).then(
+                fail.onSuccess,
+                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(error, value.error);
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
     public void testReject_should_reject_a_resolved_promise() {
 
         final int expected = 123;

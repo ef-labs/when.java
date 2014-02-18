@@ -261,6 +261,28 @@ public class When<TResolve, TProgress> {
     }
 
     /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied value.
+     *
+     * @param value the rejected value of the returned {@link Promise}
+     * @return a rejected {@link Promise}
+     */
+    public Promise<TResolve, TProgress> reject(Value<TResolve> value) {
+        return rejected(value);
+    }
+
+    /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied error for the value.
+     *
+     * @param error the rejected error value of the returned {@link Promise}
+     * @return a rejected {@link Promise}
+     */
+    public Promise<TResolve, TProgress> reject(Throwable error) {
+        return rejected(new Value<TResolve>(error));
+    }
+
+    /**
      * Trusted implementation of {@link PromiseExt}.  Any other {@link Promise} implementation is considered untrusted.
      */
     private class PromiseImpl implements PromiseExt<TResolve, TProgress> {
