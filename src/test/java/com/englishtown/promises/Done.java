@@ -36,8 +36,8 @@ public class Done<TResolve, TProgress> {
     public boolean success;
     public boolean failed;
 
-    public final Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
+    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
+    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
 
     public void assertSuccess() {
         assertTrue(success);
@@ -49,18 +49,18 @@ public class Done<TResolve, TProgress> {
         assertFalse(success);
     }
 
-    private class SuccessCallback implements Runnable<Promise<TResolve, TProgress>, TResolve> {
+    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
         @Override
-        public Promise<TResolve, TProgress> run(TResolve value) {
+        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
             success = true;
             return null;
         }
     }
 
-    private class FailCallback implements Runnable<Promise<TResolve, TProgress>,
-            Value<TResolve>> {
+    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
+                    Value<TResolve>> {
         @Override
-        public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
             failed = true;
             return null;
         }

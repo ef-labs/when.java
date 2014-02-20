@@ -22,31 +22,8 @@
 package com.englishtown.promises;
 
 /**
- * A {@link Thenable} object that "promises" to fulfill or reject either immediately or at some point in the future.
- *
- * @param <TResolve>  the type passed to fulfillment or rejection handlers
- * @param <TProgress> the type passed to progress handlers
+ * A {@link com.englishtown.promises.ProgressPromise} with void progress
  */
-public interface Promise<TResolve, TProgress> extends Thenable<TResolve, TProgress> {
-
-    /**
-     * Registers a callback for when a promise resolves
-     *
-     * @param onFulfilled resolution handler
-     * @return a new {@link Promise} to allow chaining callback registration
-     */
-    Promise<TResolve, TProgress> then(
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled);
-
-    /**
-     * Registers callbacks for when a promise resolves or rejects
-     *
-     * @param onFulfilled resolution handler
-     * @param onRejected  rejection handler
-     * @return a new {@link Promise} to allow chaining callback registration
-     */
-    Promise<TResolve, TProgress> then(
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected);
+public interface Promise<T> extends ProgressPromise<T, Void> {
 
 }
