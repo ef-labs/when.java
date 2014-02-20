@@ -34,7 +34,7 @@ The following demonstrates registering a resolution handler that is triggered in
 
         // Register on fulfilled callback
         Promise<Integer> p = d.getPromise();
-        p.then(new Runnable<Promise<Integer>, Integer>() {
+        p.then(new FulfilledRunnable<Integer>() {
             @Override
             public Promise<Integer> run(Integer value) {
                 // Do something
@@ -59,12 +59,12 @@ The following demonstrates chaining resolution handlers and how the value can be
 
         // Register chained callbacks
         Promise<Integer> p = d.getPromise();
-        p.then(new Runnable<Promise<Integer>, Integer>() {
+        p.then(new FulfilledRunnable<Integer>() {
             @Override
             public Promise<Integer> run(Integer value) {
                 return when.resolve(value * 2);
             }
-        }).then(new Runnable<Promise<Integer>, Integer>() {
+        }).then(new FailedRunnable<Integer>() {
             @Override
             public Promise<Integer> run(Integer integer) {
                 // Do something
