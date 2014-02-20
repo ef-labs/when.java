@@ -39,9 +39,9 @@ public class ChainTest {
     @Test
     public void testChain_should_return_a_promise_for_an_input_value() {
 
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Promise<Integer, Integer> result;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        ProgressPromise<Integer, Integer> result;
 
         d = when.defer();
 
@@ -56,9 +56,9 @@ public class ChainTest {
     @Test
     public void testChain_should_return_a_promise_for_an_input_promise() {
 
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d1, d2;
-        Promise<Integer, Integer> result;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d1, d2;
+        ProgressPromise<Integer, Integer> result;
 
         d1 = when.defer();
         d2 = when.defer();
@@ -77,13 +77,13 @@ public class ChainTest {
     public void testChain_should_resolve_resolver_with_input_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
 
         d.getPromise().then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(1, value.intValue());
                         return null;
                     }
@@ -100,14 +100,14 @@ public class ChainTest {
     public void testChain_should_resolve_resolver_with_input_promise_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> input;
 
         d.getPromise().then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(1, value.intValue());
                         return null;
                     }
@@ -127,13 +127,13 @@ public class ChainTest {
     public void testChain_should_resolve_resolver_with_provided_value_when_input_is_a_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
 
         d.getPromise().then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(2, value.intValue());
                         return null;
                     }
@@ -150,14 +150,14 @@ public class ChainTest {
     public void testChain_should_resolve_resolver_with_provided_value_when_input_is_a_promise() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> input;
 
         d.getPromise().then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(2, value.intValue());
                         return null;
                     }
@@ -177,15 +177,15 @@ public class ChainTest {
     public void testChain_should_reject_resolver_with_input_promise_rejection_reason() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> input;
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.value.intValue());
                         return null;
                     }
@@ -204,15 +204,15 @@ public class ChainTest {
     public void testChain_should_reject_resolver_with_input_promise_rejection_reason_when_optional_value_provided() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d = when.defer();
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> input;
 
         d.getPromise().then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.value.intValue());
                         return null;
                     }
@@ -231,9 +231,9 @@ public class ChainTest {
     public void testChain_should_return_a_promise_that_resolves_with_the_input_promise_resolution_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        DeferredProgress<Integer, Integer> input;
 
         input = when.defer();
         d = when.defer();
@@ -241,9 +241,9 @@ public class ChainTest {
         input.getResolver().resolve(1);
 
         when.chain(input.getPromise(), d.getResolver()).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(1, value.intValue());
                         return null;
                     }
@@ -258,9 +258,9 @@ public class ChainTest {
     public void testChain_should_return_a_promise_that_resolves_with_the_optional_resolution_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        DeferredProgress<Integer, Integer> input;
 
         input = when.defer();
         d = when.defer();
@@ -268,9 +268,9 @@ public class ChainTest {
         input.getResolver().resolve(1);
 
         when.chain(input.getPromise(), d.getResolver(), 2).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(2, value.intValue());
                         return null;
                     }
@@ -286,9 +286,9 @@ public class ChainTest {
     public void testChain_should_return_a_promise_that_resolves_with_the_optional_null_resolution_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        DeferredProgress<Integer, Integer> input;
 
         input = when.defer();
         d = when.defer();
@@ -296,9 +296,9 @@ public class ChainTest {
         input.getResolver().resolve(1);
 
         when.chain(input.getPromise(), d.getResolver(), null).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertNull(value);
                         return null;
                     }
@@ -314,9 +314,9 @@ public class ChainTest {
     public void testChain_should_return_a_promise_that_rejects_with_the_input_promise_rejection_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        DeferredProgress<Integer, Integer> input;
 
         input = when.defer();
         d = when.defer();
@@ -325,9 +325,9 @@ public class ChainTest {
 
         when.chain(input.getPromise(), d.getResolver()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
                         assertEquals(1, value.value.intValue());
                         return null;
                     }
@@ -341,9 +341,9 @@ public class ChainTest {
     @Test
     public void testChain_should_return_a_promise_that_forwards_progress_to_provided_resolver() {
 
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d;
-        Deferred<Integer, Integer> input;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d;
+        DeferredProgress<Integer, Integer> input;
         final Integer expected = 5;
         final Value<Boolean> success1 = new Value<>(false);
         final Value<Boolean> success2 = new Value<>(false);

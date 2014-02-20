@@ -22,23 +22,26 @@
 package com.englishtown.promises;
 
 /**
- * A Thenable object allows registering callbacks for when a promise resolves, rejects, or receives progress.
+ * A deferred contains a {@link Resolver} for an associated {@link ProgressPromise}, either of which may be safely handed
+ * out
  *
- * @param <TResolve>  the type of data received when resolved or rejected
- * @param <TProgress> the type of data received when there's progress
+ * @param <TResolve>  the type passed to fulfillment or rejection handlers
+ * @param <TProgress> the type passed to progress handlers
  */
-public interface Thenable<TResolve, TProgress> {
+public interface DeferredProgress<TResolve, TProgress> {
 
     /**
-     * Registers callbacks for when a promise resolves, rejects or receives progress
+     * Gets the {@link Resolver}
      *
-     * @param onFulfilled resolution handler
-     * @param onRejected  rejection handler
-     * @param onProgress  progress handler
-     * @return a new {@link ProgressPromise} to allow chaining callback registration
+     * @return the resolver
      */
-    public ProgressPromise<TResolve, TProgress> then(
-            Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<? extends ProgressPromise<TResolve, TProgress>, Value<TResolve>> onRejected,
-            Runnable<Value<TProgress>, Value<TProgress>> onProgress);
+    Resolver<TResolve, TProgress> getResolver();
+
+    /**
+     * Gets the {@link ProgressPromise}
+     *
+     * @return the promise
+     */
+    ProgressPromise<TResolve, TProgress> getPromise();
+
 }

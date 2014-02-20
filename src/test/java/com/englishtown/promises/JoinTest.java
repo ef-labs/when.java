@@ -37,19 +37,19 @@ import static org.junit.Assert.assertEquals;
  */
 public class JoinTest {
 
-    private final Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<? extends Integer>, Integer> fail = new Fail<>();
 
     @Test
     public void testJoin_should_resolve_empty_input_promises() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        Promise<Integer, Integer>[] input = null;
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
+        ProgressPromise<Integer, Integer>[] input = null;
 
         when.join(input).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
                         Integer[] expected = {};
                         assertArrayEquals(expected, results.toArray(new Integer[results.size()]));
                         return null;
@@ -65,14 +65,14 @@ public class JoinTest {
     @Test
     public void testJoin_should_resolve_empty_input() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
         Integer[] input = null;
 
         when.join(input).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
                         Integer[] expected = {};
                         assertArrayEquals(expected, results.toArray(new Integer[results.size()]));
                         return null;
@@ -88,13 +88,13 @@ public class JoinTest {
     @Test
     public void testJoin_should_join_values() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
         when.join(1, 2, 3).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
                         Integer[] expected = {1, 2, 3};
                         assertArrayEquals(expected, results.toArray(new Integer[results.size()]));
                         return null;
@@ -110,13 +110,13 @@ public class JoinTest {
     @Test
     public void testJoin_should_join_promises_array() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
         when.join(when.resolve(1), when.resolve(2), when.resolve(3)).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> results) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
                         Integer[] expected = {1, 2, 3};
                         assertArrayEquals(expected, results.toArray(new Integer[results.size()]));
                         return null;
@@ -141,14 +141,14 @@ public class JoinTest {
     @Test
     public void testJoin_should_reject_if_any_input_promise_rejects() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
         when.join(when.resolve(1), when.reject(2), when.resolve(3)).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> failed) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> failed) {
                         assertEquals(2, failed.value.get(0).intValue());
                         return null;
                     }

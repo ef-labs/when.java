@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  */
 public class MapTest {
 
-    private final Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<List<? extends Integer>, Integer> fail = new Fail<>();
 
     private final Runnable<Integer, Integer> mapper = new Runnable<Integer, Integer>() {
         @Override
@@ -50,18 +50,18 @@ public class MapTest {
     @Test
     public void testMap_should_map_input_values_array() {
 
-        Done<List<Integer>, Integer> done = new Done<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
         final List<Integer> input = Arrays.asList(1, 2, 3);
-        final When<Integer, Integer> when = new When<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
-        }).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+        }).then(new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
             @Override
-            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+            public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                 assertEquals(3, value.size());
                 Integer[] expected = {2, 4, 6};
                 assertArrayEquals(expected, value.toArray(new Integer[3]));
@@ -76,18 +76,18 @@ public class MapTest {
     @Test
     public void testMap_should_map_input_values_array_with_a_null() {
 
-        Done<List<Integer>, Integer> done = new Done<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
         final List<Integer> input = Arrays.asList(1, null, 3);
-        final When<Integer, Integer> when = new When<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
-        }).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+        }).then(new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
             @Override
-            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+            public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                 assertEquals(3, value.size());
                 Integer[] expected = {2, null, 6};
                 assertArrayEquals(expected, value.toArray(new Integer[3]));
@@ -102,19 +102,19 @@ public class MapTest {
     @Test
     public void testMap_should_map_input_promises_array() {
 
-        final When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        final List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        final List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
-        }).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+        }).then(new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
             @Override
-            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+            public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                 assertEquals(3, value.size());
                 Integer[] expected = {2, 4, 6};
                 assertArrayEquals(expected, value.toArray(new Integer[3]));
@@ -141,17 +141,17 @@ public class MapTest {
     @Test
     public void testMap_should_map_input_when_mapper_returns_a_promise() {
 
-        Done<List<Integer>, Integer> done = new Done<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
-        final When<Integer, Integer> when = new When<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
         final List<Resolver<Integer, Integer>> resolvers = new ArrayList<>(3);
         final List<Integer> values = new ArrayList<>(3);
 
-        Runnable<Promise<Integer, Integer>, Integer> deferredMapper = new Runnable<Promise<Integer, Integer>,
-                Integer>() {
+        Runnable<ProgressPromise<Integer, Integer>, Integer> deferredMapper = new Runnable<ProgressPromise<Integer, Integer>,
+                                Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
-                Deferred<Integer, Integer> d = when.defer();
+            public ProgressPromise<Integer, Integer> run(Integer value) {
+                DeferredProgress<Integer, Integer> d = when.defer();
                 resolvers.add(d.getResolver());
                 values.add(mapper.run(value));
                 return d.getPromise();
@@ -159,9 +159,9 @@ public class MapTest {
         };
 
         when.mapValues(input, deferredMapper).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                         Integer[] expected = {2, 4, 6};
                         assertArrayEquals(expected, value.toArray(new Integer[3]));
                         return null;
@@ -179,20 +179,20 @@ public class MapTest {
     @Test
     public void testMap_should_accept_a_promise_for_an_array() {
 
-        Done<List<Integer>, Integer> done = new Done<>();
-        final When<Integer, Integer> when = new When<>();
-        When<List<Integer>, Integer> w1 = new When<>();
-        Promise<List<Integer>, Integer> input = w1.resolve(Arrays.asList(1, 2, 3));
+        Done<List<? extends Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        WhenProgress<List<? extends Integer>, Integer> w1 = new WhenProgress<>();
+        ProgressPromise<List<? extends Integer>, Integer> input = w1.resolve(Arrays.asList(1, 2, 3));
 
-        when.mapPromise(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapPromise(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
         }).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                         Integer[] expected = {2, 4, 6};
                         assertArrayEquals(expected, value.toArray(new Integer[3]));
                         return null;
@@ -208,18 +208,18 @@ public class MapTest {
     public void testMap_should_resolve_to_empty_array_when_input_is_empty_array() {
 
         List<Integer> input = new ArrayList<>();
-        final When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
         }).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                         assertNotNull(value);
                         assertEquals(0, value.size());
                         return null;
@@ -235,19 +235,19 @@ public class MapTest {
     public void testMap_should_reject_when_input_array_is_null() {
 
         List<Integer> input = null;
-        final When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        when.mapValues(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
         }).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
                         assertNotNull(value.error);
                         return null;
                     }
@@ -260,19 +260,19 @@ public class MapTest {
     @Test
     public void testMap_should_map_input_promises_when_mapper_returns_a_promise() {
 
-        Done<List<Integer>, Integer> done = new Done<>();
-        final When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        Done<List<? extends Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
         }).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
                         Integer[] expected = {2, 4, 6};
                         assertArrayEquals(expected, value.toArray(new Integer[3]));
                         return null;
@@ -288,21 +288,21 @@ public class MapTest {
     public void testMap_should_reject_when_input_contains_rejection() {
 
 
-        final When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        final WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        final List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
+        final List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
 
-        when.map(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
             }
         }).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                    public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
                         assertEquals(1, value.value.size());
                         assertEquals(2, value.value.get(0).intValue());
                         return null;
