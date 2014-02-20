@@ -50,6 +50,59 @@ public class When<T> extends WhenProgress<T, Void> {
         };
     }
 
+    /**
+     * Returns promiseOrValue if promiseOrValue is a {@link com.englishtown.promises.ProgressPromise}, a new com.englishtown.promises.ProgressPromise if
+     * promiseOrValue is a foreign promise, or a new, already-fulfilled {@link com.englishtown.promises.ProgressPromise}
+     * whose value is promiseOrValue if promiseOrValue is an immediate value.
+     *
+     * @param value a value to wrap in a resolved promise
+     * @return a new already-fulfilled trusted {@link com.englishtown.promises.ProgressPromise} for the provided value
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Promise<T> resolve(T value) {
+        return (Promise<T>) super.resolve(value);
+    }
+
+    /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied value.
+     *
+     * @param value the rejected value of the returned {@link com.englishtown.promises.ProgressPromise}
+     * @return a rejected {@link com.englishtown.promises.ProgressPromise}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Promise<T> reject(T value) {
+        return (Promise<T>) super.reject(value);
+    }
+
+    /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied value.
+     *
+     * @param value the rejected value of the returned {@link com.englishtown.promises.ProgressPromise}
+     * @return a rejected {@link com.englishtown.promises.ProgressPromise}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Promise<T> reject(Value<T> value) {
+        return (Promise<T>) super.reject(value);
+    }
+
+    /**
+     * Returns a rejected promise for the supplied value.  The returned promise will be rejected with the
+     * supplied error for the value.
+     *
+     * @param error the rejected error value of the returned {@link com.englishtown.promises.ProgressPromise}
+     * @return a rejected {@link com.englishtown.promises.ProgressPromise}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Promise<T> reject(Throwable error) {
+        return (Promise<T>) super.reject(error);
+    }
+
     @Override
     protected WhenProgress<T, Void>.PromiseImpl createPromise(Thenable<T, Void> then) {
         return new PromiseImpl2(then);
