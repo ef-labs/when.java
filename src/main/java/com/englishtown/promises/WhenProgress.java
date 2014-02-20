@@ -386,7 +386,7 @@ public class WhenProgress<TResolve, TProgress> {
      * @return new fulfilled {@link ProgressPromise}.
      */
     private PromiseImpl fulfilled(final TResolve value) {
-        return new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        return createPromise(new Thenable<TResolve, TProgress>() {
 
             @Override
             public ProgressPromise<TResolve, TProgress> then(
@@ -414,7 +414,7 @@ public class WhenProgress<TResolve, TProgress> {
      * @return a new rejected {@link ProgressPromise}.
      */
     private PromiseImpl rejected(final Value<TResolve> reason) {
-        return new PromiseImpl(new Thenable<TResolve, TProgress>() {
+        return createPromise(new Thenable<TResolve, TProgress>() {
 
             @Override
             public ProgressPromise<TResolve, TProgress> then(
