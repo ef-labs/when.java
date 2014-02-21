@@ -101,7 +101,7 @@ public class ResolveTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -128,7 +128,7 @@ public class ResolveTest {
                 new Runnable<ProgressPromise<Object, Object>, Value<Object>>() {
                     @Override
                     public ProgressPromise<Object, Object> run(Value<Object> value) {
-                        assertEquals(err, value.error);
+                        assertEquals(err, value.getCause());
                         return null;
                     }
                 }
@@ -182,7 +182,7 @@ public class ResolveTest {
                 new Runnable<ProgressPromise<Object, Object>, Value<Object>>() {
                     @Override
                     public ProgressPromise<Object, Object> run(Value<Object> value) {
-                        assertEquals(sentinel, value.value);
+                        assertEquals(sentinel, value.getValue());
                         return null;
                     }
                 }

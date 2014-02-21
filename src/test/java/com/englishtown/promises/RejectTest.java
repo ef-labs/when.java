@@ -48,7 +48,7 @@ public class RejectTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -69,7 +69,7 @@ public class RejectTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected.value.intValue(), value.value.intValue());
+                        assertEquals(expected.getValue().intValue(), value.getValue().intValue());
                         return null;
                     }
                 }
@@ -90,7 +90,7 @@ public class RejectTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(error, value.error);
+                        assertEquals(error, value.getCause());
                         return null;
                     }
                 }
@@ -115,7 +115,7 @@ public class RejectTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -141,7 +141,7 @@ public class RejectTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }

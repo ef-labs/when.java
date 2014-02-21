@@ -22,7 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * Created by adriangonzalez on 2/21/14.
+ * A convenience Runnable interface for when a promise is rejected
  */
-public interface FailedRunnable<T> extends Runnable<Promise<T>, Value<T>> {
+public interface RejectedRunnable<T> extends Runnable<Promise<T>, Value<T>> {
 }

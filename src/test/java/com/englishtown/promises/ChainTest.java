@@ -186,7 +186,7 @@ public class ChainTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.value.intValue());
+                        assertEquals(1, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -213,7 +213,7 @@ public class ChainTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.value.intValue());
+                        assertEquals(1, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -328,7 +328,7 @@ public class ChainTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.value.intValue());
+                        assertEquals(1, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -354,8 +354,8 @@ public class ChainTest {
         d.getPromise().then(null, null, new Runnable<Value<Integer>, Value<Integer>>() {
             @Override
             public Value<Integer> run(Value<Integer> progress) {
-                assertEquals(expected, progress.value);
-                success1.value = true;
+                assertEquals(expected, progress.getValue());
+                success1.setValue(true);
                 return progress;
             }
         });
@@ -366,16 +366,16 @@ public class ChainTest {
                 new Runnable<Value<Integer>, Value<Integer>>() {
                     @Override
                     public Value<Integer> run(Value<Integer> progress) {
-                        assertEquals(expected, progress.value);
-                        success2.value = true;
+                        assertEquals(expected, progress.getValue());
+                        success2.setValue(true);
                         return progress;
                     }
                 }
         );
 
         input.getResolver().notify(expected);
-        assertTrue(success1.value);
-        assertTrue(success2.value);
+        assertTrue(success1.getValue());
+        assertTrue(success2.getValue());
 
     }
 

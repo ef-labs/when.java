@@ -22,7 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * A {@link com.englishtown.promises.DeferredProgress} with void progress
+ * A simplified extension of {@link com.englishtown.promises.DeferredProgress} with void progress
  */
 public interface Deferred<T> extends DeferredProgress<T, Void> {
 

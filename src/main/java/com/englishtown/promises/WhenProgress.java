@@ -327,7 +327,7 @@ public class WhenProgress<TResolve, TProgress> {
                     new Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
                         public ProgressPromise<TResolve, TProgress> run(Value<TResolve> reason) {
-                            return onFulfilledOrRejected.run(reason.value);
+                            return onFulfilledOrRejected.run(reason.getValue());
                         }
                     },
                     onProgress);
@@ -778,12 +778,12 @@ public class WhenProgress<TResolve, TProgress> {
                     rejectOne.value = new Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>>() {
                         @Override
                         public ProgressPromise<TResolve, TProgress> run(Value<TResolve> reason) {
-                            reasons.add(reason.value);
+                            reasons.add(reason.getValue());
 
                             if (--toReject.value == 0) {
                                 rejectOne.value = null;
                                 fulfillOne.value = null;
-                                d1.getResolver().reject(new Value<List<? extends TResolve>>(reasons, reason.error));
+                                d1.getResolver().reject(new Value<List<? extends TResolve>>(reasons, reason.getCause()));
                             }
 
                             return null;
@@ -835,7 +835,7 @@ public class WhenProgress<TResolve, TProgress> {
             @Override
             public ProgressPromise<List<? extends ProgressPromise<TResolve, TProgress>>, TProgress> run(Value<List<? extends ProgressPromise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(value.error);
+                d1.getResolver().reject(value.getCause());
                 return null;
             }
         });
@@ -1090,7 +1090,7 @@ public class WhenProgress<TResolve, TProgress> {
                                     new Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>>() {
                                         @Override
                                         public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-                                            d1.getResolver().reject(new Value<List<? extends TResolve>>(Arrays.asList(value.value), value.error));
+                                            d1.getResolver().reject(new Value<List<? extends TResolve>>(Arrays.asList(value.getValue()), value.getCause()));
                                             return null;
                                         }
                                     }
@@ -1111,7 +1111,7 @@ public class WhenProgress<TResolve, TProgress> {
             @Override
             public ProgressPromise<List<? extends ProgressPromise<TResolve, TProgress>>, TProgress> run(Value<List<? extends ProgressPromise<TResolve, TProgress>>> value) {
                 // Need to reject the deferred if an exception is thrown above
-                d1.getResolver().reject(value.error);
+                d1.getResolver().reject(value.getCause());
                 return null;
             }
         });
@@ -1285,7 +1285,7 @@ public class WhenProgress<TResolve, TProgress> {
                 new Runnable<ProgressPromise<List<TResolve>, TProgress>, Value<List<TResolve>>>() {
                     @Override
                     public ProgressPromise<List<TResolve>, TProgress> run(Value<List<TResolve>> value) {
-                        d1.getResolver().reject(value.error);
+                        d1.getResolver().reject(value.getCause());
                         return null;
                     }
                 }
@@ -1357,7 +1357,7 @@ public class WhenProgress<TResolve, TProgress> {
                                                     @SuppressWarnings("unchecked")
                                                     @Override
                                                     public ProgressPromise<TResolve, TProgress> run(Value<TResolve> v) {
-                                                        final T value = reduceFunc.run(c, v.value, i, total);
+                                                        final T value = reduceFunc.run(c, v.getValue(), i, total);
                                                         if (value instanceof ProgressPromise) {
                                                             WhenProgress<Object, Object> w = new WhenProgress<>();
                                                             w.when((ProgressPromise<Object, Object>) value, new Runnable<ProgressPromise<Object, Object>, Object>() {
@@ -1403,7 +1403,7 @@ public class WhenProgress<TResolve, TProgress> {
                 Value<List<ProgressPromise<TResolve, TProgress>>>>() {
             @Override
             public ProgressPromise<List<ProgressPromise<TResolve, TProgress>>, TProgress> run(Value<List<ProgressPromise<TResolve, TProgress>>> value) {
-                d2.getResolver().reject(value.error);
+                d2.getResolver().reject(value.getCause());
                 return null;
             }
         });
@@ -1427,7 +1427,7 @@ public class WhenProgress<TResolve, TProgress> {
             reduced = (T1) list.get(i++);
         } else {
             // If initialValue provided, use it
-            reduced = initialValue.value;
+            reduced = initialValue.getValue();
         }
 
         // Do the actual reduce
@@ -1485,7 +1485,7 @@ public class WhenProgress<TResolve, TProgress> {
                 new Runnable<ProgressPromise<TResolve, TProgress>, TResolve>() {
                     @Override
                     public ProgressPromise<TResolve, TProgress> run(TResolve val) {
-                        val = resolveValue != null ? resolveValue.value : val;
+                        val = resolveValue != null ? resolveValue.getValue() : val;
                         resolver.resolve(val);
                         return resolve(val);
                     }
@@ -1573,7 +1573,7 @@ public class WhenProgress<TResolve, TProgress> {
                         new Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>>() {
                             @Override
                             public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-                                d1.getResolver().reject(new Value<>(Arrays.asList(value.value), value.error));
+                                d1.getResolver().reject(new Value<>(Arrays.asList(value.getValue()), value.getCause()));
                                 return null;
                             }
                         }

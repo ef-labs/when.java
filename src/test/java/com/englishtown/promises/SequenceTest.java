@@ -187,7 +187,7 @@ public class SequenceTest {
                     public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
                         Integer[] expected = {3};
-                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        assertArrayEquals(expected, value.getValue().toArray(new Integer[1]));
                         return null;
                     }
                 }
@@ -217,7 +217,7 @@ public class SequenceTest {
                     public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
                         Integer[] expected = {2};
-                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        assertArrayEquals(expected, value.getValue().toArray(new Integer[1]));
                         return null;
                     }
                 }
@@ -254,9 +254,9 @@ public class SequenceTest {
                     @Override
                     public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
-                        assertEquals(ex, value.error);
-                        assertEquals(1, value.value.size());
-                        assertNull(value.value.get(0));
+                        assertEquals(ex, value.getCause());
+                        assertEquals(1, value.getValue().size());
+                        assertNull(value.getValue().get(0));
                         return null;
                     }
                 }

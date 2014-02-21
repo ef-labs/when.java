@@ -243,7 +243,7 @@ public class ReduceTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> result) {
-                        assertEquals(4, result.value.intValue());
+                        assertEquals(4, result.getValue().intValue());
                         return null;
                     }
                 }
@@ -265,7 +265,7 @@ public class ReduceTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertNotNull(value.error);
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -387,7 +387,7 @@ public class ReduceTest {
                 new Runnable<ProgressPromise<String, Integer>, Value<String>>() {
                     @Override
                     public ProgressPromise<String, Integer> run(Value<String> value) {
-                        assertNotNull(value.error);
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
