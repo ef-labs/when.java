@@ -248,7 +248,7 @@ public class MapTest {
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
-                        assertNotNull(value.error);
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -303,8 +303,8 @@ public class MapTest {
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
-                        assertEquals(1, value.value.size());
-                        assertEquals(2, value.value.get(0).intValue());
+                        assertEquals(1, value.getValue().size());
+                        assertEquals(2, value.getValue().get(0).intValue());
                         return null;
                     }
                 }

@@ -64,7 +64,7 @@ The following demonstrates chaining resolution handlers and how the value can be
             public Promise<Integer> run(Integer value) {
                 return when.resolve(value * 2);
             }
-        }).then(new FailedRunnable<Integer>() {
+        }).then(new RejectedRunnable<Integer>() {
             @Override
             public Promise<Integer> run(Integer integer) {
                 // Do something

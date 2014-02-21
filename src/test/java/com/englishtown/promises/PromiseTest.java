@@ -383,7 +383,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(2, value.value.intValue());
+                        assertEquals(2, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -414,7 +414,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(err, value.error);
+                        assertEquals(err, value.getCause());
                         return null;
                     }
                 }
@@ -492,7 +492,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(err, value.error);
+                        assertEquals(err, value.getCause());
                         return null;
                     }
                 }
@@ -561,7 +561,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        return when.resolve(value.value + 1);
+                        return when.resolve(value.getValue() + 1);
                     }
                 }
         ).then(
@@ -592,7 +592,7 @@ public class PromiseTest {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
                         DeferredProgress<Integer, Integer> d = when.defer();
-                        d.getResolver().resolve(value.value + 1);
+                        d.getResolver().resolve(value.getValue() + 1);
                         return d.getPromise();
                     }
                 }
@@ -624,7 +624,7 @@ public class PromiseTest {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
                         DeferredProgress<Integer, Integer> d1 = new WhenProgress<Integer, Integer>().defer();
-                        d1.getResolver().reject(value.value + 1);
+                        d1.getResolver().reject(value.getValue() + 1);
                         return d1.getPromise();
                     }
                 }
@@ -633,7 +633,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(2, value.value.intValue());
+                        assertEquals(2, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -654,7 +654,7 @@ public class PromiseTest {
         d.getPromise().then(null, null, new Runnable<Value<Object>, Value<Object>>() {
             @Override
             public Value<Object> run(Value<Object> value) {
-                assertEquals(expected, value.value);
+                assertEquals(expected, value.getValue());
                 done.success = true;
                 return null;
             }
@@ -724,7 +724,7 @@ public class PromiseTest {
                 new Runnable<Value<Integer>, Value<Integer>>() {
                     @Override
                     public Value<Integer> run(Value<Integer> value) {
-                        assertEquals(1, value.value.intValue());
+                        assertEquals(1, value.getValue().intValue());
                         done.success = true;
                         return null;
                     }
@@ -750,7 +750,7 @@ public class PromiseTest {
         p.otherwise(new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
-                assertEquals(1, value.value.intValue());
+                assertEquals(1, value.getValue().intValue());
                 done.success = true;
                 return null;
             }
@@ -818,7 +818,7 @@ public class PromiseTest {
                 new Runnable<ProgressPromise<Object, Object>, Value<Object>>() {
                     @Override
                     public ProgressPromise<Object, Object> run(Value<Object> reason) {
-                        assertEquals(sentinel, reason.value);
+                        assertEquals(sentinel, reason.getValue());
                         return null;
                     }
                 }).then(done.onSuccess, done.onFail);

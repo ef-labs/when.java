@@ -22,7 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * A {@link com.englishtown.promises.ProgressPromise} with void progress
+ * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
  */
 public interface Promise<T> extends ProgressPromise<T, Void> {
 

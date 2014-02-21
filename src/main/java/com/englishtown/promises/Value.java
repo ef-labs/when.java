@@ -26,6 +26,7 @@ package com.englishtown.promises;
  *
  * @param <T> the type of value
  */
+@SuppressWarnings("deprecation")
 public class Value<T> {
 
     /**
@@ -59,12 +60,56 @@ public class Value<T> {
 
     /**
      * The actual value (may be null)
+     *
+     * @deprecated The getValue() getter should be used instead.
      */
+    @Deprecated
     public T value;
 
     /**
      * The associated exception (may be null)
+     *
+     * @deprecated The getCause() getter should be used instead.
      */
+    @Deprecated()
     public Throwable error;
+
+    /**
+     * Returns the actual value (may be null)
+     *
+     * @return the underlying value
+     */
+    public T getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the actual value (may be null)
+     *
+     * @return this
+     */
+    public Value<T> setValue(T value) {
+        this.value = value;
+        return this;
+    }
+
+    /**
+     * The associated throwable (may be null)
+     *
+     * @return the underlying cause
+     */
+    public Throwable getCause() {
+        return error;
+    }
+
+    /**
+     * The associated throwable (may be null)
+     *
+     * @return the underlying cause
+     */
+    public Value<T> setCause(Throwable cause) {
+        this.error = cause;
+        return this;
+    }
 
 }

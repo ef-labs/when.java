@@ -77,7 +77,7 @@ public class SomeTest {
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
-                        assertNotNull(value.error);
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -149,7 +149,7 @@ public class SomeTest {
                 new Runnable<Value<Integer>, Value<Integer>>() {
                     @Override
                     public Value<Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         done.success = true;
                         return null;
                     }
@@ -208,7 +208,7 @@ public class SomeTest {
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> failed) {
                         Integer[] expected = {2, 3};
                         assertNotNull(failed);
-                        assertArrayEquals(expected, failed.value.toArray(new Integer[2]));
+                        assertArrayEquals(expected, failed.getValue().toArray(new Integer[2]));
                         return null;
                     }
                 }

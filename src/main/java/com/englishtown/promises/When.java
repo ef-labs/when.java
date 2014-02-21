@@ -22,7 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * A {@link com.englishtown.promises.WhenProgress} with void progress
+ * A simplified extension of {@link com.englishtown.promises.WhenProgress} with void for progress
  */
 public class When<T> extends WhenProgress<T, Void> {
 

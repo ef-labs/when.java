@@ -149,7 +149,7 @@ public class JoinTest {
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> failed) {
-                        assertEquals(2, failed.value.get(0).intValue());
+                        assertEquals(2, failed.getValue().get(0).intValue());
                         return null;
                     }
                 }

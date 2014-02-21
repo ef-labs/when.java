@@ -22,7 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * Created by adriangonzalez on 2/21/14.
+ * A convenience Runnable interface for when a promise is fulfilled
  */
 public interface FulfilledRunnable<T> extends Runnable<Promise<T>, T> {
 }
