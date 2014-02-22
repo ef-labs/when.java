@@ -102,8 +102,7 @@
 
     <scm>
         <connection>scm:git:git@github.com:englishtown/when.java.git</connection>
-        <developerConnection>scm:git:https://github.com/englishtown/when.java.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/englishtown/when.java</url>
+        <developerConnection>scm:git:git@github.com:englishtown/when.java.git</developerConnection>
+        <url>git@github.com:englishtown/when.java.git</url>
     </scm>
 </project>
