@@ -21,113 +21,16 @@
 
 package com.englishtown.promises.monitor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
- * Created by adriangonzalez on 2/23/14.
+ * {@link com.englishtown.promises.monitor.PromiseStatus} aggregator
  */
-public class Aggregator {
+public interface Aggregator {
 
-    private final Reporter reporter;
-    private Map<Long, PromiseStatus> promises;
-    private AtomicLong nextKey;
+    PromiseStatus promiseStatus();
 
-    public Aggregator(Reporter reporter) {
-        this.reporter = reporter;
-        reset();
-    }
+    void report();
 
-    public PromiseStatus promiseStatus() {
-        return new PromiseStatusImpl(this);
-    }
+    void reset();
 
-    private class PromiseStatusImpl implements PromiseStatus {
-        private long key;
-        private long timestamp;
-        private Aggregator parent;
-        private Throwable createdAt;
-        private Throwable reason;
-        private Throwable rejectedAt;
-
-        public PromiseStatusImpl(Aggregator parent) {
-//        if(!(this instanceof PromiseStatus)) {
-//            return new PromiseStatus(parent);
-//        }
-
-            Error stackHolder;
-
-            try {
-                throw new Error();
-            } catch (Error e) {
-                stackHolder = e;
-            }
-
-            this.key = nextKey.incrementAndGet();
-            promises.put(this.key, this);
-
-            this.parent = parent;
-            this.timestamp = System.currentTimeMillis();
-            this.createdAt = stackHolder;
-
-        }
-
-        @Override
-        public PromiseStatus observed() {
-            PromiseStatus status = promises.remove(key);
-            if (status != null) {
-                report();
-            }
-            return new PromiseStatusImpl(parent);
-        }
-
-        @Override
-        public void fulfilled() {
-            PromiseStatus status = promises.remove(key);
-            if (status != null) {
-                report();
-            }
-        }
-
-        @Override
-        public void rejected(Throwable reason) {
-            PromiseStatus status = promises.remove(key);
-            if (status != null) {
-                Throwable stackHolder;
-
-                try {
-                    throw new Error(reason);
-                } catch (Throwable e) {
-                    stackHolder = e;
-                }
-
-                this.reason = reason;
-                this.rejectedAt = stackHolder;
-                report();
-
-            }
-        }
-
-    }
-
-    // TODO:
-//    return publish({ publish: publish });
-
-//    public void publish(target) {
-//        target.PromiseStatus = PromiseStatus;
-//        target.reportUnhandled = report;
-//        target.resetUnhandled = reset;
-//        return target;
-//    }
-
-    private void report() {
-        reporter.report(promises);
-    }
-
-    public void reset() {
-        nextKey = new AtomicLong();
-        promises = new HashMap<>(); // Should be WeakMap
-    }
 
 }

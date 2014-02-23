@@ -21,18 +21,26 @@
 
 package com.englishtown.promises.monitor;
 
+import com.englishtown.promises.monitor.impl.DefaultAggregator;
+import com.englishtown.promises.monitor.impl.NOPReporter;
+
 /**
- * Created by adriangonzalez on 2/23/14.
+ * Monitor API class
  */
 public class MonitorApi {
 
-    private Aggregator aggregator = new Aggregator(new NOPReporter());
+    private Aggregator aggregator = new DefaultAggregator(new NOPReporter());
 
     public void reportUnhandled() {
+        aggregator.report();
     }
 
     public PromiseStatus promiseStatus() {
         return aggregator.promiseStatus();
+    }
+
+    public Aggregator getAggregator() {
+        return aggregator;
     }
 
     public MonitorApi setAggregator(Aggregator aggregator) {

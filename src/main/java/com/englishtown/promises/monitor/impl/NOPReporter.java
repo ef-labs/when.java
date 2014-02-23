@@ -19,12 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises.monitor;
+package com.englishtown.promises.monitor.impl;
+
+import com.englishtown.promises.monitor.PromiseStatus;
+import com.englishtown.promises.monitor.Reporter;
 
 import java.util.Map;
 
 /**
- * Created by adriangonzalez on 2/23/14.
+ * No Operation implementation of {@link com.englishtown.promises.monitor.Reporter}
  */
 public class NOPReporter implements Reporter {
     @Override

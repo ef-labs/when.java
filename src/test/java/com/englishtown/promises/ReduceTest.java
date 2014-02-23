@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/5/13
  * Time: 4:31 PM
- *
  */
 public class ReduceTest {
 
@@ -358,7 +357,7 @@ public class ReduceTest {
         List<String> input = Arrays.asList("1", "2", "3");
         ProgressPromise<List<String>, Integer> promise = w1.resolve(input);
 
-        when.reducePromise(promise, plus2, "").then(
+        when.reduce(promise, plus2, "").then(
                 new Runnable<ProgressPromise<String, Integer>, String>() {
                     @Override
                     public ProgressPromise<String, Integer> run(String value) {
@@ -382,7 +381,7 @@ public class ReduceTest {
 
         DeferredProgress<List<String>, Integer> d1 = w1.defer();
 
-        when.reducePromise(d1.getPromise(), plus2, "").then(
+        when.reduce(d1.getPromise(), plus2, "").then(
                 fail2.onSuccess,
                 new Runnable<ProgressPromise<String, Integer>, Value<String>>() {
                     @Override
@@ -440,7 +439,7 @@ public class ReduceTest {
                 return null;
             }
         },
-        fail.onFail).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         d1.getResolver().resolve(1);
         d3.getResolver().resolve(3);

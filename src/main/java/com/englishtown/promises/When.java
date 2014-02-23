@@ -21,6 +21,8 @@
 
 package com.englishtown.promises;
 
+import com.englishtown.promises.monitor.PromiseStatus;
+
 /**
  * A simplified extension of {@link com.englishtown.promises.WhenProgress} with void for progress
  */
@@ -103,17 +105,32 @@ public class When<T> extends WhenProgress<T, Void> {
         return (Promise<T>) super.reject(error);
     }
 
+    /**
+     * Creates a new promise whose fate is determined by resolver.
+     *
+     * @param resolver@returns {Promise} promise whose fate is determine by resolver
+     */
     @Override
-    protected WhenProgress<T, Void>.PromiseImpl createPromise(Thenable<T, Void> then) {
-        return new PromiseImpl2(then);
+    protected Promise2 promise(ResolveCallback<T, Void> resolver) {
+        return new Promise2(resolver, getMonitorApi().promiseStatus());
     }
 
-    protected class PromiseImpl2 extends PromiseImpl implements Promise<T> {
+    protected class Promise2 extends Promise0 implements Promise<T> {
 
-        PromiseImpl2(Thenable<T, Void> then) {
-            super(then);
+        /**
+         * Trusted Promise constructor.  A Promise created from this constructor is
+         * a trusted when.js promise.  Any other duck-typed promise is considered
+         * untrusted.
+         *
+         * @param resolver
+         * @param status
+         * @constructor
+         * @returns {Promise} promise whose fate is determine by resolver
+         * @name Promise
+         */
+        protected Promise2(ResolveCallback<T, Void> resolver, PromiseStatus status) {
+            super(resolver, status);
         }
-
     }
 
 }

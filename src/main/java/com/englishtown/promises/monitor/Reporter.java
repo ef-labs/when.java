@@ -24,7 +24,7 @@ package com.englishtown.promises.monitor;
 import java.util.Map;
 
 /**
- * Created by adriangonzalez on 2/23/14.
+ * Monitor status reporter
  */
 public interface Reporter {
 

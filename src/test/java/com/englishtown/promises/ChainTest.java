@@ -30,7 +30,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/2/13
  * Time: 6:32 AM
- *
  */
 public class ChainTest {
 

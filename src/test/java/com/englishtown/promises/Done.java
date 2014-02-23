@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 2:41 AM
- *
  */
 public class Done<TResolve, TProgress> {
 
@@ -58,7 +57,7 @@ public class Done<TResolve, TProgress> {
     }
 
     private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-                    Value<TResolve>> {
+            Value<TResolve>> {
         @Override
         public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
             failed = true;

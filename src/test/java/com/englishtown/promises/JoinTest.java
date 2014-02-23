@@ -33,7 +33,6 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 4:32 PM
- *
  */
 public class JoinTest {
 

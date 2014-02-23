@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 5:32 AM
- *
  */
 public class Fail<TResolve, TProgress> {
 
@@ -45,7 +44,7 @@ public class Fail<TResolve, TProgress> {
     }
 
     private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-                    Value<TResolve>> {
+            Value<TResolve>> {
         @Override
         public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
             fail();

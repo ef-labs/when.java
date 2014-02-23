@@ -79,4 +79,11 @@ public interface PromiseExt<TResolve, TProgress> extends ProgressPromise<TResolv
      */
     ProgressPromise<TResolve, TProgress> yield(Thenable<TResolve, TProgress> promise);
 
+    /**
+     * Returns the current state of a promise
+     *
+     * @return
+     */
+    PromiseState<TResolve> inspect();
+
 }

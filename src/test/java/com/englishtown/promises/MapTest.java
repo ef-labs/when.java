@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 1/31/13
  * Time: 5:10 AM
- *
  */
 public class MapTest {
 
@@ -54,7 +53,7 @@ public class MapTest {
         final List<Integer> input = Arrays.asList(1, 2, 3);
         final WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
+        when.map(when.resolveValues(input), new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -80,7 +79,7 @@ public class MapTest {
         final List<Integer> input = Arrays.asList(1, null, 3);
         final WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
+        when.map(when.resolveValues(input), new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -148,7 +147,7 @@ public class MapTest {
         final List<Integer> values = new ArrayList<>(3);
 
         Runnable<ProgressPromise<Integer, Integer>, Integer> deferredMapper = new Runnable<ProgressPromise<Integer, Integer>,
-                                Integer>() {
+                Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 DeferredProgress<Integer, Integer> d = when.defer();
@@ -158,7 +157,7 @@ public class MapTest {
             }
         };
 
-        when.mapValues(input, deferredMapper).then(
+        when.map(when.resolveValues(input), deferredMapper).then(
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> value) {
@@ -184,7 +183,7 @@ public class MapTest {
         WhenProgress<List<? extends Integer>, Integer> w1 = new WhenProgress<>();
         ProgressPromise<List<? extends Integer>, Integer> input = w1.resolve(Arrays.asList(1, 2, 3));
 
-        when.mapPromise(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
+        when.map(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -211,7 +210,7 @@ public class MapTest {
         final WhenProgress<Integer, Integer> when = new WhenProgress<>();
         Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
+        when.map(when.resolveValues(input), new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));
@@ -238,7 +237,7 @@ public class MapTest {
         final WhenProgress<Integer, Integer> when = new WhenProgress<>();
         Done<List<? extends Integer>, Integer> done = new Done<>();
 
-        when.mapValues(input, new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
+        when.map(when.resolveValues(input), new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
             public ProgressPromise<Integer, Integer> run(Integer value) {
                 return when.resolve(mapper.run(value));

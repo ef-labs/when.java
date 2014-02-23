@@ -26,6 +26,16 @@ package com.englishtown.promises.monitor;
  */
 public interface PromiseStatus {
 
+    long getKey();
+
+    long getTimestamp();
+
+    Throwable getCreatedAt();
+
+    Throwable getReason();
+
+    Throwable getRejectedAt();
+
     PromiseStatus observed();
 
     void fulfilled();
