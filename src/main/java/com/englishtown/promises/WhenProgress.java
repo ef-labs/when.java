@@ -145,8 +145,24 @@ public class WhenProgress<TResolve, TProgress> {
      * @param {function} resolver function(resolve, reject, notify)
      * @returns {Promise} promise whose fate is determine by resolver
      */
-    protected Promise0 promise(ResolveCallback<TResolve, TProgress> resolver) {
-        return new Promise0(resolver, monitorApi.promiseStatus());
+    private Promise0 promise(ResolveCallback<TResolve, TProgress> resolver) {
+        return createPromise0(resolver, monitorApi.promiseStatus());
+    }
+
+    protected Promise0 createPromise0(ResolveCallback<TResolve, TProgress> resolver, PromiseStatus status) {
+        return new Promise0(resolver, status);
+    }
+
+    protected FulfilledPromise createFulfilledPromise(TResolve value) {
+        return new FulfilledPromise(value);
+    }
+
+    protected RejectedPromise createRejectedPromise(Value<TResolve> value) {
+        return new RejectedPromise(value);
+    }
+
+    protected ProgressingPromise createProgressingPromise(Value<TProgress> value) {
+        return new ProgressingPromise(value);
     }
 
     protected class Promise0 extends TrustedPromise {
@@ -208,7 +224,7 @@ public class WhenProgress<TResolve, TProgress> {
             Runnable<Void, Value<TResolve>> promiseReject = new Runnable<Void, Value<TResolve>>() {
                 @Override
                 public Void run(Value<TResolve> reason) {
-                    promiseResolve.run(new RejectedPromise(reason));
+                    promiseResolve.run(createRejectedPromise(reason));
                     return null;
                 }
             };
@@ -225,7 +241,7 @@ public class WhenProgress<TResolve, TProgress> {
                         enqueue(new Runnable<Void, Void>() {
                             @Override
                             public Void run(Void aVoid) {
-                                runHandlers(queue, new ProgressingPromise(update));
+                                runHandlers(queue, createProgressingPromise(update));
                                 return null;
                             }
                         });
@@ -330,7 +346,7 @@ public class WhenProgress<TResolve, TProgress> {
 
             final TrustedPromise self = this;
 
-            return new Promise0(new ResolveCallback<TResolve, TProgress>() {
+            return createPromise0(new ResolveCallback<TResolve, TProgress>() {
                 @Override
                 public void run(
                         Runnable<Void, Thenable<TResolve, TProgress>> resolve,
@@ -594,7 +610,7 @@ public class WhenProgress<TResolve, TProgress> {
                     Runnable<Void, Thenable<TResolve, TProgress>> resolve,
                     Runnable<Void, Value<TResolve>> reject,
                     Runnable<Void, Value<TProgress>> notify) {
-                resolve.run(new FulfilledPromise(x));
+                resolve.run(createFulfilledPromise(x));
                 // TODO: Revisit this, does not match when.js, should not create a FulfilledPromise
             }
         });
@@ -615,7 +631,7 @@ public class WhenProgress<TResolve, TProgress> {
         return when(x, new Runnable<ProgressPromise<TResolve, TProgress>, TResolve>() {
             @Override
             public ProgressPromise<TResolve, TProgress> run(TResolve e) {
-                return new RejectedPromise(e);
+                return createRejectedPromise(new Value<>(e));
             }
         });
     }
@@ -632,7 +648,7 @@ public class WhenProgress<TResolve, TProgress> {
      * @return {Promise} rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(Throwable x) {
-        return new RejectedPromise(x);
+        return createRejectedPromise(new Value<TResolve>(x));
     }
 
     /**
@@ -647,7 +663,7 @@ public class WhenProgress<TResolve, TProgress> {
      * @return {Promise} rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(Value<TResolve> x) {
-        return new RejectedPromise(x);
+        return createRejectedPromise(x);
     }
 
     /**
@@ -662,7 +678,7 @@ public class WhenProgress<TResolve, TProgress> {
      * @return {Promise} rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(TResolve x) {
-        return new RejectedPromise(x);
+        return createRejectedPromise(new Value<>(x));
     }
 
     /**
@@ -826,7 +842,7 @@ public class WhenProgress<TResolve, TProgress> {
      */
     private TrustedPromise coerce(Promise0 self, Thenable<TResolve, TProgress> x) {
         if (x == self) {
-            return new RejectedPromise(new IllegalArgumentException());
+            return createRejectedPromise(new Value<TResolve>(new IllegalArgumentException()));
         }
 
         if (TrustedPromise.class.isInstance(x)) {
@@ -835,10 +851,10 @@ public class WhenProgress<TResolve, TProgress> {
 
         try {
             Thenable<TResolve, TProgress> untrustedThen = x;
-            return (untrustedThen != null ? assimilate(untrustedThen) : new FulfilledPromise(null));
+            return (untrustedThen != null ? assimilate(untrustedThen) : createFulfilledPromise(null));
 
         } catch (Throwable e) {
-            return new RejectedPromise(e);
+            return createRejectedPromise(new Value<TResolve>(e));
         }
     }
 
@@ -896,11 +912,11 @@ public class WhenProgress<TResolve, TProgress> {
      * @private
      * @returns {Promise}
      */
-    private class FulfilledPromise extends TrustedPromise {
+    protected class FulfilledPromise extends TrustedPromise {
 
         private TResolve value;
 
-        public FulfilledPromise(TResolve value) {
+        protected FulfilledPromise(TResolve value) {
             this.value = value;
         }
 
@@ -920,7 +936,7 @@ public class WhenProgress<TResolve, TProgress> {
             try {
                 resolve.run(onFulfilled != null ? onFulfilled.run(this.value) : resolve(this.value));
             } catch (Throwable e) {
-                resolve.run(new RejectedPromise(e));
+                resolve.run(createRejectedPromise(new Value<TResolve>(e)));
             }
 
         }
@@ -935,20 +951,12 @@ public class WhenProgress<TResolve, TProgress> {
      * @private
      * @returns {Promise}
      */
-    private class RejectedPromise extends TrustedPromise {
+    protected class RejectedPromise extends TrustedPromise {
 
         private Value<TResolve> value;
 
-        public RejectedPromise(Value<TResolve> reason) {
+        protected RejectedPromise(Value<TResolve> reason) {
             this.value = reason;
-        }
-
-        public RejectedPromise(TResolve reason) {
-            this.value = new Value<>(reason);
-        }
-
-        public RejectedPromise(Throwable reason) {
-            this.value = new Value<>(reason);
         }
 
         /**
@@ -973,7 +981,7 @@ public class WhenProgress<TResolve, TProgress> {
             try {
                 resolve.run(onRejected != null ? onRejected.run(this.value) : this);
             } catch (Throwable e) {
-                resolve.run(new RejectedPromise(e));
+                resolve.run(createRejectedPromise(new Value<TResolve>(e)));
             }
 
         }
@@ -992,11 +1000,11 @@ public class WhenProgress<TResolve, TProgress> {
      * @private
      * @return {Promise} progress promise
      */
-    private class ProgressingPromise extends TrustedPromise {
+    protected class ProgressingPromise extends TrustedPromise {
 
         private Value<TProgress> value;
 
-        public ProgressingPromise(Value<TProgress> value) {
+        protected ProgressingPromise(Value<TProgress> value) {
             this.value = value;
         }
 

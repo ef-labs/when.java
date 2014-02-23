@@ -111,25 +111,46 @@ public class When<T> extends WhenProgress<T, Void> {
      * @param resolver@returns {Promise} promise whose fate is determine by resolver
      */
     @Override
-    protected Promise2 promise(ResolveCallback<T, Void> resolver) {
-        return new Promise2(resolver, getMonitorApi().promiseStatus());
+    protected Promise2 createPromise0(ResolveCallback<T, Void> resolver, PromiseStatus status) {
+        return new Promise2(resolver, status);
+    }
+
+    @Override
+    protected FulfilledPromise2 createFulfilledPromise(T value) {
+        return new FulfilledPromise2(value);
+    }
+
+    @Override
+    protected RejectedPromise2 createRejectedPromise(Value<T> value) {
+        return new RejectedPromise2(value);
+    }
+
+    @Override
+    protected ProgressingPromise2 createProgressingPromise(Value<Void> value) {
+        return new ProgressingPromise2(value);
     }
 
     protected class Promise2 extends Promise0 implements Promise<T> {
-
-        /**
-         * Trusted Promise constructor.  A Promise created from this constructor is
-         * a trusted when.js promise.  Any other duck-typed promise is considered
-         * untrusted.
-         *
-         * @param resolver
-         * @param status
-         * @constructor
-         * @returns {Promise} promise whose fate is determine by resolver
-         * @name Promise
-         */
         protected Promise2(ResolveCallback<T, Void> resolver, PromiseStatus status) {
             super(resolver, status);
+        }
+    }
+
+    protected class FulfilledPromise2 extends FulfilledPromise implements Promise<T> {
+        public FulfilledPromise2(T value) {
+            super(value);
+        }
+    }
+
+    protected class RejectedPromise2 extends RejectedPromise implements Promise<T> {
+        protected RejectedPromise2(Value<T> reason) {
+            super(reason);
+        }
+    }
+
+    protected class ProgressingPromise2 extends ProgressingPromise implements Promise<T> {
+        protected ProgressingPromise2(Value<Void> value) {
+            super(value);
         }
     }
 
