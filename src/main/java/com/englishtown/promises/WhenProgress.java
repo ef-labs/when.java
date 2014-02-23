@@ -167,8 +167,6 @@ public class WhenProgress<TResolve, TProgress> {
 
             final Promise0 self = this;
             this._status = status;
-//            this.inspect = inspect;
-//            this._when = _when;
             consumers.value = new ArrayList<>();
 
             /**
@@ -1154,18 +1152,6 @@ public class WhenProgress<TResolve, TProgress> {
             }
         }
 
-
-//                return null;
-//            }
-//        }).then(null, new Runnable<ProgressPromise<List<? extends ProgressPromise<TResolve, TProgress>>, TProgress>, Value<List<? extends ProgressPromise<TResolve, TProgress>>>>() {
-//            @Override
-//            public ProgressPromise<List<? extends ProgressPromise<TResolve, TProgress>>, TProgress> run(Value<List<? extends ProgressPromise<TResolve, TProgress>>> value) {
-//                // Need to reject the deferred if an exception is thrown above
-//                d1.getResolver().reject(value.getCause());
-//                return null;
-//            }
-//        });
-
         return d1.getPromise();
     }
 
@@ -1412,41 +1398,6 @@ public class WhenProgress<TResolve, TProgress> {
 
         return d.getPromise();
     }
-
-    //    /**
-//     * Traditional reduce function, similar to `Array.prototype.reduce()`, but
-//     * input may contain promises and/or values, and reduceFunc
-//     * may return either a value or a promise, *and* initialValue may
-//     * be a promise for the starting value.
-//     *
-//     * @param {Array|Promise} promise array or promise for an array of anything,
-//     * may contain a mix of promises and values.
-//     * @param {function} reduceFunc reduce function reduce(currentValue, nextValue, index, total),
-//     * where total is the total number of items being reduced, and will be the same
-//     * in each call to reduceFunc.
-//     * @returns {Promise} that will resolve to the final reduced value
-//     */
-//    function reduce(promise, reduceFunc /*, initialValue */) {
-//        var args = fcall(slice, arguments, 1);
-//
-//        return when(promise, function(array) {
-//            var total;
-//
-//            total = array.length;
-//
-//            // Wrap the supplied reduceFunc with one that handles promises and then
-//            // delegates to the supplied.
-//            args[0] = function(current, val, i) {
-//                return when(current, function(c) {
-//                    return when(val, function(value) {
-//                        return reduceFunc(c, value, i, total);
-//                    });
-//                });
-//            } ;
-//
-//            return reduceArray.apply(array, args);
-//        });
-//    }
 
     /**
      * Traditional reduce function, but the input is a list of {@link ProgressPromise}s.
@@ -1933,13 +1884,13 @@ public class WhenProgress<TResolve, TProgress> {
                 .setState(PromiseState.State.PENDING);
     }
 
-    //
-    // Shared handler queue processing
-    //
-    // Credit to Twisol (https://github.com/Twisol) for suggesting
-    // this type of extensible queue + trampoline approach for
-    // next-tick conflation.
-
+    /**
+     * Shared handler queue processing
+     * <p/>
+     * Credit to Twisol (https://github.com/Twisol) for suggesting
+     * this type of extensible queue + trampoline approach for
+     * next-tick conflation.
+     */
     private List<Runnable<Void, Void>> handlerQueue = new ArrayList<>();
 
     /**
@@ -1991,61 +1942,6 @@ public class WhenProgress<TResolve, TProgress> {
     public static void setNextTick(Executor executor) {
         nextTick = executor;
     }
-
-
-    //
-    // Capture/polyfill function and array utils
-    //
-
-//    // ES5 reduce implementation if native not available
-//    // See: http://es5.github.com/#x15.4.4.21 as there are many
-//    // specifics and edge cases.  ES5 dictates that reduce.length === 1
-//    // This implementation deviates from ES5 spec in the following ways:
-//    // 1. It does not check if reduceFunc is a Callable
-//    reduceArray = arrayProto.reduce ||
-//    function(reduceFunc /*, initialValue */) {
-//			/*jshint maxcomplexity: 7*/
-//        var arr, args, reduced, len, i;
-//
-//        i = 0;
-//        arr = Object(this);
-//        len = arr.length >>> 0;
-//        args = arguments;
-//
-//        // If no initialValue, use first item of array (we know length !== 0 here)
-//        // and adjust i to start at second item
-//        if(args.length <= 1) {
-//            // Skip to the first real element in the array
-//            for(;;) {
-//                if(i in arr) {
-//                    reduced = arr[i++];
-//                    break;
-//                }
-//
-//                // If we reached the end of the array without finding any real
-//                // elements, it's a TypeError
-//                if(++i >= len) {
-//                    throw new TypeError();
-//                }
-//            }
-//        } else {
-//            // If initialValue provided, use it
-//            reduced = args[1];
-//        }
-//
-//        // Do the actual reduce
-//        for(;i < len; ++i) {
-//            if(i in arr) {
-//                reduced = reduceFunc(reduced, arr[i], i, arr);
-//            }
-//        }
-//
-//        return reduced;
-//    };
-
-//    function identity(x) {
-//        return x;
-//    }
 
     /**
      * Converts a list of values to a list of resolved promises.  If a null input list is provided,
