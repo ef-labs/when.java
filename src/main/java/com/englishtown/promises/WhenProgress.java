@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Java implementation of the CommonJS Promises/A specification.
@@ -1091,9 +1092,9 @@ public class WhenProgress<TResolve, TProgress> {
         final WhenProgress<List<? extends TResolve>, TProgress>.InternalDeferred d1 = w1.defer0();
 
         int len = promises.size();
-        final ValueHolder<Integer> toResolve = new ValueHolder<>(Math.max(0, Math.min(howMany, len)));
+        final ValueHolder<AtomicInteger> toResolve = new ValueHolder<>(new AtomicInteger(Math.max(0, Math.min(howMany, len))));
 
-        final ValueHolder<Integer> toReject = new ValueHolder<>((len - toResolve.value) + 1);
+        final ValueHolder<AtomicInteger> toReject = new ValueHolder<>(new AtomicInteger(len - toResolve.value.get() + 1));
         final List<TResolve> reasons = new ArrayList<>();
 
         Runnable<Value<TProgress>, Value<TProgress>> notify = d1.resolver.notify;
@@ -1106,7 +1107,7 @@ public class WhenProgress<TResolve, TProgress> {
             public ProgressPromise<TResolve, TProgress> run(Value<TResolve> reason) {
                 reasons.add(reason.getValue());
 
-                if (--toReject.value == 0) {
+                if (toReject.value.decrementAndGet() == 0) {
                     rejectOne.value = null;
                     fulfillOne.value = null;
                     d1.getResolver().reject(new Value<List<? extends TResolve>>(reasons, reason.getCause()));
@@ -1124,7 +1125,7 @@ public class WhenProgress<TResolve, TProgress> {
                 // the corresponding promise.
                 values.add(value);
 
-                if (--toResolve.value == 0) {
+                if (toResolve.value.decrementAndGet() == 0) {
                     fulfillOne.value = null;
                     rejectOne.value = null;
                     d1.getResolver().resolve(values);
@@ -1358,15 +1359,13 @@ public class WhenProgress<TResolve, TProgress> {
             return w.resolve(new ArrayList<TResolve>());
         }
 
-        int len;
-        final ValueHolder<Integer> toResolve = new ValueHolder<>();
+        int len = promises.size();
+        final ValueHolder<AtomicInteger> toResolve = new ValueHolder<>(new AtomicInteger(len));
         final DeferredProgress<List<? extends TResolve>, TProgress> d = w.defer();
 
         // Since we know the resulting length, we can preallocate the results array to avoid array expansions.
-        toResolve.value = len = promises.size();
-        final List<TResolve> results = new ArrayList<>(len);
-
         // Pre-populate null values to allow us to set the value at an index
+        final List<TResolve> results = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
             results.add(null);
         }
@@ -1381,7 +1380,7 @@ public class WhenProgress<TResolve, TProgress> {
                             public ProgressPromise<TResolve, TProgress> run(TResolve mapped) {
                                 results.set(index, mapped);
 
-                                if (--toResolve.value == 0) {
+                                if (toResolve.value.decrementAndGet() == 0) {
                                     d.getResolver().resolve(results);
                                 }
                                 return null;
