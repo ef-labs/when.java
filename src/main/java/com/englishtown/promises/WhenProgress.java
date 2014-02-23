@@ -1245,8 +1245,6 @@ public class WhenProgress<TResolve, TProgress> {
      * @return a {@link ProgressPromise} that resolves when all the input promises have resolved
      */
     public ProgressPromise<List<? extends TResolve>, TProgress> all(List<? extends ProgressPromise<TResolve, TProgress>> promises) {
-        // TODO: onProgress does not work...(same problem in when.js)
-        // TODO: change onRejected to take single value rather than list and provide wrapper to resolve?
         return _map(promises, identity, null);
     }
 
@@ -1608,8 +1606,7 @@ public class WhenProgress<TResolve, TProgress> {
         final WhenProgress<T, TProgress> w = new WhenProgress<>();
 
         if (promises == null) {
-            // TODO: Resolve null?
-            return w.resolve((T) null);
+            return w.reject((T) null);
         }
 
         final DeferredProgress<T, TProgress> d1 = w.defer();
