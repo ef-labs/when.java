@@ -19,35 +19,71 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises.monitor;
+package com.englishtown.promises.monitor.impl;
 
-import com.englishtown.promises.monitor.impl.NOPAggregator;
+import com.englishtown.promises.monitor.Aggregator;
+import com.englishtown.promises.monitor.PromiseStatus;
 
 /**
- * Monitor API class
+ * Created by adriangonzalez on 2/27/14.
  */
-public class MonitorApi {
+public class NOPAggregator implements Aggregator {
 
-    private Aggregator aggregator = new NOPAggregator();
+    private static final NOPPromiseStatus promiseStatus = new NOPPromiseStatus();
 
-    public void reportUnhandled() {
-        aggregator.report();
-    }
-
+    @Override
     public PromiseStatus promiseStatus() {
-        return aggregator.promiseStatus();
+        return promiseStatus;
     }
 
-    public Aggregator getAggregator() {
-        return aggregator;
+    @Override
+    public void report() {
     }
 
-    public MonitorApi setAggregator(Aggregator aggregator) {
-        if (aggregator == null) {
-            throw new RuntimeException("Cannot set null aggregator");
+    @Override
+    public void reset() {
+    }
+
+    private static class NOPPromiseStatus implements PromiseStatus {
+
+        @Override
+        public long getKey() {
+            return 0;
         }
-        this.aggregator = aggregator;
-        return this;
+
+        @Override
+        public long getTimestamp() {
+            return 0;
+        }
+
+        @Override
+        public Throwable getCreatedAt() {
+            return null;
+        }
+
+        @Override
+        public Throwable getReason() {
+            return null;
+        }
+
+        @Override
+        public Throwable getRejectedAt() {
+            return null;
+        }
+
+        @Override
+        public PromiseStatus observed() {
+            return null;
+        }
+
+        @Override
+        public void fulfilled() {
+        }
+
+        @Override
+        public void rejected(Throwable reason) {
+        }
+
     }
 
 }

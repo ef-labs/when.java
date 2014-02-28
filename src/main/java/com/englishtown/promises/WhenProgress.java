@@ -115,17 +115,16 @@ public class WhenProgress<TResolve, TProgress> {
     }
 
     /**
-     * Register an observer for a promise or immediate value.
+     * Register an observer for a promise.
      *
-     * @param {*}         promiseOrValue
-     * @param {function?} [onFulfilled] callback to be called when promiseOrValue is
-     *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
-     *                    will be invoked immediately.
-     * @param {function?} [onRejected] callback to be called when promiseOrValue is
+     * @param promise     the promise to observe
+     * @param onFulfilled callback to be called when promise is
+     *                    successfully fulfilled.
+     * @param onRejected  callback to be called when promiseOrValue is
      *                    rejected.
-     * @param {function?} [onProgress] callback to be called when progress updates
-     *                    are issued for promiseOrValue.
-     * @returns {Promise} a new {@link Promise} that will complete with the return
+     * @param onProgress  callback to be called when progress updates
+     *                    are issued for promise.
+     * @return a new {@link Promise} that will complete with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
      */
@@ -142,8 +141,8 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a new promise whose fate is determined by resolver.
      *
-     * @param {function} resolver function(resolve, reject, notify)
-     * @returns {Promise} promise whose fate is determine by resolver
+     * @param resolver function(resolve, reject, notify)
+     * @return promise whose fate is determined by resolver
      */
     private Promise0 promise(ResolveCallback<TResolve, TProgress> resolver) {
         return createPromise0(resolver, monitorApi.promiseStatus());
@@ -175,9 +174,8 @@ public class WhenProgress<TResolve, TProgress> {
          * a trusted when.js promise.  Any other duck-typed promise is considered
          * untrusted.
          *
-         * @constructor
-         * @returns {Promise} promise whose fate is determine by resolver
-         * @name Promise
+         * @param resolver the resolver to determine the fate of the promise
+         * @param status   the optional status of the promise
          */
         protected Promise0(ResolveCallback<TResolve, TProgress> resolver, final PromiseStatus status) {
 
@@ -262,7 +260,7 @@ public class WhenProgress<TResolve, TProgress> {
         /**
          * Returns a snapshot of this promise's current status at the instant of call
          *
-         * @returns {{state:String}}
+         * @return the current {@link com.englishtown.promises.PromiseState}
          */
         public PromiseState<TResolve> inspect() {
             return (value.value != null) ? value.value.inspect() : toPendingState();
@@ -272,12 +270,11 @@ public class WhenProgress<TResolve, TProgress> {
          * Private message delivery. Queues and delivers messages to
          * the promise's ultimate fulfillment value or rejection reason.
          *
-         * @param resolve
-         * @param notify
-         * @param onFulfilled
-         * @param onRejected
-         * @param onProgress
-         * @private
+         * @param resolve     the resolve callback to signal promise completion
+         * @param notify      the notify callback to signal progress
+         * @param onFulfilled the callback for when a promise is fulfilled successfully
+         * @param onRejected  the callback for when a promise is rejected
+         * @param onProgress  the callback for when a promise has progress
          */
         @Override
         protected void _when(
@@ -317,8 +314,6 @@ public class WhenProgress<TResolve, TProgress> {
         /**
          * Private message delivery. Queues and delivers messages to
          * the promise's ultimate fulfillment value or rejection reason.
-         *
-         * @private
          */
         protected abstract void _when(
                 Runnable<Void, Thenable<TResolve, TProgress>> resolve,
@@ -385,8 +380,8 @@ public class WhenProgress<TResolve, TProgress> {
         /**
          * Register a rejection handler.  Shortcut for .then(undefined, onRejected)
          *
-         * @param {function?} onRejected
-         * @return {Promise}
+         * @param onRejected the callback for when a promise is rejected
+         * @return a new promise
          */
         @Override
         public TrustedPromise otherwise(Runnable<? extends ProgressPromise<TResolve, TProgress>, Value<TResolve>> onRejected) {
@@ -404,9 +399,8 @@ public class WhenProgress<TResolve, TProgress> {
          * onFulfilledOrRejected may throw or return a rejected promise to signal
          * an additional error.
          *
-         * @param {function} onFulfilledOrRejected handler to be called regardless of
-         *                   fulfillment or rejection
-         * @returns {Promise}
+         * @param onFulfilledOrRejected handler to be called regardless of fulfillment or rejection
+         * @return a new promise
          */
         public TrustedPromise ensure(final Runnable<? extends ProgressPromise<TResolve, TProgress>, Void> onFulfilledOrRejected) {
 
@@ -438,9 +432,9 @@ public class WhenProgress<TResolve, TProgress> {
          * rethrown to the host, resulting in a loud stack track on most platforms
          * and a crash on some.
          *
-         * @param {function?} handleResult
-         * @param {function?} handleError
-         * @returns {undefined}
+         * @param handleResult callback for successful completion
+         * @param handleError  callback for rejected completion
+         * @return a new promise
          */
         public TrustedPromise done(
                 Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> handleResult,
@@ -477,8 +471,8 @@ public class WhenProgress<TResolve, TProgress> {
         /**
          * Shortcut for .then(function() { return value; })
          *
-         * @param {*} value
-         * @return {Promise} a promise that:
+         * @param value the Thenable to yield
+         * @return a promise that:
          * - is fulfilled if value is not a promise, or
          * - if value is a promise, will fulfill with its value, or reject
          * with its reason.
@@ -554,8 +548,8 @@ public class WhenProgress<TResolve, TProgress> {
      * Casts x to a trusted promise. If x is already a trusted promise, it is
      * returned, otherwise a new trusted Promise which follows x is returned.
      *
-     * @param {*} x
-     * @returns {Promise}
+     * @param x the thenable to cast or resolve
+     * @return a {@link com.englishtown.promises.WhenProgress.TrustedPromise}
      */
     private TrustedPromise cast(Thenable<TResolve, TProgress> x) {
         return (TrustedPromise.class.isInstance(x)) ? (TrustedPromise) x : resolve0(x);
@@ -569,7 +563,7 @@ public class WhenProgress<TResolve, TProgress> {
      * - rejected with promiseOrValue's reason after it is rejected
      * In contract to cast(x), this always creates a new Promise
      *
-     * @param {*} x
+     * @param x the thenable to resolve
      * @return {Promise}
      */
     public ProgressPromise<TResolve, TProgress> resolve(final Thenable<TResolve, TProgress> x) {
@@ -596,7 +590,7 @@ public class WhenProgress<TResolve, TProgress> {
      * - rejected with promiseOrValue's reason after it is rejected
      * In contract to cast(x), this always creates a new Promise
      *
-     * @param {*} x
+     * @param x the resolved value
      * @return {Promise}
      */
     public ProgressPromise<TResolve, TProgress> resolve(TResolve x) {
@@ -624,8 +618,8 @@ public class WhenProgress<TResolve, TProgress> {
      * - promiseOrValue's value after it is fulfilled
      * - promiseOrValue's reason after it is rejected
      *
-     * @param {*} x the rejected value of the returned promise
-     * @return {Promise} rejected promise
+     * @param x the rejected value of the returned promise
+     * @return rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(Thenable<TResolve, TProgress> x) {
         return when(x, new Runnable<ProgressPromise<TResolve, TProgress>, TResolve>() {
@@ -644,8 +638,8 @@ public class WhenProgress<TResolve, TProgress> {
      * - promiseOrValue's value after it is fulfilled
      * - promiseOrValue's reason after it is rejected
      *
-     * @param {*} x the rejected value of the returned promise
-     * @return {Promise} rejected promise
+     * @param x the rejected value of the returned promise
+     * @return rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(Throwable x) {
         return createRejectedPromise(new Value<TResolve>(x));
@@ -659,8 +653,8 @@ public class WhenProgress<TResolve, TProgress> {
      * - promiseOrValue's value after it is fulfilled
      * - promiseOrValue's reason after it is rejected
      *
-     * @param {*} x the rejected value of the returned promise
-     * @return {Promise} rejected promise
+     * @param x the rejected value of the returned promise
+     * @return rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(Value<TResolve> x) {
         return createRejectedPromise(x);
@@ -674,8 +668,8 @@ public class WhenProgress<TResolve, TProgress> {
      * - promiseOrValue's value after it is fulfilled
      * - promiseOrValue's reason after it is rejected
      *
-     * @param {*} x the rejected value of the returned promise
-     * @return {Promise} rejected promise
+     * @param x the rejected value of the returned promise
+     * @return rejected promise
      */
     public ProgressPromise<TResolve, TProgress> reject(TResolve x) {
         return createRejectedPromise(new Value<>(x));
@@ -833,8 +827,8 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Coerces x to a trusted Promise
      *
-     * @param {*} x thing to coerce
-     * @returns {*} Guaranteed to return a trusted Promise.  If x
+     * @param x thing to coerce
+     * @return Guaranteed to return a trusted Promise.  If x
      * is trusted, returns x, otherwise, returns a new, trusted, already-resolved
      * Promise whose resolution value is:
      * * the resolution value of x if it's a foreign promise, or
@@ -861,9 +855,8 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Safely assimilates a foreign thenable by wrapping it in a trusted promise
      *
-     * @param {function}        untrustedThen x's then() method
-     * @param {object|function} x thenable
-     * @returns {Promise}
+     * @param untrustedThen an untrusted Thenable
+     * @return trusted promise
      */
     private TrustedPromise assimilate(final Thenable<TResolve, TProgress> untrustedThen) {
 
@@ -907,15 +900,14 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a fulfilled, local promise as a proxy for a value
      * NOTE: must never be exposed
-     *
-     * @param {*} value fulfillment value
-     * @private
-     * @returns {Promise}
      */
     protected class FulfilledPromise extends TrustedPromise {
 
         private TResolve value;
 
+        /**
+         * @param value fulfillment value
+         */
         protected FulfilledPromise(TResolve value) {
             this.value = value;
         }
@@ -946,15 +938,14 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a rejected, local promise as a proxy for a value
      * NOTE: must never be exposed
-     *
-     * @param {*} reason rejection reason
-     * @private
-     * @returns {Promise}
      */
     protected class RejectedPromise extends TrustedPromise {
 
         private Value<TResolve> value;
 
+        /**
+         * @param reason rejection reason
+         */
         protected RejectedPromise(Value<TResolve> reason) {
             this.value = reason;
         }
@@ -963,12 +954,11 @@ public class WhenProgress<TResolve, TProgress> {
          * Private message delivery. Queues and delivers messages to
          * the promise's ultimate fulfillment value or rejection reason.
          *
-         * @param resolve
-         * @param notify
-         * @param onFulfilled
-         * @param onRejected
-         * @param onProgress
-         * @private
+         * @param resolve     the resolve callback to signal promise completion
+         * @param notify      the notify callback to signal progress
+         * @param onFulfilled the callback for when a promise is fulfilled successfully
+         * @param onRejected  the callback for when a promise is rejected
+         * @param onProgress  the callback for when a promise has progress
          */
         @Override
         protected void _when(
@@ -995,15 +985,14 @@ public class WhenProgress<TResolve, TProgress> {
 
     /**
      * Create a progress promise with the supplied update.
-     *
-     * @param {*} value progress update value
-     * @private
-     * @return {Promise} progress promise
      */
     protected class ProgressingPromise extends TrustedPromise {
 
         private Value<TProgress> value;
 
+        /**
+         * @param value progress update value
+         */
         protected ProgressingPromise(Value<TProgress> value) {
             this.value = value;
         }
@@ -1012,12 +1001,11 @@ public class WhenProgress<TResolve, TProgress> {
          * Private message delivery. Queues and delivers messages to
          * the promise's ultimate fulfillment value or rejection reason.
          *
-         * @param resolve
-         * @param notify
-         * @param onFulfilled
-         * @param onRejected
-         * @param onProgress
-         * @private
+         * @param resolve     the resolve callback to signal promise completion
+         * @param notify      the notify callback to signal progress
+         * @param onFulfilled the callback for when a promise is fulfilled successfully
+         * @param onRejected  the callback for when a promise is rejected
+         * @param onProgress  the callback for when a promise has progress
          */
         @Override
         protected void _when(
@@ -1046,8 +1034,8 @@ public class WhenProgress<TResolve, TProgress> {
      * Update a PromiseStatus monitor object with the outcome
      * of the supplied value promise.
      *
-     * @param {Promise}       value
-     * @param {PromiseStatus} status
+     * @param value  the trusted promise with a new status
+     * @param status the new status
      */
     private void updateStatus(TrustedPromise value, final PromiseStatus status) {
 
@@ -1076,10 +1064,10 @@ public class WhenProgress<TResolve, TProgress> {
      * it becomes impossible for howMany to resolve, for example, when
      * (promisesOrValues.length - howMany) + 1 input promises reject.
      *
-     * @param {Array} promisesOrValues array of anything, may contain a mix
-     *                of promises and values
-     * @param howMany {number} number of promisesOrValues to resolve
-     * @returns {Promise} promise that will resolve to an array of howMany values that
+     * @param promises array of anything, may contain a mix
+     *                 of promises and values
+     * @param howMany  number of promisesOrValues to resolve
+     * @return promise that will resolve to an array of howMany values that
      * resolved first, or will reject with an array of
      * (promisesOrValues.length - howMany) + 1 rejection reasons.
      */
@@ -1181,8 +1169,8 @@ public class WhenProgress<TResolve, TProgress> {
      * any one of the supplied promises has resolved or will reject when
      * *all* promises have rejected.
      *
-     * @param {Array|Promise} promises list
-     * @returns {Promise} promise that will resolve to the value that resolved first, or
+     * @param promises list of promises
+     * @return promise that will resolve to the value that resolved first, or
      * will reject with an array of all rejected inputs.
      */
     public ProgressPromise<TResolve, TProgress> any(final List<? extends ProgressPromise<TResolve, TProgress>> promises) {
@@ -1298,9 +1286,9 @@ public class WhenProgress<TResolve, TProgress> {
      * Promise-aware array map function, similar to `Array.prototype.map()`,
      * but input array may contain promises or values.
      *
-     * @param {Array|Promise} array array of anything, may contain promises and values
-     * @param {function}      mapFunc map function which may return a promise or value
-     * @returns {Promise} promise that will fulfill with an array of mapped values
+     * @param promises list of promises, may be in any status
+     * @param mapFunc  map function which may return a promise or value
+     * @return promise that will fulfill with an array of mapped values
      * or reject if any input promise rejects.
      */
     public ProgressPromise<List<? extends TResolve>, TProgress> map(
@@ -1334,10 +1322,10 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Internal map that allows a fallback to handle rejections
      *
-     * @param {Array|Promise} array of anything, may contain promises and values
-     * @param {function}      mapFunc map function which may return a promise or value
-     * @param {function?}     fallback function to handle rejected promises
-     * @returns {Promise} promise that will fulfill with an array of mapped values
+     * @param promises list of promises, may contain resolved or pending promises
+     * @param mapFunc  map function which may return a promise for a value
+     * @param fallback function to handle rejected promises
+     * @return promise that will fulfill with a list of mapped values
      * or reject if any input promise rejects.
      */
     private ProgressPromise<List<? extends TResolve>, TProgress> _map(
@@ -1857,11 +1845,10 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a fulfilled state snapshot
      *
-     * @param {*} x any value
-     * @private
-     * @returns {{state:'fulfilled',value:*}}
+     * @param x any value
+     * @return {{state:'fulfilled',value:*}}
      */
-    public PromiseState<TResolve> toFulfilledState(TResolve x) {
+    private PromiseState<TResolve> toFulfilledState(TResolve x) {
         return new PromiseState<TResolve>()
                 .setState(PromiseState.State.FULFILLED)
                 .setValue(x);
@@ -1870,11 +1857,10 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a rejected state snapshot
      *
-     * @param {*} x any reason
-     * @private
-     * @returns {{state:'rejected',reason:*}}
+     * @param x any reason
+     * @return {{state:'rejected',reason:*}}
      */
-    public PromiseState<TResolve> toRejectedState(Value<TResolve> x) {
+    private PromiseState<TResolve> toRejectedState(Value<TResolve> x) {
         return new PromiseState<TResolve>()
                 .setState(PromiseState.State.REJECTED)
                 .setValue(x.getValue())
@@ -1884,10 +1870,9 @@ public class WhenProgress<TResolve, TProgress> {
     /**
      * Creates a pending state snapshot
      *
-     * @private
-     * @returns {{state:'pending'}}
+     * @return {{state:'pending'}}
      */
-    public PromiseState<TResolve> toPendingState() {
+    private PromiseState<TResolve> toPendingState() {
         return new PromiseState<TResolve>()
                 .setState(PromiseState.State.PENDING);
     }
@@ -1907,7 +1892,7 @@ public class WhenProgress<TResolve, TProgress> {
      *
      * @param {function} task
      */
-    public void enqueue(Runnable<Void, Void> task) {
+    private void enqueue(Runnable<Void, Void> task) {
         // TODO: Make thread safe
         handlerQueue.add(task);
         if (handlerQueue.size() == 1) {
@@ -1925,7 +1910,7 @@ public class WhenProgress<TResolve, TProgress> {
      * queue to be extended while it is being processed, and to continue
      * processing until it is truly empty.
      */
-    public void drainQueue() {
+    private void drainQueue() {
         // TODO: Make thread safe
         List<Runnable<Void, Void>> q = handlerQueue;
         handlerQueue = new ArrayList<>();
@@ -1947,6 +1932,11 @@ public class WhenProgress<TResolve, TProgress> {
         }
     };
 
+    /**
+     * Sets the executor to asynchronously run callbacks on an event loop.
+     *
+     * @param executor
+     */
     public static void setNextTick(Executor executor) {
         nextTick = executor;
     }
