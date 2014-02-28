@@ -19,37 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
 
-import static org.junit.Assert.fail;
+import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/30/13
- * Time: 5:32 AM
+ * Monitor status reporter
  */
-public class Fail<TResolve, TProgress> {
+public interface Reporter {
 
-
-    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
-
-    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
-            fail();
-            return null;
-        }
-    }
-
-    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-            Value<TResolve>> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-            fail();
-            return null;
-        }
-    }
+    void report(Map<Long, PromiseStatus> promises);
 
 }

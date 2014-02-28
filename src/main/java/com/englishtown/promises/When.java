@@ -21,6 +21,8 @@
 
 package com.englishtown.promises;
 
+import com.englishtown.promises.monitor.PromiseStatus;
+
 /**
  * A simplified extension of {@link com.englishtown.promises.WhenProgress} with void for progress
  */
@@ -103,17 +105,53 @@ public class When<T> extends WhenProgress<T, Void> {
         return (Promise<T>) super.reject(error);
     }
 
+    /**
+     * Creates a new promise whose fate is determined by resolver.
+     *
+     * @param resolver@returns {Promise} promise whose fate is determine by resolver
+     */
     @Override
-    protected WhenProgress<T, Void>.PromiseImpl createPromise(Thenable<T, Void> then) {
-        return new PromiseImpl2(then);
+    protected Promise2 createPromise0(ResolveCallback<T, Void> resolver, PromiseStatus status) {
+        return new Promise2(resolver, status);
     }
 
-    protected class PromiseImpl2 extends PromiseImpl implements Promise<T> {
+    @Override
+    protected FulfilledPromise2 createFulfilledPromise(T value) {
+        return new FulfilledPromise2(value);
+    }
 
-        PromiseImpl2(Thenable<T, Void> then) {
-            super(then);
+    @Override
+    protected RejectedPromise2 createRejectedPromise(Value<T> value) {
+        return new RejectedPromise2(value);
+    }
+
+    @Override
+    protected ProgressingPromise2 createProgressingPromise(Value<Void> value) {
+        return new ProgressingPromise2(value);
+    }
+
+    protected class Promise2 extends Promise0 implements Promise<T> {
+        protected Promise2(ResolveCallback<T, Void> resolver, PromiseStatus status) {
+            super(resolver, status);
         }
+    }
 
+    protected class FulfilledPromise2 extends FulfilledPromise implements Promise<T> {
+        public FulfilledPromise2(T value) {
+            super(value);
+        }
+    }
+
+    protected class RejectedPromise2 extends RejectedPromise implements Promise<T> {
+        protected RejectedPromise2(Value<T> reason) {
+            super(reason);
+        }
+    }
+
+    protected class ProgressingPromise2 extends ProgressingPromise implements Promise<T> {
+        protected ProgressingPromise2(Value<Void> value) {
+            super(value);
+        }
     }
 
 }

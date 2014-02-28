@@ -19,37 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
-
-import static org.junit.Assert.fail;
+package com.englishtown.promises.monitor;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/30/13
- * Time: 5:32 AM
+ * Created by adriangonzalez on 2/22/14.
  */
-public class Fail<TResolve, TProgress> {
+public interface PromiseStatus {
 
+    long getKey();
 
-    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
+    long getTimestamp();
 
-    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
-            fail();
-            return null;
-        }
-    }
+    Throwable getCreatedAt();
 
-    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-            Value<TResolve>> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-            fail();
-            return null;
-        }
-    }
+    Throwable getReason();
+
+    Throwable getRejectedAt();
+
+    PromiseStatus observed();
+
+    void fulfilled();
+
+    void rejected(Throwable reason);
 
 }

@@ -39,7 +39,7 @@ public interface PromiseExt<TResolve, TProgress> extends ProgressPromise<TResolv
      * @return a new {@link ProgressPromise}
      */
     ProgressPromise<TResolve, TProgress> always(
-            final Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilledOrRejected);
+            Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilledOrRejected);
 
     /**
      * Register a callback that will be called when a promise is
@@ -52,7 +52,7 @@ public interface PromiseExt<TResolve, TProgress> extends ProgressPromise<TResolv
      * @return a new {@link ProgressPromise}
      */
     ProgressPromise<TResolve, TProgress> always(
-            final Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilledOrRejected,
+            Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilledOrRejected,
             Runnable<Value<TProgress>, Value<TProgress>> onProgress);
 
     /**
@@ -78,5 +78,12 @@ public interface PromiseExt<TResolve, TProgress> extends ProgressPromise<TResolv
      * @return an {@link ProgressPromise} that fulfill with its value or reject with its reason.
      */
     ProgressPromise<TResolve, TProgress> yield(Thenable<TResolve, TProgress> promise);
+
+    /**
+     * Returns the current state of a promise
+     *
+     * @return
+     */
+    PromiseState<TResolve> inspect();
 
 }

@@ -19,50 +19,71 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.englishtown.promises.monitor.Aggregator;
+import com.englishtown.promises.monitor.PromiseStatus;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/30/13
- * Time: 2:41 AM
+ * Created by adriangonzalez on 2/27/14.
  */
-public class Done<TResolve, TProgress> {
+public class NOPAggregator implements Aggregator {
 
-    public boolean success;
-    public boolean failed;
+    private static final NOPPromiseStatus promiseStatus = new NOPPromiseStatus();
 
-    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
-
-    public void assertSuccess() {
-        assertTrue(success);
-        assertFalse(failed);
+    @Override
+    public PromiseStatus promiseStatus() {
+        return promiseStatus;
     }
 
-    public void assertFailed() {
-        assertTrue(failed);
-        assertFalse(success);
+    @Override
+    public void report() {
     }
 
-    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
+    @Override
+    public void reset() {
+    }
+
+    private static class NOPPromiseStatus implements PromiseStatus {
+
         @Override
-        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
-            success = true;
+        public long getKey() {
+            return 0;
+        }
+
+        @Override
+        public long getTimestamp() {
+            return 0;
+        }
+
+        @Override
+        public Throwable getCreatedAt() {
             return null;
         }
-    }
 
-    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-            Value<TResolve>> {
         @Override
-        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-            failed = true;
+        public Throwable getReason() {
             return null;
         }
+
+        @Override
+        public Throwable getRejectedAt() {
+            return null;
+        }
+
+        @Override
+        public PromiseStatus observed() {
+            return null;
+        }
+
+        @Override
+        public void fulfilled() {
+        }
+
+        @Override
+        public void rejected(Throwable reason) {
+        }
+
     }
 
 }

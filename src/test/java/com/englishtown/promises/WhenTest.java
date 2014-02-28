@@ -33,9 +33,9 @@ import static org.junit.Assert.*;
  */
 public class WhenTest {
 
+    private final WhenProgress<Integer, Integer> when = new WhenProgress<>();
     private final Fail<Integer, Integer> fail = new Fail<>();
     private final Fail<Boolean, Integer> fail2 = new Fail<>();
-
     private final FakePromise<Integer, Integer> fakePromise = new FakePromise<>();
 
     private class FakePromise<TResolve, TProgress> implements ProgressPromise<TResolve, TProgress> {
@@ -85,19 +85,26 @@ public class WhenTest {
 
     @Test
     public void whenTest_should_return_a_promise_for_a_value() {
-        ProgressPromise<Integer, Integer> result = new WhenProgress<Integer, Integer>().when(1);
+        ProgressPromise<Integer, Integer> result = when.when(1);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void whenTest_should_return_a_promise_for_a_null_value() {
+        ProgressPromise<Integer, Integer> result = when.when((Integer) null);
         assertNotNull(result);
     }
 
     @Test
     public void whenTest_should_return_a_promise_for_a_promise() {
-        ProgressPromise<Integer, Integer> result = new WhenProgress<Integer, Integer>().when(fakePromise);
+        ProgressPromise<Integer, Integer> result = when.when(fakePromise);
         assertNotNull(result);
     }
 
+
     @Test
     public void whenTest_should_not_return_the_input_promise() {
-        ProgressPromise<Integer, Integer> result = new WhenProgress<Integer, Integer>().when(fakePromise);
+        ProgressPromise<Integer, Integer> result = when.when(fakePromise);
         assertNotSame(fakePromise, result);
     }
 
@@ -105,7 +112,7 @@ public class WhenTest {
     public void whenTest_should_return_a_promise_that_forwards_for_a_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        ProgressPromise<Integer, Integer> result = new WhenProgress<Integer, Integer>().when(1, new Constant<>(2));
+        ProgressPromise<Integer, Integer> result = when.when(1, new Constant<>(2));
 
         assertNotNull(result);
         result.then(

@@ -32,7 +32,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 4:55 PM
- *
  */
 public class PromiseTest {
 

@@ -19,50 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.englishtown.promises.monitor.impl.NOPAggregator;
 
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/30/13
- * Time: 2:41 AM
+ * Monitor API class
  */
-public class Done<TResolve, TProgress> {
+public class MonitorApi {
 
-    public boolean success;
-    public boolean failed;
+    private Aggregator aggregator = new NOPAggregator();
 
-    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
-
-    public void assertSuccess() {
-        assertTrue(success);
-        assertFalse(failed);
+    public void reportUnhandled() {
+        aggregator.report();
     }
 
-    public void assertFailed() {
-        assertTrue(failed);
-        assertFalse(success);
+    public PromiseStatus promiseStatus() {
+        return aggregator.promiseStatus();
     }
 
-    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
-            success = true;
-            return null;
+    public Aggregator getAggregator() {
+        return aggregator;
+    }
+
+    public MonitorApi setAggregator(Aggregator aggregator) {
+        if (aggregator == null) {
+            throw new RuntimeException("Cannot set null aggregator");
         }
-    }
-
-    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-            Value<TResolve>> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-            failed = true;
-            return null;
-        }
+        this.aggregator = aggregator;
+        return this;
     }
 
 }

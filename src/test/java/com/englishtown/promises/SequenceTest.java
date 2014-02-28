@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/13/13
  * Time: 1:14 PM
- *
  */
 public class SequenceTest {
 

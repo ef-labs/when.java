@@ -21,48 +21,14 @@
 
 package com.englishtown.promises;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
- * Created with IntelliJ IDEA.
- * User: adriangonzalez
- * Date: 1/30/13
- * Time: 2:41 AM
+ * Created by adriangonzalez on 2/22/14.
  */
-public class Done<TResolve, TProgress> {
+public interface ResolveCallback<TResolve, TProgress> {
 
-    public boolean success;
-    public boolean failed;
-
-    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
-
-    public void assertSuccess() {
-        assertTrue(success);
-        assertFalse(failed);
-    }
-
-    public void assertFailed() {
-        assertTrue(failed);
-        assertFalse(success);
-    }
-
-    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
-            success = true;
-            return null;
-        }
-    }
-
-    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
-            Value<TResolve>> {
-        @Override
-        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
-            failed = true;
-            return null;
-        }
-    }
+    void run(
+            Runnable<Void, Thenable<TResolve, TProgress>> resolve,
+            Runnable<Void, Value<TResolve>> reject,
+            Runnable<Void, Value<TProgress>> notify);
 
 }

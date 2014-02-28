@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 3:15 PM
- *
  */
 public class AllTest {
 
@@ -47,7 +46,7 @@ public class AllTest {
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<ProgressPromise<Integer, Integer>> input = new ArrayList<>();
 
-        when.all(input,
+        when.all(input).then(
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> result) {
@@ -69,7 +68,8 @@ public class AllTest {
         Done<List<? extends Integer>, Integer> done = new Done<>();
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        when.all(null, fail.onSuccess,
+        when.all(null).then(
+                fail.onSuccess,
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(Value<List<? extends Integer>> value) {
@@ -90,7 +90,7 @@ public class AllTest {
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
         final List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.allValues(input,
+        when.allValues(input).then(
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
@@ -111,7 +111,7 @@ public class AllTest {
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.all(input,
+        when.all(input).then(
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
@@ -134,7 +134,7 @@ public class AllTest {
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
         final List<Integer> input = Arrays.asList(null, 1, null, 1, 1);
 
-        when.allValues(input,
+        when.allValues(input).then(
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, List<? extends Integer>>() {
                     @Override
                     public ProgressPromise<List<? extends Integer>, Integer> run(List<? extends Integer> results) {
@@ -155,7 +155,7 @@ public class AllTest {
         WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
 
-        when.all(input,
+        when.all(input).then(
                 fail.onSuccess,
                 new Runnable<ProgressPromise<List<? extends Integer>, Integer>, Value<List<? extends Integer>>>() {
                     @Override

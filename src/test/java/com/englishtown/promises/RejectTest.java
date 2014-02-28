@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 5:55 PM
- *
  */
 public class RejectTest {
 

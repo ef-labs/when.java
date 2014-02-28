@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 6:02 PM
- *
  */
 public class ResolveTest {
 
@@ -71,7 +70,7 @@ public class ResolveTest {
         DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().resolve(expected);
 
-        when.resolvePromise(d.getPromise()).then(
+        when.resolve(d.getPromise()).then(
                 new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
                     public ProgressPromise<Integer, Integer> run(Integer value) {
@@ -96,7 +95,7 @@ public class ResolveTest {
         DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().reject(expected);
 
-        when.resolvePromise(d.getPromise()).then(
+        when.resolve(d.getPromise()).then(
                 fail.onSuccess,
                 new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
@@ -118,7 +117,7 @@ public class ResolveTest {
         Done<Object, Object> done = new Done<>();
         final RuntimeException err = new RuntimeException();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
             public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 throw err;
@@ -143,7 +142,7 @@ public class ResolveTest {
         WhenProgress<Object, Object> when = new WhenProgress<>();
         Done<Object, Object> done = new Done<>();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
             public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 onFulfilled.run(sentinel);
@@ -170,7 +169,7 @@ public class ResolveTest {
         WhenProgress<Object, Object> when = new WhenProgress<>();
         Done<Object, Object> done = new Done<>();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
             public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 onRejected.run(new Value<>(sentinel));
