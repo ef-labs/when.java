@@ -35,10 +35,10 @@ public interface Thenable<TResolve, TProgress> {
      * @param onFulfilled resolution handler
      * @param onRejected  rejection handler
      * @param onProgress  progress handler
-     * @return a new {@link Promise} to allow chaining callback registration
+     * @return a new {@link ProgressPromise} to allow chaining callback registration
      */
-    public Promise<TResolve, TProgress> then(
-            Runnable<Promise<TResolve, TProgress>, TResolve> onFulfilled,
-            Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onRejected,
+    public ProgressPromise<TResolve, TProgress> then(
+            Runnable<? extends ProgressPromise<TResolve, TProgress>, TResolve> onFulfilled,
+            Runnable<? extends ProgressPromise<TResolve, TProgress>, Value<TResolve>> onRejected,
             Runnable<Value<TProgress>, Value<TProgress>> onProgress);
 }

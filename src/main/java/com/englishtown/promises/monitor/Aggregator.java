@@ -19,11 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * {@link com.englishtown.promises.monitor.PromiseStatus} aggregator
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public interface Aggregator {
+
+    PromiseStatus promiseStatus();
+
+    void report();
+
+    void reset();
+
 
 }

@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/5/13
  * Time: 4:31 PM
- *
  */
 public class ReduceTest {
 
@@ -60,13 +59,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_values_without_initial_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
         when.reduceValues(input, plus).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(6, value.intValue());
                         return null;
                     }
@@ -82,13 +81,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_values_with_initial_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
         when.reduceValues(input, plus, 1).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(7, value.intValue());
                         return null;
                     }
@@ -104,13 +103,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_values_with_initial_promise() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
         when.reduceValues(input, plus, when.resolve(1)).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(7, value.intValue());
                         return null;
                     }
@@ -126,13 +125,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_promised_values_without_initial_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
         when.reduce(input, plus).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(6, result.intValue());
                         return null;
                     }
@@ -147,13 +146,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_promised_values_with_initial_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
         when.reduce(input, plus, 1).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(7, result.intValue());
                         return null;
                     }
@@ -169,13 +168,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_promised_values_with_initial_promise() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
         when.reduce(input, plus, when.resolve(1)).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(7, result.intValue());
                         return null;
                     }
@@ -191,13 +190,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_empty_input_with_initial_value() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = new ArrayList<>();
 
         when.reduceValues(input, plus, 1).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(1, result.intValue());
                         return null;
                     }
@@ -213,13 +212,13 @@ public class ReduceTest {
     public void testReduce_should_reduce_empty_input_with_initial_promise() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = new ArrayList<>();
 
         when.reduceValues(input, plus, 1).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(1, result.intValue());
                         return null;
                     }
@@ -235,15 +234,15 @@ public class ReduceTest {
     public void testReduce_should_reject_when_input_contains_rejection() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.resolve(3));
 
         when.reduce(input, plus, when.resolve(1)).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> result) {
-                        assertEquals(4, result.value.intValue());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> result) {
+                        assertEquals(4, result.getValue().intValue());
                         return null;
                     }
                 }
@@ -257,15 +256,15 @@ public class ReduceTest {
     public void testReduce_should_reject_with_TypeError_when_input_is_empty_and_no_initial_value_or_promise_provided() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Promise<Integer, Integer>> input = new ArrayList<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<ProgressPromise<Integer, Integer>> input = new ArrayList<>();
 
         when.reduce(input, plus).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertNotNull(value.error);
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -279,13 +278,13 @@ public class ReduceTest {
     public void testReduce_should_allow_sparse_array_input_without_initial() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = Arrays.asList(null, null, 1, null, 1, 1);
 
         when.reduceValues(input, plus).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(3, value.intValue());
                         return null;
                     }
@@ -301,13 +300,13 @@ public class ReduceTest {
     public void testReduce_should_allow_sparse_array_input_with_initial() {
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         List<Integer> input = Arrays.asList(null, null, 1, null, 1, 1);
 
         when.reduceValues(input, plus, 1).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(4, value.intValue());
                         return null;
                     }
@@ -323,16 +322,16 @@ public class ReduceTest {
     public void testReduce_should_reduce_in_input_order() {
 
         Done<String, Integer> done = new Done<>();
-        When<String, Integer> when = new When<>();
-        Deferred<String, Integer> d1 = when.defer();
-        Deferred<String, Integer> d2 = when.defer();
-        Deferred<String, Integer> d3 = when.defer();
-        List<Promise<String, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
+        WhenProgress<String, Integer> when = new WhenProgress<>();
+        DeferredProgress<String, Integer> d1 = when.defer();
+        DeferredProgress<String, Integer> d2 = when.defer();
+        DeferredProgress<String, Integer> d3 = when.defer();
+        List<ProgressPromise<String, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
 
         when.reduce(input, plus2).then(
-                new Runnable<Promise<String, Integer>, String>() {
+                new Runnable<ProgressPromise<String, Integer>, String>() {
                     @Override
-                    public Promise<String, Integer> run(String value) {
+                    public ProgressPromise<String, Integer> run(String value) {
                         assertEquals("123", value);
                         return null;
                     }
@@ -352,16 +351,16 @@ public class ReduceTest {
     public void testReduce_should_accept_a_promise_for_an_array() {
 
         Done<String, Integer> done = new Done<>();
-        When<String, Integer> when = new When<>();
+        WhenProgress<String, Integer> when = new WhenProgress<>();
 
-        When<List<String>, Integer> w1 = new When<>();
+        WhenProgress<List<String>, Integer> w1 = new WhenProgress<>();
         List<String> input = Arrays.asList("1", "2", "3");
-        Promise<List<String>, Integer> promise = w1.resolve(input);
+        ProgressPromise<List<String>, Integer> promise = w1.resolve(input);
 
-        when.reducePromise(promise, plus2, "").then(
-                new Runnable<Promise<String, Integer>, String>() {
+        when.reduce(promise, plus2, "").then(
+                new Runnable<ProgressPromise<String, Integer>, String>() {
                     @Override
-                    public Promise<String, Integer> run(String value) {
+                    public ProgressPromise<String, Integer> run(String value) {
                         assertEquals("123", value);
                         return null;
                     }
@@ -377,17 +376,17 @@ public class ReduceTest {
     public void testReduce_should_accept_a_promise_for_an_array_and_reject() {
 
         Done<String, Integer> done = new Done<>();
-        When<String, Integer> when = new When<>();
-        When<List<String>, Integer> w1 = new When<>();
+        WhenProgress<String, Integer> when = new WhenProgress<>();
+        WhenProgress<List<String>, Integer> w1 = new WhenProgress<>();
 
-        Deferred<List<String>, Integer> d1 = w1.defer();
+        DeferredProgress<List<String>, Integer> d1 = w1.defer();
 
-        when.reducePromise(d1.getPromise(), plus2, "").then(
+        when.reduce(d1.getPromise(), plus2, "").then(
                 fail2.onSuccess,
-                new Runnable<Promise<String, Integer>, Value<String>>() {
+                new Runnable<ProgressPromise<String, Integer>, Value<String>>() {
                     @Override
-                    public Promise<String, Integer> run(Value<String> value) {
-                        assertNotNull(value.error);
+                    public ProgressPromise<String, Integer> run(Value<String> value) {
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -420,10 +419,10 @@ public class ReduceTest {
             }
         };
 
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d1 = when.defer();
-        Deferred<Integer, Integer> d2 = when.defer();
-        Deferred<Integer, Integer> d3 = when.defer();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d1 = when.defer();
+        DeferredProgress<Integer, Integer> d2 = when.defer();
+        DeferredProgress<Integer, Integer> d3 = when.defer();
 
         Done<List<Integer>, Integer> done = new Done<>();
         Fail<List<Integer>, Integer> fail = new Fail<>();
@@ -432,15 +431,15 @@ public class ReduceTest {
                 Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise()),
                 insertIntoArray,
                 new ArrayList<Integer>()
-        ).then(new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+        ).then(new Runnable<ProgressPromise<List<Integer>, Integer>, List<Integer>>() {
             @Override
-            public Promise<List<Integer>, Integer> run(List<Integer> value) {
+            public ProgressPromise<List<Integer>, Integer> run(List<Integer> value) {
                 Integer[] expected = {1, 2, 3};
                 assertArrayEquals(expected, value.toArray(new Integer[value.size()]));
                 return null;
             }
         },
-        fail.onFail).then(done.onSuccess, done.onFail);
+                fail.onFail).then(done.onSuccess, done.onFail);
 
         d1.getResolver().resolve(1);
         d3.getResolver().resolve(3);

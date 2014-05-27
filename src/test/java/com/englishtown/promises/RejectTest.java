@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 5:55 PM
- *
  */
 public class RejectTest {
 
@@ -41,14 +40,56 @@ public class RejectTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
         when.reject(expected).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.getValue().intValue());
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testReject_should_reject_an_immediate_value_2() {
+        final Value<Integer> expected = new Value<>(123);
+
+        Done<Integer, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+
+        when.reject(expected).then(
+                fail.onSuccess,
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected.getValue().intValue(), value.getValue().intValue());
+                        return null;
+                    }
+                }
+        ).then(done.onSuccess, done.onFail);
+
+        done.assertSuccess();
+    }
+
+    @Test
+    public void testReject_should_reject_an_immediate_value_3() {
+        final Throwable error = new RuntimeException();
+
+        Done<Integer, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+
+        when.reject(error).then(
+                fail.onSuccess,
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
+                    @Override
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(error, value.getCause());
                         return null;
                     }
                 }
@@ -63,17 +104,17 @@ public class RejectTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        Deferred<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().resolve(expected);
 
         when.reject(d.getPromise()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -89,17 +130,17 @@ public class RejectTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        Deferred<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().reject(expected);
 
         when.reject(d.getPromise()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }

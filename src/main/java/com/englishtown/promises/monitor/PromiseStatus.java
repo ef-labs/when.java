@@ -19,11 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * Created by adriangonzalez on 2/22/14.
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public interface PromiseStatus {
+
+    long getKey();
+
+    long getTimestamp();
+
+    Throwable getCreatedAt();
+
+    Throwable getReason();
+
+    Throwable getRejectedAt();
+
+    PromiseStatus observed();
+
+    void fulfilled();
+
+    void rejected(Throwable reason);
 
 }

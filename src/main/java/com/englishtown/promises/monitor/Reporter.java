@@ -19,11 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
+
+import java.util.Map;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * Monitor status reporter
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public interface Reporter {
+
+    void report(Map<Long, PromiseStatus> promises);
 
 }

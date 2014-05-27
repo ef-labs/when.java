@@ -34,35 +34,34 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/13/13
  * Time: 1:14 PM
- *
  */
 public class SequenceTest {
 
     private final Fail<List<Integer>, Integer> fail = new Fail<>();
 
-    private Runnable<Promise<Integer, Integer>, Void> createTask(final int y) {
-        return new Runnable<Promise<Integer, Integer>, Void>() {
+    private Runnable<ProgressPromise<Integer, Integer>, Void> createTask(final int y) {
+        return new Runnable<ProgressPromise<Integer, Integer>, Void>() {
             @Override
-            public Promise<Integer, Integer> run(Void value) {
-                When<Integer, Integer> w = new When<>();
+            public ProgressPromise<Integer, Integer> run(Void value) {
+                WhenProgress<Integer, Integer> w = new WhenProgress<>();
                 return w.resolve(y);
             }
         };
     }
 
-    private Runnable<Promise<Integer, Integer>, Void> createTask(final Promise<Integer, Integer> promise) {
-        return new Runnable<Promise<Integer, Integer>, Void>() {
+    private Runnable<ProgressPromise<Integer, Integer>, Void> createTask(final ProgressPromise<Integer, Integer> promise) {
+        return new Runnable<ProgressPromise<Integer, Integer>, Void>() {
             @Override
-            public Promise<Integer, Integer> run(Void value) {
+            public ProgressPromise<Integer, Integer> run(Void value) {
                 return promise;
             }
         };
     }
 
-    private Runnable<Promise<Integer, Integer>, int[]> expectArgs(final int[] expected) {
-        return new Runnable<Promise<Integer, Integer>, int[]>() {
+    private Runnable<ProgressPromise<Integer, Integer>, int[]> expectArgs(final int[] expected) {
+        return new Runnable<ProgressPromise<Integer, Integer>, int[]>() {
             @Override
-            public Promise<Integer, Integer> run(int[] value) {
+            public ProgressPromise<Integer, Integer> run(int[] value) {
                 assertEquals(expected, value);
                 return null;
             }
@@ -73,17 +72,17 @@ public class SequenceTest {
     public void testSequence_should_execute_tasks_in_order() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks =
                 Arrays.asList(
                         createTask(1),
                         createTask(2),
                         createTask(3));
 
         when.sequence(tasks).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(List<Integer> value) {
                         Integer[] expected = {1, 2, 3};
                         assertArrayEquals(expected, value.toArray(new Integer[value.size()]));
                         return null;
@@ -99,13 +98,13 @@ public class SequenceTest {
     public void testSequence_should_resolve_to_empty_array_when_no_tasks_supplied() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks = new ArrayList<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks = new ArrayList<>();
 
         when.sequence(tasks).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(List<Integer> value) {
                         assertNotNull(value);
                         assertEquals(0, value.size());
                         return null;
@@ -122,10 +121,10 @@ public class SequenceTest {
 
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         int[] expected = {1, 2, 3};
 
-        List<Runnable<Promise<Integer, Integer>, int[]>> tasks =
+        List<Runnable<ProgressPromise<Integer, Integer>, int[]>> tasks =
                 Arrays.asList(
                         expectArgs(expected),
                         expectArgs(expected),
@@ -140,20 +139,20 @@ public class SequenceTest {
     public void testSequence_should_execute_delayed_tasks_in_order() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d1 = when.defer();
-        Deferred<Integer, Integer> d2 = when.defer();
-        Deferred<Integer, Integer> d3 = when.defer();
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d1 = when.defer();
+        DeferredProgress<Integer, Integer> d2 = when.defer();
+        DeferredProgress<Integer, Integer> d3 = when.defer();
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks =
                 Arrays.asList(
                         createTask(d1.getPromise()),
                         createTask(d2.getPromise()),
                         createTask(d3.getPromise()));
 
         when.sequence(tasks).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, List<Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(List<Integer> value) {
                         Integer[] expected = {1, 2, 3};
                         assertArrayEquals(expected, value.toArray(new Integer[value.size()]));
                         return null;
@@ -173,8 +172,8 @@ public class SequenceTest {
     public void testSequence_should_execute_tasks_with_reject() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks =
                 Arrays.asList(
                         createTask(when.resolve(1)),
                         createTask(when.resolve(2)),
@@ -182,12 +181,12 @@ public class SequenceTest {
 
         when.sequence(tasks).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
                         Integer[] expected = {3};
-                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        assertArrayEquals(expected, value.getValue().toArray(new Integer[1]));
                         return null;
                     }
                 }
@@ -200,11 +199,11 @@ public class SequenceTest {
     public void testSequence_should_execute_delayed_tasks_with_reject() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d1 = when.defer();
-        Deferred<Integer, Integer> d2 = when.defer();
-        Deferred<Integer, Integer> d3 = when.defer();
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d1 = when.defer();
+        DeferredProgress<Integer, Integer> d2 = when.defer();
+        DeferredProgress<Integer, Integer> d3 = when.defer();
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks =
                 Arrays.asList(
                         createTask(d1.getPromise()),
                         createTask(d2.getPromise()),
@@ -212,12 +211,12 @@ public class SequenceTest {
 
         when.sequence(tasks).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
                         Integer[] expected = {2};
-                        assertArrayEquals(expected, value.value.toArray(new Integer[1]));
+                        assertArrayEquals(expected, value.getValue().toArray(new Integer[1]));
                         return null;
                     }
                 }
@@ -234,29 +233,29 @@ public class SequenceTest {
     public void testSequence_should_execute_tasks_with_exception_and_reject() {
 
         Done<List<Integer>, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
         final RuntimeException ex = new RuntimeException();
 
-        List<Runnable<Promise<Integer, Integer>, Void>> tasks =
+        List<Runnable<ProgressPromise<Integer, Integer>, Void>> tasks =
                 Arrays.asList(
                         createTask(when.resolve(1)),
                         createTask(when.resolve(2)),
-                        new Runnable<Promise<Integer, Integer>, Void>() {
+                        new Runnable<ProgressPromise<Integer, Integer>, Void>() {
                             @Override
-                            public Promise<Integer, Integer> run(Void value) {
+                            public ProgressPromise<Integer, Integer> run(Void value) {
                                 throw ex;
                             }
                         });
 
         when.sequence(tasks).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<List<Integer>, Integer>, Value<List<Integer>>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
+                    public ProgressPromise<List<Integer>, Integer> run(Value<List<Integer>> value) {
                         assertNotNull(value);
-                        assertEquals(ex, value.error);
-                        assertEquals(1, value.value.size());
-                        assertNull(value.value.get(0));
+                        assertEquals(ex, value.getCause());
+                        assertEquals(1, value.getValue().size());
+                        assertNull(value.getValue().get(0));
                         return null;
                     }
                 }

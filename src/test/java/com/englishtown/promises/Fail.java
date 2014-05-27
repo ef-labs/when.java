@@ -28,26 +28,25 @@ import static org.junit.Assert.fail;
  * User: adriangonzalez
  * Date: 1/30/13
  * Time: 5:32 AM
- *
  */
 public class Fail<TResolve, TProgress> {
 
 
-    public final Runnable<Promise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
-    public final Runnable<Promise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
+    public final Runnable<ProgressPromise<TResolve, TProgress>, TResolve> onSuccess = new SuccessCallback();
+    public final Runnable<ProgressPromise<TResolve, TProgress>, Value<TResolve>> onFail = new FailCallback();
 
-    private class SuccessCallback implements Runnable<Promise<TResolve, TProgress>, TResolve> {
+    private class SuccessCallback implements Runnable<ProgressPromise<TResolve, TProgress>, TResolve> {
         @Override
-        public Promise<TResolve, TProgress> run(TResolve value) {
+        public ProgressPromise<TResolve, TProgress> run(TResolve value) {
             fail();
             return null;
         }
     }
 
-    private class FailCallback implements Runnable<Promise<TResolve, TProgress>,
+    private class FailCallback implements Runnable<ProgressPromise<TResolve, TProgress>,
             Value<TResolve>> {
         @Override
-        public Promise<TResolve, TProgress> run(Value<TResolve> value) {
+        public ProgressPromise<TResolve, TProgress> run(Value<TResolve> value) {
             fail();
             return null;
         }

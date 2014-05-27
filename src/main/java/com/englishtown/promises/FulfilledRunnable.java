@@ -22,8 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * A convenience Runnable interface for when a promise is fulfilled
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
-
+public interface FulfilledRunnable<T> extends Runnable<Promise<T>, T> {
 }

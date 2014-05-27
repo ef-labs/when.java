@@ -33,33 +33,41 @@ public interface Resolver<TResolve, TProgress> {
      * Resolves the promise to trigger onResolve handlers
      *
      * @param value the resolved value
-     * @return an already-fulfilled {@link Promise} for the resolved value
+     * @return an already-fulfilled {@link ProgressPromise} for the resolved value
      */
-    Promise<TResolve, TProgress> resolve(TResolve value);
+    ProgressPromise<TResolve, TProgress> resolve(TResolve value);
 
     /**
      * Resolves the promise to trigger onResolve handlers
      *
-     * @param value a resolved {@link Promise}
-     * @return an already-fulfilled {@link Promise} for the resolved value
+     * @param value a resolved {@link ProgressPromise}
+     * @return an already-fulfilled {@link ProgressPromise} for the resolved value
      */
-    Promise<TResolve, TProgress> resolve(Promise<TResolve, TProgress> value);
+    ProgressPromise<TResolve, TProgress> resolve(ProgressPromise<TResolve, TProgress> value);
 
     /**
      * Rejects the promise to trigger onReject handlers
      *
      * @param reason the rejection reason
-     * @return a rejected {@link Promise}
+     * @return a rejected {@link ProgressPromise}
      */
-    Promise<TResolve, TProgress> reject(TResolve reason);
+    ProgressPromise<TResolve, TProgress> reject(TResolve reason);
 
     /**
      * Rejects the promise to trigger onReject handlers
      *
-     * @param reason a rejected {@link Promise}
-     * @return a rejected {@link Promise}
+     * @param reason the rejection reason
+     * @return a rejected {@link ProgressPromise}
      */
-    Promise<TResolve, TProgress> reject(Value<TResolve> reason);
+    ProgressPromise<TResolve, TProgress> reject(Throwable reason);
+
+    /**
+     * Rejects the promise to trigger onReject handlers
+     *
+     * @param reason a rejected {@link ProgressPromise}
+     * @return a rejected {@link ProgressPromise}
+     */
+    ProgressPromise<TResolve, TProgress> reject(Value<TResolve> reason);
 
     /**
      * Triggers the onProgress handlers with progress information

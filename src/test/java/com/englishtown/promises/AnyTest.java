@@ -34,23 +34,22 @@ import static org.junit.Assert.*;
  * User: adriangonzalez
  * Date: 2/2/13
  * Time: 5:42 AM
- *
  */
 public class AnyTest {
 
-    private final Fail<List<Integer>, Integer> fail = new Fail<>();
+    private final Fail<Integer, Integer> fail = new Fail<>();
     private final Fail<Integer, Integer> fail2 = new Fail<>();
 
     @Test
     public void testAny_should_resolve_to_undefined_with_empty_input_array() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = new ArrayList<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
+        List<ProgressPromise<Integer, Integer>> input = new ArrayList<>();
 
-        when.any(input, new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input).then(new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
             @Override
-            public Promise<Integer, Integer> run(Integer value) {
+            public ProgressPromise<Integer, Integer> run(Integer value) {
                 assertNull(value);
                 return null;
             }
@@ -62,24 +61,24 @@ public class AnyTest {
     @Test
     public void testAny_should_reject_with_null_input_array() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
 
-        when.any(null,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(null).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
-                        fail.onSuccess.run(Arrays.asList(value));
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
+                        fail.onSuccess.run(value);
                         return null;
                     }
                 },
                 fail.onFail
         ).then(
                 fail.onSuccess,
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> value) {
-                        assertNotNull(value.error);
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertNotNull(value.getCause());
                         return null;
                     }
                 }
@@ -91,14 +90,14 @@ public class AnyTest {
     @Test
     public void testAny_should_resolve_with_an_input_value() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.anyValues(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.anyValues(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(1, result.intValue());
                         return null;
                     }
@@ -111,14 +110,14 @@ public class AnyTest {
     @Test
     public void testAny_should_resolve_with_a_promised_input_value() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.resolve(2), when.resolve(3));
 
-        when.any(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(1, value.intValue());
                         return null;
                     }
@@ -131,14 +130,14 @@ public class AnyTest {
     @Test
     public void testAny_should_resolve_with_a_promised_input_value_if_any_resolve() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.resolve(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.resolve(3));
 
-        when.any(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(3, value.intValue());
                         return null;
                     }
@@ -151,23 +150,22 @@ public class AnyTest {
     @Test
     public void testAny_should_reject_with_all_rejected_input_values_if_all_inputs_are_rejected() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.reject(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.reject(1), when.reject(2), when.reject(3));
 
-        when.any(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
-                        fail.onSuccess.run(Arrays.asList(value));
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
+                        fail.onSuccess.run(value);
                         return null;
                     }
                 },
-                new Runnable<Promise<List<Integer>, Integer>, Value<List<Integer>>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(Value<List<Integer>> result) {
-                        Integer[] expected = {1, 2, 3};
-                        assertArrayEquals(expected, result.value.toArray());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> result) {
+                        assertEquals(1, result.getValue().intValue());
                         return null;
                     }
                 }
@@ -179,14 +177,14 @@ public class AnyTest {
     @Test
     public void testAny_should_resolve_when_first_input_promise_resolves() {
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.reject(3));
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(when.resolve(1), when.reject(2), when.reject(3));
 
-        when.any(input,
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.any(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer result) {
+                    public ProgressPromise<Integer, Integer> run(Integer result) {
                         assertEquals(1, result.intValue());
                         return null;
                     }
@@ -199,22 +197,22 @@ public class AnyTest {
     @Test
     public void testAny_should_notify_progress() {
 
-        When<Integer, Integer> when = new When<>();
-        Deferred<Integer, Integer> d1 = when.defer();
-        Deferred<Integer, Integer> d2 = when.defer();
-        Deferred<Integer, Integer> d3 = when.defer();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        DeferredProgress<Integer, Integer> d1 = when.defer();
+        DeferredProgress<Integer, Integer> d2 = when.defer();
+        DeferredProgress<Integer, Integer> d3 = when.defer();
         final Done<List<Integer>, Integer> done = new Done<>();
-        List<Promise<Integer, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
+        List<ProgressPromise<Integer, Integer>> input = Arrays.asList(d1.getPromise(), d2.getPromise(), d3.getPromise());
 
         final int expected = 5;
 
-        when.any(input,
+        when.any(input).then(
                 fail2.onSuccess,
                 fail.onFail,
                 new Runnable<Value<Integer>, Value<Integer>>() {
                     @Override
                     public Value<Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                        assertEquals(expected, value.getValue().intValue());
                         done.success = true;
                         return null;
                     }
@@ -243,17 +241,17 @@ public class AnyTest {
 //    @Test
 //    public void testAny_should_accept_a_promise_for_an_array() {
 //
-//        When<Integer, Integer> when = new When<>();
+//        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 //        Done<List<Integer>, Integer> done = new Done<>();
 //
 //        List<Integer> expected = Arrays.asList(1, 2, 3);
-//        When<List<Integer>, Integer> w1 = new When<>();
-//        Promise<List<Integer>, Integer> input = w1.resolve(expected);
+//        WhenProgress<List<Integer>, Integer> w1 = new WhenProgress<>();
+//        ProgressPromise<List<Integer>, Integer> input = w1.resolve(expected);
 //
 //        when.anyPromise(input,
-//                new Runnable<Promise<Integer, Integer>, Integer>() {
+//                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
 //                    @Override
-//                    public Promise<Integer, Integer> run(Integer result) {
+//                    public ProgressPromise<Integer, Integer> run(Integer result) {
 //                        assertEquals(1, result.intValue());
 //                        return null;
 //                    }
@@ -267,16 +265,15 @@ public class AnyTest {
     public void testAny_should_allow_zero_handlers() {
 
 
-        When<Integer, Integer> when = new When<>();
-        Done<List<Integer>, Integer> done = new Done<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
+        Done<Integer, Integer> done = new Done<>();
         List<Integer> input = Arrays.asList(1, 2, 3);
 
-        when.anyValues(input, null).then(
-                new Runnable<Promise<List<Integer>, Integer>, List<Integer>>() {
+        when.anyValues(input).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<List<Integer>, Integer> run(List<Integer> value) {
-                        assertEquals(1, value.size());
-                        assertEquals(1, value.get(0).intValue());
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
+                        assertEquals(1, value.intValue());
                         return null;
                     }
                 },

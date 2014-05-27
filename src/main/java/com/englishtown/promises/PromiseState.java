@@ -22,8 +22,45 @@
 package com.englishtown.promises;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * Created by adriangonzalez on 2/22/14.
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public class PromiseState<T> {
+
+    private State state;
+    private T value;
+    private Throwable reason;
+
+    public enum State {
+        FULFILLED,
+        REJECTED,
+        PENDING
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public PromiseState<T> setState(State state) {
+        this.state = state;
+        return this;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public PromiseState<T> setValue(T value) {
+        this.value = value;
+        return this;
+    }
+
+    public Throwable getReason() {
+        return reason;
+    }
+
+    public PromiseState<T> setReason(Throwable reason) {
+        this.reason = reason;
+        return this;
+    }
 
 }

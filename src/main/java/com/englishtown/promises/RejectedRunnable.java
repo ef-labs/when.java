@@ -22,8 +22,7 @@
 package com.englishtown.promises;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * A convenience Runnable interface for when a promise is rejected
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
-
+public interface RejectedRunnable<T> extends Runnable<Promise<T>, Value<T>> {
 }

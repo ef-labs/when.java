@@ -22,26 +22,15 @@
 package com.englishtown.promises;
 
 /**
- * A deferred contains a {@link Resolver} for an associated {@link Promise}, either of which may be safely handed
- * out
- *
- * @param <TResolve>  the type passed to fulfillment or rejection handlers
- * @param <TProgress> the type passed to progress handlers
+ * A simplified extension of {@link com.englishtown.promises.DeferredProgress} with void progress
  */
-public interface Deferred<TResolve, TProgress> {
+public interface Deferred<T> extends DeferredProgress<T, Void> {
 
     /**
-     * Gets the {@link Resolver}
-     *
-     * @return the resolver
-     */
-    Resolver<TResolve, TProgress> getResolver();
-
-    /**
-     * Gets the {@link Promise}
+     * Gets the {@link ProgressPromise}
      *
      * @return the promise
      */
-    Promise<TResolve, TProgress> getPromise();
+    Promise<T> getPromise();
 
 }

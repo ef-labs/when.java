@@ -19,11 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.englishtown.promises;
+package com.englishtown.promises.monitor;
+
+import com.englishtown.promises.monitor.impl.NOPAggregator;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * Monitor API class
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public class MonitorApi {
+
+    private Aggregator aggregator = new NOPAggregator();
+
+    public void reportUnhandled() {
+        aggregator.report();
+    }
+
+    public PromiseStatus promiseStatus() {
+        return aggregator.promiseStatus();
+    }
+
+    public Aggregator getAggregator() {
+        return aggregator;
+    }
+
+    public MonitorApi setAggregator(Aggregator aggregator) {
+        if (aggregator == null) {
+            throw new RuntimeException("Cannot set null aggregator");
+        }
+        this.aggregator = aggregator;
+        return this;
+    }
 
 }

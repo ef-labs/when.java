@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
  * User: adriangonzalez
  * Date: 2/4/13
  * Time: 6:02 PM
- *
  */
 public class ResolveTest {
 
@@ -44,12 +43,12 @@ public class ResolveTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
         when.resolve(expected).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(expected, value.intValue());
                         return null;
                     }
@@ -66,15 +65,15 @@ public class ResolveTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        Deferred<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().resolve(expected);
 
-        when.resolvePromise(d.getPromise()).then(
-                new Runnable<Promise<Integer, Integer>, Integer>() {
+        when.resolve(d.getPromise()).then(
+                new Runnable<ProgressPromise<Integer, Integer>, Integer>() {
                     @Override
-                    public Promise<Integer, Integer> run(Integer value) {
+                    public ProgressPromise<Integer, Integer> run(Integer value) {
                         assertEquals(expected, value.intValue());
                         return null;
                     }
@@ -91,17 +90,17 @@ public class ResolveTest {
         final int expected = 123;
 
         Done<Integer, Integer> done = new Done<>();
-        When<Integer, Integer> when = new When<>();
+        WhenProgress<Integer, Integer> when = new WhenProgress<>();
 
-        Deferred<Integer, Integer> d = when.defer();
+        DeferredProgress<Integer, Integer> d = when.defer();
         d.getResolver().reject(expected);
 
-        when.resolvePromise(d.getPromise()).then(
+        when.resolve(d.getPromise()).then(
                 fail.onSuccess,
-                new Runnable<Promise<Integer, Integer>, Value<Integer>>() {
+                new Runnable<ProgressPromise<Integer, Integer>, Value<Integer>>() {
                     @Override
-                    public Promise<Integer, Integer> run(Value<Integer> value) {
-                        assertEquals(expected, value.value.intValue());
+                    public ProgressPromise<Integer, Integer> run(Value<Integer> value) {
+                        assertEquals(expected, value.getValue().intValue());
                         return null;
                     }
                 }
@@ -114,21 +113,21 @@ public class ResolveTest {
     @Test
     public void testResolve_when_assimilating_untrusted_thenables_should_trap_exceptions_during_assimilation() {
 
-        When<Object, Object> when = new When<>();
+        WhenProgress<Object, Object> when = new WhenProgress<>();
         Done<Object, Object> done = new Done<>();
         final RuntimeException err = new RuntimeException();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
-            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+            public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 throw err;
             }
         }).then(
                 fail2.onSuccess,
-                new Runnable<Promise<Object, Object>, Value<Object>>() {
+                new Runnable<ProgressPromise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Value<Object> value) {
-                        assertEquals(err, value.error);
+                    public ProgressPromise<Object, Object> run(Value<Object> value) {
+                        assertEquals(err, value.getCause());
                         return null;
                     }
                 }
@@ -140,20 +139,20 @@ public class ResolveTest {
     @Test
     public void testResolve_when_assimilating_untrusted_thenables_should_ignore_exceptions_after_fulfillment() {
 
-        When<Object, Object> when = new When<>();
+        WhenProgress<Object, Object> when = new WhenProgress<>();
         Done<Object, Object> done = new Done<>();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
-            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+            public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 onFulfilled.run(sentinel);
                 throw new RuntimeException();
             }
         }
         ).then(
-                new Runnable<Promise<Object, Object>, Object>() {
+                new Runnable<ProgressPromise<Object, Object>, Object>() {
                     @Override
-                    public Promise<Object, Object> run(Object value) {
+                    public ProgressPromise<Object, Object> run(Object value) {
                         assertEquals(sentinel, value);
                         return null;
                     }
@@ -167,22 +166,22 @@ public class ResolveTest {
     @Test
     public void testResolve_when_assimilating_untrusted_thenables_should_ignore_exceptions_after_rejection() {
 
-        When<Object, Object> when = new When<>();
+        WhenProgress<Object, Object> when = new WhenProgress<>();
         Done<Object, Object> done = new Done<>();
 
-        when.resolvePromise(new Thenable<Object, Object>() {
+        when.resolve(new Thenable<Object, Object>() {
             @Override
-            public Promise<Object, Object> then(Runnable<Promise<Object, Object>, Object> onFulfilled, Runnable<Promise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
+            public ProgressPromise<Object, Object> then(Runnable<? extends ProgressPromise<Object, Object>, Object> onFulfilled, Runnable<? extends ProgressPromise<Object, Object>, Value<Object>> onRejected, Runnable<Value<Object>, Value<Object>> onProgress) {
                 onRejected.run(new Value<>(sentinel));
                 throw new RuntimeException();
             }
         }
         ).then(
                 fail2.onSuccess,
-                new Runnable<Promise<Object, Object>, Value<Object>>() {
+                new Runnable<ProgressPromise<Object, Object>, Value<Object>>() {
                     @Override
-                    public Promise<Object, Object> run(Value<Object> value) {
-                        assertEquals(sentinel, value.value);
+                    public ProgressPromise<Object, Object> run(Value<Object> value) {
+                        assertEquals(sentinel, value.getValue());
                         return null;
                     }
                 }

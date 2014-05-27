@@ -22,8 +22,13 @@
 package com.englishtown.promises;
 
 /**
- * A simplified extension of {@link com.englishtown.promises.ProgressPromise} with void progress
+ * Created by adriangonzalez on 2/22/14.
  */
-public interface Promise<T> extends ProgressPromise<T, Void> {
+public interface ResolveCallback<TResolve, TProgress> {
+
+    void run(
+            Runnable<Void, Thenable<TResolve, TProgress>> resolve,
+            Runnable<Void, Value<TResolve>> reject,
+            Runnable<Void, Value<TProgress>> notify);
 
 }
