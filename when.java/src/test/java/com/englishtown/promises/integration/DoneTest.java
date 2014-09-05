@@ -4,7 +4,7 @@ import com.englishtown.promises.exceptions.RejectException;
 import org.junit.Test;
 
 /**
- * Created by adriangonzalez on 8/28/14.
+ * Integration tests for promise.done()
  */
 public class DoneTest extends AbstractIntegrationTest {
 

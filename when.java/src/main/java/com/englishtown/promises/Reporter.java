@@ -3,7 +3,7 @@ package com.englishtown.promises;
 import com.englishtown.promises.internal.handlers.RejectedHandler;
 
 /**
- * Created by adriangonzalez on 8/27/14.
+ * Reporter for unhandled rejections
  */
 public interface Reporter {
 

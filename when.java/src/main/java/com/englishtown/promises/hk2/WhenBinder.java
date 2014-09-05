@@ -27,7 +27,7 @@ public class WhenBinder extends AbstractBinder {
         bind(NOPReporter.class).to(Reporter.class).in(Singleton.class);
         bind(PromiseHelper.class).to(PromiseHelper.class).in(Singleton.class);
         bind(ArrayHelper.class).to(ArrayHelper.class).in(Singleton.class);
-        bind(When.class).to(When.class);
+        bind(DefaultWhen.class).to(When.class);
 
     }
 }

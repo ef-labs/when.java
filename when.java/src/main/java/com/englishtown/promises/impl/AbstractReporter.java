@@ -10,7 +10,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Created by adriangonzalez on 8/31/14.
+ * Base {@link com.englishtown.promises.Reporter} class
  */
 public abstract class AbstractReporter implements Reporter {
 

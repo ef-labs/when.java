@@ -30,7 +30,7 @@ public abstract class AbstractIntegrationTest {
 
         helper = new PromiseHelper(environment, context, reporter);
         ArrayHelper arrayHelper = new ArrayHelper(helper);
-        when = new When(helper, arrayHelper);
+        when = new DefaultWhen(helper, arrayHelper);
     }
 
     @SuppressWarnings("unchecked")

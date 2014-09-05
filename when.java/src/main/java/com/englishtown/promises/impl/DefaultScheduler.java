@@ -30,7 +30,7 @@ public class DefaultScheduler implements Scheduler {
      * Enqueue a task. If the queue is not currently scheduled to be
      * drained, schedule it.
      *
-     * @param {function} task
+     * @param task task to be run
      */
     @Override
     public void enqueue(Runnable task) {

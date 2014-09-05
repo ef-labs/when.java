@@ -13,12 +13,10 @@ public class AssimilateTask<T, U> implements Runnable {
 
     private final Thenable<T> thenable;
     private final Handler<T> resolver;
-    private final PromiseHelper helper;
 
-    public AssimilateTask(Thenable<T> thenable, Handler<T> resolver, PromiseHelper helper) {
+    public AssimilateTask(Thenable<T> thenable, Handler<T> resolver) {
         this.thenable = thenable;
         this.resolver = resolver;
-        this.helper = helper;
     }
 
     @Override

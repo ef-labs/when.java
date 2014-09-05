@@ -1,7 +1,7 @@
 package com.englishtown.promises.internal;
 
 /**
- * Created by adriangonzalez on 8/19/14.
+ * Wrapper for values
  */
 public class ValueHolder<T> {
 

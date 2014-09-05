@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.*;
 
 /**
- * Created by adriangonzalez on 8/31/14.
+ * {@link com.englishtown.promises.impl.AsyncExecutor} integration tests
  */
 public class AsyncTest extends AbstractIntegrationTest {
 

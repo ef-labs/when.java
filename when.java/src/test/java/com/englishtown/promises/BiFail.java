@@ -5,7 +5,7 @@ import java.util.function.Function;
 import static org.junit.Assert.fail;
 
 /**
- * Created by adriangonzalez on 8/19/14.
+ * Unit test fail helper
  */
 public class BiFail<T, U> {
 

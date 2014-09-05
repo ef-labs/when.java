@@ -11,7 +11,7 @@ public class ThenableHandler<T> extends DeferredHandler<T> {
 
     public ThenableHandler(Thenable<T> thenable, PromiseHelper helper) {
         super(helper, null);
-        helper.getScheduler().enqueue(new AssimilateTask<>(thenable, this, helper));
+        helper.getScheduler().enqueue(new AssimilateTask<>(thenable, this));
     }
 
 }

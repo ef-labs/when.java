@@ -3,7 +3,7 @@ package com.englishtown.promises;
 import java.util.function.Consumer;
 
 /**
- * Created by adriangonzalez on 8/13/14.
+ * Resolver for promises
  */
 public interface PromiseResolver<T> {
 

@@ -56,7 +56,7 @@ public abstract class Handler<T> {
     /**
      * Creates a pending state snapshot
      *
-     * @returns {{state:'pending'}}
+     * @return {{state:'pending'}}
      */
     protected State<T> toPendingState() {
         return new State<>(PENDING);
@@ -70,7 +70,7 @@ public abstract class Handler<T> {
      * Recursively collapse handler chain to find the handler
      * nearest to the fully resolved value.
      *
-     * @returns {object} handler nearest the fully resolved value
+     * @return handler nearest the fully resolved value
      */
     public Handler<T> join() {
         Handler<T> h = this;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by adriangonzalez on 8/20/14.
+ * Exception thrown when rejecting.  Contains inner exceptions and an optional rejection value
  */
 public class RejectException extends RuntimeException {
 

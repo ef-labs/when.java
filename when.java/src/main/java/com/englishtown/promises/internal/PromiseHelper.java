@@ -19,7 +19,6 @@ public class PromiseHelper {
     private final Context context;
     private final Reporter reporter;
 
-    private final Handler<Object> foreverPendingHandler;
     private final Promise<Object> foreverPendingPromise;
 
     @Inject
@@ -28,7 +27,7 @@ public class PromiseHelper {
         this.context = context;
         this.reporter = reporter;
 
-        foreverPendingHandler = new Handler<Object>(this) {
+        Handler<Object> foreverPendingHandler = new Handler<Object>(this) {
         };
         foreverPendingPromise = new TrustedPromise<>(foreverPendingHandler, this);
     }
@@ -36,7 +35,7 @@ public class PromiseHelper {
     /**
      * Returns a trusted promise.
      *
-     * @param x
+     * @param x a value to be wrapped in a promise
      * @return {Promise} promise
      */
     public <T> TrustedPromise<T> resolve(T x) {
@@ -47,7 +46,7 @@ public class PromiseHelper {
      * Returns a trusted promise. If x is already a trusted promise, it is
      * returned, otherwise returns a new trusted Promise which follows x.
      *
-     * @param x
+     * @param x a thenable to be wrapped in a trusted promise
      * @return {Promise} promise
      */
     public <T> TrustedPromise<T> resolve(Thenable<T> x) {
@@ -72,7 +71,7 @@ public class PromiseHelper {
     /**
      * Return a rejected promise with x as its reason (x is used verbatim)
      *
-     * @param x
+     * @param x a throwable to reject with
      * @return {Promise} rejected promise
      */
     public <T> TrustedPromise<T> reject(Throwable x) {
@@ -96,7 +95,7 @@ public class PromiseHelper {
     /**
      * Get an appropriate handler for x, without checking for cycles
      *
-     * @param {*} x
+     * @param x promise, thenable, or fulfillment value
      * @return {object} handler
      */
     @SuppressWarnings("unchecked")
@@ -112,7 +111,7 @@ public class PromiseHelper {
     }
 
     /**
-     * @param {*} x
+     * @param x object to check if thenable
      * @return {boolean} false iff x is guaranteed not to be a thenable
      */
     public boolean maybeThenable(Object x) {
@@ -122,7 +121,7 @@ public class PromiseHelper {
     /**
      * Get a handler for potentially untrusted thenable x
      *
-     * @param {*} x
+     * @param x a thenable
      * @return {object} handler
      */
     private <T> Handler<T> getHandlerUntrusted(Thenable<T> x) {
@@ -195,7 +194,10 @@ public class PromiseHelper {
             }, resolver);
         };
 
-//        var i, h, x, s;
+        if (promises == null) {
+            throw new IllegalArgumentException("promises cannot be null");
+        }
+
         for (int i = 0; i < promises.size(); ++i) {
             Thenable<T> x = promises.get(i);
             results.add(i, null);

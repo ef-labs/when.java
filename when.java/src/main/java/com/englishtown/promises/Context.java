@@ -3,7 +3,7 @@ package com.englishtown.promises;
 import com.englishtown.promises.internal.handlers.Handler;
 
 /**
- * Created by adriangonzalez on 8/27/14.
+ * Promise context methods
  */
 public interface Context {
 

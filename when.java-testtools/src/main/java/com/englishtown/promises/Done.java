@@ -1,7 +1,7 @@
 package com.englishtown.promises;
 
 /**
- * Created by adriangonzalez on 8/18/14.
+ * Unit test done helper
  */
 public class Done<T> extends BiDone<T, T> {
 }

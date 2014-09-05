@@ -1,7 +1,7 @@
 package com.englishtown.promises.exceptions;
 
 /**
- * Created by adriangonzalez on 8/20/14.
+ * Exception thrown when cyclic promises detected
  */
 public class CycleException extends RuntimeException {
 

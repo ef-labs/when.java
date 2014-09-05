@@ -6,7 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by adriangonzalez on 8/18/14.
+ * Unit test done helper
  */
 public class BiDone<T, U> {
 

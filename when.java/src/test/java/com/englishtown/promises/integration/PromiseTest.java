@@ -12,7 +12,7 @@ import java.util.function.Function;
 import static org.junit.Assert.*;
 
 /**
- * Created by adriangonzalez on 8/30/14.
+ * Integration tests for {@link com.englishtown.promises.internal.TrustedPromise}
  */
 public class PromiseTest extends AbstractIntegrationTest {
 

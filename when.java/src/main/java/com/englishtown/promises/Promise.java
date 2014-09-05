@@ -25,9 +25,7 @@ public interface Promise<T> extends Thenable<T> {
      * or handleFatalError, it will be rethrown to the host, resulting in a
      * loud stack track on most platforms and a crash on some.
      *
-     * @param {function?} onResult
-     * @param {function?} onError
-     * @returns {undefined}
+     * @param onResult function called when fulfilled
      */
     default public <U> void done(Function<T, ? extends Thenable<U>> onResult) {
         done(onResult, null);
@@ -39,9 +37,8 @@ public interface Promise<T> extends Thenable<T> {
      * or handleFatalError, it will be rethrown to the host, resulting in a
      * loud stack track on most platforms and a crash on some.
      *
-     * @param {function?} onResult
-     * @param {function?} onError
-     * @returns {undefined}
+     * @param onResult function called when fulfilled
+     * @param onError  function called when rejected
      */
     public <U> void done(Function<T, ? extends Thenable<U>> onResult, Function<Throwable, ? extends Thenable<U>> onError);
 
@@ -51,8 +48,8 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(predicate, handleMatchedErrors)
      * .catch(handleRemainingErrors)
      *
-     * @param onRejected
-     * @returns {*}
+     * @param onRejected function called when rejected
+     * @return a promise for a value
      */
     <U> Promise<U> otherwise(Function<Throwable, ? extends Thenable<U>> onRejected);
 
@@ -62,8 +59,8 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(predicate, handleMatchedErrors)
      * .catch(handleRemainingErrors)
      *
-     * @param onRejected
-     * @returns {*}
+     * @param onRejected function called when rejected
+     * @return a promise for a value
      */
     <U> Promise<U> otherwise(Predicate<Throwable> predicate, Function<Throwable, ? extends Thenable<U>> onRejected);
 
@@ -73,8 +70,8 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(predicate, handleMatchedErrors)
      * .catch(handleRemainingErrors)
      *
-     * @param onRejected
-     * @returns {*}
+     * @param onRejected function called when rejected
+     * @return a promise for a value
      */
     <U> Promise<U> otherwise(Class<? extends Throwable> type, Function<Throwable, ? extends Thenable<U>> onRejected);
 
@@ -85,9 +82,9 @@ public interface Promise<T> extends Thenable<T> {
      * onFulfilledOrRejected may throw or return a rejected promise to signal
      * an additional error.
      *
-     * @param {function} handler handler to be called regardless of
-     *                   fulfillment or rejection
-     * @returns {Promise}
+     * @param handler handler to be called regardless of
+     *                fulfillment or rejection
+     * @return a promise for a value
      */
     Promise<T> ensure(Runnable handler);
 
@@ -97,16 +94,16 @@ public interface Promise<T> extends Thenable<T> {
      * a promise that rejects, the returned promise will reject with the
      * same reason.
      *
-     * @param {*} defaultValue
-     * @return {Promise} new promise
+     * @param defaultValue a promise for a default value
+     * @return new promise
      */
     <U> Promise<U> orElse(Thenable<U> defaultValue);
 
     /**
      * Shortcut for .then(function() { return value; })
      *
-     * @param {*} value
-     * @return {Promise} a promise that:
+     * @param value promise for a value
+     * @return a promise that:
      * - is fulfilled if value is not a promise, or
      * - if value is a promise, will fulfill with its value, or reject
      * with its reason.
@@ -117,7 +114,7 @@ public interface Promise<T> extends Thenable<T> {
      * Runs a side effect when this promise fulfills, without changing the
      * fulfillment value.
      *
-     * @param {function} onFulfilledSideEffect
+     * @param onFulfilledSideEffect a function that is run when this promise fulfills
      * @return {Promise}
      */
     Promise<T> tap(Function<T, Thenable<T>> onFulfilledSideEffect);

@@ -1,7 +1,7 @@
 package com.englishtown.promises;
 
 /**
- * Created by adriangonzalez on 8/18/14.
+ * Scheduler to run tasks
  */
 public interface Scheduler {
 

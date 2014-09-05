@@ -4,7 +4,7 @@ import com.englishtown.promises.Reporter;
 import com.englishtown.promises.internal.handlers.RejectedHandler;
 
 /**
- * Created by adriangonzalez on 8/27/14.
+ * No operation {@link com.englishtown.promises.Reporter} implementation
  */
 public class NOPReporter implements Reporter {
 

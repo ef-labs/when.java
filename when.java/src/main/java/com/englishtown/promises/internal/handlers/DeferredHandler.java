@@ -16,7 +16,7 @@ public class DeferredHandler<T> extends Handler<T> implements Runnable {
 
     private boolean resolved;
     private List<Continuation<T, ?>> consumers;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     public DeferredHandler(PromiseHelper helper, Object inheritedContext) {
         super(helper);

@@ -25,8 +25,8 @@ public class TrustedPromise<T> implements Promise<T> {
     /**
      * Create a promise whose fate is determined by handler
      *
-     * @param handler
-     * @param helper
+     * @param handler handler used to fulfill/reject
+     * @param helper  promise helper methods
      */
     public TrustedPromise(Handler<T> handler, PromiseHelper helper) {
         this._handler = handler;
@@ -36,8 +36,8 @@ public class TrustedPromise<T> implements Promise<T> {
     /**
      * Create a promise whose fate is determined by the resolver
      *
-     * @param resolver
-     * @param helper
+     * @param resolver a promise resolver to fulfill/reject
+     * @param helper   promise helper methods
      */
     public TrustedPromise(PromiseResolver<T> resolver, PromiseHelper helper) {
         this.helper = helper;
@@ -47,7 +47,7 @@ public class TrustedPromise<T> implements Promise<T> {
     /**
      * Run the supplied resolver
      *
-     * @param resolver
+     * @param resolver a promise resolver to fulfill/reject
      * @return {makePromise.DeferredHandler}
      */
     private DeferredHandler<T> init(PromiseResolver<T> resolver) {
@@ -104,9 +104,9 @@ public class TrustedPromise<T> implements Promise<T> {
      * is called with the reason.  onProgress *may* be called with updates toward
      * this promise's fulfillment.
      *
-     * @param {function=} onFulfilled fulfillment handler
-     * @param {function=} onRejected rejection handler
-     * @return {Promise} new promise
+     * @param onFulfilled fulfillment handler
+     * @param onRejected  rejection handler
+     * @return new promise
      */
     @Override
     public <U> Promise<U> then(Function<T, ? extends Thenable<U>> onFulfilled, Function<Throwable, ? extends Thenable<U>> onRejected) {
@@ -149,7 +149,7 @@ public class TrustedPromise<T> implements Promise<T> {
     /**
      * Check if x is a rejected promise, and if so, delegate to handler._fatal
      *
-     * @param {*} x
+     * @param x a thenable
      */
     private void _maybeFatal(Thenable<?> x) {
         if (!helper.maybeThenable(x)) {
@@ -169,13 +169,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Handle the ultimate fulfillment value or rejection reason, and assume
-     * responsibility for all errors.  If an error propagates out of result
-     * or handleFatalError, it will be rethrown to the host, resulting in a
-     * loud stack track on most platforms and a crash on some.
-     *
-     * @param {function?} onResult
-     * @param {function?} onError
+     * {@inheritDoc}
      */
     @Override
     public <U> void done(Function<T, ? extends Thenable<U>> onResult, Function<Throwable, ? extends Thenable<U>> onError) {
@@ -197,11 +191,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * If this promise cannot be fulfilled due to an error, call onRejected to
-     * handle the error. Shortcut for .then(undefined, onRejected)
-     *
-     * @param {function?} onRejected
-     * @return {Promise}
+     * {@inheritDoc}
      */
     @Override
     public <U> Promise<U> otherwise(Function<Throwable, ? extends Thenable<U>> onRejected) {
@@ -209,13 +199,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Add Error-type and predicate matching to catch.  Examples:
-     * promise.catch(TypeError, handleTypeError)
-     * .catch(predicate, handleMatchedErrors)
-     * .catch(handleRemainingErrors)
-     *
-     * @param onRejected
-     * @return {*}
+     * {@inheritDoc}
      */
     @Override
     public <U> Promise<U> otherwise(Predicate<Throwable> predicate, Function<Throwable, ? extends Thenable<U>> onRejected) {
@@ -232,26 +216,20 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Add Error-type and predicate matching to catch.  Examples:
-     * promise.catch(TypeError, handleTypeError)
-     * .catch(predicate, handleMatchedErrors)
-     * .catch(handleRemainingErrors)
-     *
-     * @param onRejected
-     * @return {*}
+     * {@inheritDoc}
      */
     @Override
     public <U> Promise<U> otherwise(Class<? extends Throwable> type, Function<Throwable, ? extends Thenable<U>> onRejected) {
-        return otherwise((e) -> type.isInstance(e), onRejected);
+        return otherwise(type::isInstance, onRejected);
     }
 
     /**
      * Wraps the provided catch handler, so that it will only be called
      * if the predicate evaluates truthy
      *
-     * @param {?function} handler
-     * @param {function}  predicate
-     * @return {function} conditional catch handler
+     * @param handler   catch function
+     * @param predicate predicate to check if handler should be called
+     * @return conditional catch handler
      */
     private <U> Function<Throwable, ? extends Thenable<U>> createCatchFilter(Function<Throwable, ? extends Thenable<U>> handler, Predicate<Throwable> predicate) {
         return (e) -> {
@@ -268,9 +246,9 @@ public class TrustedPromise<T> implements Promise<T> {
      * onFulfilledOrRejected may throw or return a rejected promise to signal
      * an additional error.
      *
-     * @param {function} handler handler to be called regardless of
-     *                   fulfillment or rejection
-     * @return {Promise}
+     * @param handler handler to be called regardless of
+     *                fulfillment or rejection
+     * @return promise
      */
     @Override
     public Promise<T> ensure(Runnable handler) {
@@ -292,13 +270,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Recover from a failure by returning a defaultValue.  If defaultValue
-     * is a promise, it's fulfillment value will be used.  If defaultValue is
-     * a promise that rejects, the returned promise will reject with the
-     * same reason.
-     *
-     * @param {*} defaultValue
-     * @return {Promise} new promise
+     * {@inheritDoc}
      */
     @Override
     public <U> Promise<U> orElse(Thenable<U> defaultValue) {
@@ -308,13 +280,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Shortcut for .then(function() { return value; })
-     *
-     * @param {*} value
-     * @return {Promise} a promise that:
-     * - is fulfilled if value is not a promise, or
-     * - if value is a promise, will fulfill with its value, or reject
-     * with its reason.
+     * {@inheritDoc}
      */
     @Override
     public <U> Promise<U> yield(Thenable<U> value) {
@@ -324,11 +290,7 @@ public class TrustedPromise<T> implements Promise<T> {
     }
 
     /**
-     * Runs a side effect when this promise fulfills, without changing the
-     * fulfillment value.
-     *
-     * @param {function} onFulfilledSideEffect
-     * @return {Promise}
+     * {@inheritDoc}
      */
     @Override
     public Promise<T> tap(Function<T, Thenable<T>> onFulfilledSideEffect) {

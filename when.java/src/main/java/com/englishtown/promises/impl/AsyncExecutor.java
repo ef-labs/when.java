@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by adriangonzalez on 8/31/14.
+ * Asynchronous executor that uses a fixed thread pool
  */
 public class AsyncExecutor implements Executor {
 

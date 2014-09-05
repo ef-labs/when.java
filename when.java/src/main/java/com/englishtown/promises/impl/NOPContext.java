@@ -4,7 +4,7 @@ import com.englishtown.promises.Context;
 import com.englishtown.promises.internal.handlers.Handler;
 
 /**
- * Created by adriangonzalez on 8/27/14.
+ * No operation {@link com.englishtown.promises.Context} implementation
  */
 public class NOPContext implements Context {
 

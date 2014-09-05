@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Created by adriangonzalez on 8/26/14.
+ * Helper methods for array promise operations
  */
 public class ArrayHelper {
 
@@ -31,7 +31,7 @@ public class ArrayHelper {
      * in the input array fulfills, or will reject when all promises
      * have rejected.
      *
-     * @param promises
+     * @param promises list of promises
      * @return {Promise} promise for the first fulfilled value
      */
     public <T> Promise<T> any(List<? extends Thenable<T>> promises) {
@@ -73,9 +73,9 @@ public class ArrayHelper {
      * input promises to fulfill (ie when promises.length - n + 1
      * have rejected)
      *
-     * @param {array}  promises
-     * @param {number} n
-     * @returns {Promise} promise for the earliest n fulfillment values
+     * @param promises list of promises
+     * @param n        number of promises to fulfill
+     * @return promise for the earliest n fulfillment values
      */
     public <T> Promise<List<T>> some(List<? extends Thenable<T>> promises, int n) {
 
@@ -130,10 +130,10 @@ public class ArrayHelper {
      * Apply f to the value of each promise in a list of promises
      * and return a new list containing the results.
      *
-     * @param promises
-     * @param f
-     * @param fallback
-     * @return {Promise}
+     * @param promises list of promises
+     * @param f        function run when a promise fulfills
+     * @param fallback function run when a promise rejects
+     * @return promise for list of results
      */
     public <T> Promise<List<T>> map(List<? extends Thenable<T>> promises, Function<T, ? extends Thenable<T>> f, Function<Throwable, ? extends Thenable<T>> fallback) {
 
@@ -149,13 +149,14 @@ public class ArrayHelper {
      * the outcome states of all input promises.  The returned promise
      * will never reject.
      *
-     * @param promises
-     * @returns {Promise}
+     * @param promises list of promises
+     * @return promise for list of states
      */
     public <T> Promise<List<State<T>>> settle(List<? extends Thenable<T>> promises) {
 
         return helper.all(promises.stream().map(p -> {
             TrustedPromise<T> p1 = helper.toPromise(p);
+            //noinspection unchecked
             return p1.then(
                     x -> helper.resolve(p1.inspect()),
                     t -> helper.resolve(p1.inspect())
@@ -166,6 +167,7 @@ public class ArrayHelper {
 
     public <T> Promise<T> reduce(List<? extends Thenable<T>> promises, BiFunction<T, T, ? extends Thenable<T>> f) {
 
+        //noinspection unchecked
         List<Thenable<T>> thenables = (List<Thenable<T>>) promises;
 
         return (Promise<T>) thenables

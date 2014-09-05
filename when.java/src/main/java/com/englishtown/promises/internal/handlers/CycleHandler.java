@@ -4,7 +4,7 @@ import com.englishtown.promises.exceptions.CycleException;
 import com.englishtown.promises.internal.PromiseHelper;
 
 /**
- * Created by adriangonzalez on 8/15/14.
+ * Rejection handler for cyclic promises
  */
 public class CycleHandler<T> extends RejectedHandler<T> {
 
