@@ -16,12 +16,13 @@ public interface When {
     /**
      * Get a trusted promise for x, or by transforming x with onFulfilled
      *
-     * @param x value to be wrapped in a fulfilled trusted promise
+     * @param x   value to be wrapped in a fulfilled trusted promise
+     * @param <T>
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
      */
-    <T, U> Promise<U> when(T x);
+    <T> Promise<T> when(T x);
 
     /**
      * Get a trusted promise for x, or by transforming x with onFulfilled
@@ -31,7 +32,7 @@ public interface When {
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
      */
-    <T, U> Promise<U> when(Thenable<T> x);
+    <T> Promise<T> when(Thenable<T> x);
 
     /**
      * Get a trusted promise for x, or by transforming x with onFulfilled

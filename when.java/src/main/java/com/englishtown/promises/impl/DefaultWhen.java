@@ -38,13 +38,13 @@ public class DefaultWhen implements When {
 //
 
     @Override
-    public <T, U> Promise<U> when(T x) {
+    public <T> Promise<T> when(T x) {
         return when(x, null, null);
     }
 
     @Override
-    public <T, U> Promise<U> when(Thenable<T> x) {
-        return this.<T, U>when(x, null, null);
+    public <T> Promise<T> when(Thenable<T> x) {
+        return this.<T, T>when(x, null, null);
     }
 
     @Override

@@ -26,6 +26,7 @@ public interface Promise<T> extends Thenable<T> {
      * loud stack track on most platforms and a crash on some.
      *
      * @param onResult function called when fulfilled
+     * @param <U>      onResult thenable return type
      */
     default public <U> void done(Function<T, ? extends Thenable<U>> onResult) {
         done(onResult, null);
@@ -39,6 +40,7 @@ public interface Promise<T> extends Thenable<T> {
      *
      * @param onResult function called when fulfilled
      * @param onError  function called when rejected
+     * @param <U>      onResult thenable return type
      */
     public <U> void done(Function<T, ? extends Thenable<U>> onResult, Function<Throwable, ? extends Thenable<U>> onError);
 
@@ -49,6 +51,7 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(handleRemainingErrors)
      *
      * @param onRejected function called when rejected
+     * @param <U>        returned promise type
      * @return a promise for a value
      */
     <U> Promise<U> otherwise(Function<Throwable, ? extends Thenable<U>> onRejected);
@@ -59,7 +62,9 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(predicate, handleMatchedErrors)
      * .catch(handleRemainingErrors)
      *
+     * @param predicate  predicate to determine if throwable should be handled
      * @param onRejected function called when rejected
+     * @param <U>        returned promise type
      * @return a promise for a value
      */
     <U> Promise<U> otherwise(Predicate<Throwable> predicate, Function<Throwable, ? extends Thenable<U>> onRejected);
@@ -70,7 +75,9 @@ public interface Promise<T> extends Thenable<T> {
      * .catch(predicate, handleMatchedErrors)
      * .catch(handleRemainingErrors)
      *
+     * @param type       type of throwable that should be handled
      * @param onRejected function called when rejected
+     * @param <U>        returned promise type
      * @return a promise for a value
      */
     <U> Promise<U> otherwise(Class<? extends Throwable> type, Function<Throwable, ? extends Thenable<U>> onRejected);
@@ -95,6 +102,7 @@ public interface Promise<T> extends Thenable<T> {
      * same reason.
      *
      * @param defaultValue a promise for a default value
+     * @param <U>          returned promise type
      * @return new promise
      */
     <U> Promise<U> orElse(Thenable<U> defaultValue);
@@ -103,6 +111,7 @@ public interface Promise<T> extends Thenable<T> {
      * Shortcut for .then(function() { return value; })
      *
      * @param value promise for a value
+     * @param <U>   returned promise type
      * @return a promise that:
      * - is fulfilled if value is not a promise, or
      * - if value is a promise, will fulfill with its value, or reject
