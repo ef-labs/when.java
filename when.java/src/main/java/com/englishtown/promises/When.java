@@ -17,7 +17,7 @@ public interface When {
      * Get a trusted promise for x, or by transforming x with onFulfilled
      *
      * @param x   value to be wrapped in a fulfilled trusted promise
-     * @param <T>
+     * @param <T> type of promise
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -27,7 +27,8 @@ public interface When {
     /**
      * Get a trusted promise for x, or by transforming x with onFulfilled
      *
-     * @param x thenable to be wrapped in a trusted promise
+     * @param x   thenable to be wrapped in a trusted promise
+     * @param <T> type of promise
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -41,6 +42,8 @@ public interface When {
      * @param onFulfilled callback to be called when x is
      *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
      *                    will be invoked immediately.
+     * @param <T>         type of resolved promise
+     * @param <U>         type of thenable returned by onFulfilled
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -56,6 +59,8 @@ public interface When {
      *                    will be invoked immediately.
      * @param onRejected  callback to be called when x is
      *                    rejected.
+     * @param <T>         type of resolved promise
+     * @param <U>         type of thenable returned by onFulfilled or onRejected
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -69,6 +74,8 @@ public interface When {
      * @param onFulfilled callback to be called when x is
      *                    successfully fulfilled.  If promiseOrValue is an immediate value, callback
      *                    will be invoked immediately.
+     * @param <T>         type of thenable to wrap in a trusted promise
+     * @param <U>         type of thenable returned by onFulfilled
      * @return a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -84,6 +91,8 @@ public interface When {
      *                    will be invoked immediately.
      * @param onRejected  callback to be called when x is
      *                    rejected.
+     * @param <T>         type of thenable to wrap in a trusted promise
+     * @param <U>         type of thenable returned by onFulfilled
      * @return {Promise} a new promise that will fulfill with the return
      * value of callback or errback or the completion value of promiseOrValue if
      * callback and/or errback is not supplied.
@@ -121,6 +130,7 @@ public interface When {
      * Creates a new promise whose fate is determined by resolver.
      *
      * @param resolver function(resolve, reject, notify)
+     * @param <T>      type of resolver and returned promise
      * @return promise whose fate is determine by resolver
      */
     <T> Promise<T> promise(PromiseResolver<T> resolver);
@@ -129,6 +139,7 @@ public interface When {
      * Creates a {promise, resolver} pair, either or both of which
      * may be given out safely to consumers.
      *
+     * @param <T> type of deferred
      * @return {{promise: Promise, resolve: function, reject: function, notify: function}}
      */
     <T> Deferred<T> defer();
@@ -139,6 +150,7 @@ public interface When {
      * containing the resolution values of each of the arguments.
      *
      * @param promises array of promises to be joined
+     * @param <T>      type of promises
      * @return {Promise}
      */
     <T> Promise<List<T>> join(Promise<T>... promises);
@@ -148,6 +160,7 @@ public interface When {
      * fulfilled, or reject when any one input promise rejects.
      *
      * @param promises list of promises
+     * @param <T>      type of promises
      * @return promise for list of results
      */
     <T> Promise<List<T>> all(List<? extends Thenable<T>> promises);
@@ -158,6 +171,7 @@ public interface When {
      * will only reject if `promises` itself is a rejected promise.
      *
      * @param promises list of promises
+     * @param <T>      type of promises
      * @return {Promise}
      */
     <T> Promise<List<State<T>>> settle(List<? extends Thenable<T>> promises);
@@ -187,6 +201,7 @@ public interface When {
      *
      * @param promises array of promises
      * @param mapFunc  map function which may return a promise or value
+     * @param <T>      type of promises
      * @return {Promise} promise that will fulfill with an array of mapped values
      * or reject if any input promise rejects.
      */
@@ -201,6 +216,7 @@ public interface When {
      * @param promises array or promise for an array of anything,
      *                 may contain a mix of promises and values.
      * @param f        reduce function reduce(currentValue, nextValue, index)
+     * @param <T>      type of promises
      * @return {Promise} that will resolve to the final reduced value
      */
     <T> Promise<T> reduce(List<? extends Thenable<T>> promises, BiFunction<T, T, ? extends Thenable<T>> f);
@@ -211,9 +227,12 @@ public interface When {
      * may return either a value or a promise, *and* initialValue may`
      * be a promise for the starting value.
      *
-     * @param promises array or promise for an array of anything,
-     *                 may contain a mix of promises and values.
-     * @param f        reduce function reduce(currentValue, nextValue, index)
+     * @param promises     array or promise for an array of anything,
+     *                     may contain a mix of promises and values.
+     * @param f            reduce function reduce(currentValue, nextValue, index)
+     * @param initialValue promise for an initial value
+     * @param <T>          type of promises
+     * @param <U>          type of promise returned
      * @return {Promise} that will resolve to the final reduced value
      */
     <T, U> Promise<U> reduce(List<? extends Thenable<T>> promises, BiFunction<U, T, ? extends Thenable<U>> f, Thenable<U> initialValue);
@@ -223,11 +242,21 @@ public interface When {
      *
      * @param tasks {Array|Promise} array or promiseForArray of task functions
      * @param arg   arguments to be passed to all tasks
+     * @param <T>   type of parameter passed to tasks
+     * @param <U>   type of promise list returned
      * @return {Promise} promise for an array containing
      * the result of each task in the array position corresponding
      * to position of the task in the tasks array
      */
     <T, U> Promise<List<U>> sequence(List<Function<T, Thenable<U>>> tasks, Thenable<T> arg);
 
+    /**
+     * Fulfill-reject competitive race. Return a promise that will settle
+     * to the same state as the earliest input promise to settle.
+     *
+     * @param promises promises to race
+     * @param <T>      type of promise
+     * @return winning promise
+     */
     <T> Promise<T> race(List<? extends Thenable<T>> promises);
 }

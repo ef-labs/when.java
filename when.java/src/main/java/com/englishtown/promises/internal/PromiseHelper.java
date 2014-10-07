@@ -35,7 +35,8 @@ public class PromiseHelper {
     /**
      * Returns a trusted promise.
      *
-     * @param x a value to be wrapped in a promise
+     * @param x   a value to be wrapped in a promise
+     * @param <T> type of resolved value
      * @return {Promise} promise
      */
     public <T> TrustedPromise<T> resolve(T x) {
@@ -46,7 +47,8 @@ public class PromiseHelper {
      * Returns a trusted promise. If x is already a trusted promise, it is
      * returned, otherwise returns a new trusted Promise which follows x.
      *
-     * @param x a thenable to be wrapped in a trusted promise
+     * @param x   a thenable to be wrapped in a trusted promise
+     * @param <T> type of thenable to resolve with
      * @return {Promise} promise
      */
     public <T> TrustedPromise<T> resolve(Thenable<T> x) {
@@ -71,7 +73,8 @@ public class PromiseHelper {
     /**
      * Return a rejected promise with x as its reason (x is used verbatim)
      *
-     * @param x a throwable to reject with
+     * @param x   a throwable to reject with
+     * @param <T> type of rejected promise
      * @return {Promise} rejected promise
      */
     public <T> TrustedPromise<T> reject(Throwable x) {
@@ -86,6 +89,7 @@ public class PromiseHelper {
     /**
      * Creates an internal {promise, resolver} pair
      *
+     * @param <T> type of deferred
      * @return {Promise}
      */
     public <T> TrustedPromise<T> defer() {
@@ -95,7 +99,8 @@ public class PromiseHelper {
     /**
      * Get an appropriate handler for x, without checking for cycles
      *
-     * @param x promise, thenable, or fulfillment value
+     * @param x   promise, thenable, or fulfillment value
+     * @param <T> type of handler
      * @return {object} handler
      */
     @SuppressWarnings("unchecked")
@@ -139,6 +144,12 @@ public class PromiseHelper {
     /**
      * Return f.call(thisArg, x), or if it throws return a rejected promise for
      * the thrown exception
+     *
+     * @param f   function to apply in try/catch
+     * @param x   parameter passed to f
+     * @param <T> type of parameter
+     * @param <U> type of thenable returned
+     * @return result of f or rejected promise if exception thrown
      */
     public <T, U> Thenable<U> tryCatchReject(Function<T, ? extends Thenable<U>> f, T x) {
         try {
@@ -150,6 +161,14 @@ public class PromiseHelper {
 
     /**
      * Same as above, but includes the extra argument parameter.
+     *
+     * @param f   function to apply in try/catch
+     * @param x   parameter passed to f
+     * @param y   second parameter passed to f
+     * @param <T> type of parameter
+     * @param <U> type of second parameter
+     * @param <V> type of thenable returned
+     * @return result of f or rejected promise if exception thrown
      */
     public <T, U, V> Thenable<V> tryCatchReject2(BiFunction<T, U, ? extends Thenable<V>> f, T x, U y) {
         try {
@@ -177,6 +196,7 @@ public class PromiseHelper {
      * promises rejects.
      *
      * @param promises array of promises
+     * @param <T>      type of promises
      * @return {Promise} promise for array of fulfillment values
      */
     public <T> Promise<List<T>> all(List<? extends Thenable<T>> promises) {
@@ -260,6 +280,7 @@ public class PromiseHelper {
      * returned by Promise.never(), thus can be checked with ===
      *
      * @param promises array of promises to race
+     * @param <T>      type of promises
      * @return {Promise} if input is non-empty, a promise that will settle
      * to the same outcome as the earliest input promise to settle. if empty
      * is empty, returns a promise that will never settle.

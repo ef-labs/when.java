@@ -3,7 +3,7 @@
     <parent>
         <artifactId>when.java-parent</artifactId>
         <groupId>com.englishtown</groupId>
-        <version>3.0.0-RC1</version>
+        <version>3.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

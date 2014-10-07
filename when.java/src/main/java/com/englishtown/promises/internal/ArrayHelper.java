@@ -32,6 +32,7 @@ public class ArrayHelper {
      * have rejected.
      *
      * @param promises list of promises
+     * @param <T>      type of promises
      * @return {Promise} promise for the first fulfilled value
      */
     public <T> Promise<T> any(List<? extends Thenable<T>> promises) {
@@ -75,6 +76,7 @@ public class ArrayHelper {
      *
      * @param promises list of promises
      * @param n        number of promises to fulfill
+     * @param <T>      type of promises
      * @return promise for the earliest n fulfillment values
      */
     public <T> Promise<List<T>> some(List<? extends Thenable<T>> promises, int n) {
@@ -133,6 +135,7 @@ public class ArrayHelper {
      * @param promises list of promises
      * @param f        function run when a promise fulfills
      * @param fallback function run when a promise rejects
+     * @param <T>      type of promises
      * @return promise for list of results
      */
     public <T> Promise<List<T>> map(List<? extends Thenable<T>> promises, Function<T, ? extends Thenable<T>> f, Function<Throwable, ? extends Thenable<T>> fallback) {
@@ -150,6 +153,7 @@ public class ArrayHelper {
      * will never reject.
      *
      * @param promises list of promises
+     * @param <T>      type of promises
      * @return promise for list of states
      */
     public <T> Promise<List<State<T>>> settle(List<? extends Thenable<T>> promises) {

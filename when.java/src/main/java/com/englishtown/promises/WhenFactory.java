@@ -13,14 +13,14 @@ import java.util.concurrent.Executor;
 public class WhenFactory {
 
     public static When createAsync() {
-        return create(AsyncExecutor::new);
+        return createFor(AsyncExecutor::new);
     }
 
     public static When createSync() {
-        return create(SyncExecutor::new);
+        return createFor(SyncExecutor::new);
     }
 
-    private static When create(Provider<Executor> provider) {
+    public static When createFor(Provider<Executor> provider) {
         Scheduler scheduler = new DefaultScheduler(provider);
         Environment environment = new DefaultEnvironment(scheduler);
         PromiseHelper helper = new PromiseHelper(environment, new NOPContext(), new NOPReporter());
