@@ -13,7 +13,7 @@ public class BiDone<T, U> {
     private boolean fulfilled;
     private T value;
     private boolean rejected;
-    private RuntimeException cause;
+    private Throwable cause;
 
     public final Function<T, Promise<U>> onFulfilled = x -> {
         fulfill(x);
@@ -27,7 +27,11 @@ public class BiDone<T, U> {
 
     public void assertFulfilled() {
         if (cause != null) {
-            throw cause;
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new RuntimeException(cause);
+            }
         }
         assertTrue(fulfilled);
         assertFalse(rejected);
@@ -56,7 +60,7 @@ public class BiDone<T, U> {
     }
 
     public void reject(Throwable x) {
-        cause = (x instanceof RuntimeException) ? (RuntimeException) x : new RuntimeException(x);
+        cause = x;
         rejected = true;
     }
 
