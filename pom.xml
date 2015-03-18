@@ -5,11 +5,10 @@
     <groupId>com.englishtown</groupId>
     <artifactId>when.java-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1</version>
+    <version>3.1.0</version>
 
     <modules>
         <module>when.java</module>
-        <module>when.java-testtools</module>
     </modules>
 
     <parent>
@@ -31,19 +30,20 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>${javax.inject.version}</version>
-            <scope>provided</scope>
         </dependency>
+
+        <!--Optional dependencies-->
         <dependency>
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2-api</artifactId>
             <version>${hk2.version}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>${guice.version}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <!--Test dependencies-->
