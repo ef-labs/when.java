@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/ef-labs/when.java.png?branch=develop)](https://travis-ci.org/ef-labs/when.java)
-
 When.java
 =========
 
@@ -7,6 +5,8 @@ When.java is a Java implementation of the [CommonJS](http://wiki.commonjs.org/wi
 
 It is a port of [cujojs/when](https://github.com/cujojs/when) v3.2.3 by Brian Cavalier and John Hann.
 
+[![Build Status](http://img.shields.io/travis/ef-labs/when.java.svg?maxAge=2592000&style=flat-square)](https://travis-ci.org/ef-labs/when.java)
+[![Maven Central](https://img.shields.io/maven-central/v/com.englishtown/when.java.svg?maxAge=2592000&style=flat-square)](https://maven-badges.herokuapp.com/maven-central/com.englishtown/when.java/)
 
 Getting started
 ================
