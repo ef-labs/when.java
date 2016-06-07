@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/englishtown/when.java.png?branch=develop)](https://travis-ci.org/englishtown/when.java)
+[![Build Status](https://travis-ci.org/ef-labs/when.java.png?branch=develop)](https://travis-ci.org/ef-labs/when.java)
 
 When.java
 =========
