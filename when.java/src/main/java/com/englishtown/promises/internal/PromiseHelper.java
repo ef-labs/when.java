@@ -153,7 +153,7 @@ public class PromiseHelper {
      */
     public <T, U> Thenable<U> tryCatchReject(Function<T, ? extends Thenable<U>> f, T x) {
         try {
-            return f.apply(x);
+            return resolve0(f.apply(x));
         } catch (Throwable e) {
             return reject(e);
         }
@@ -172,7 +172,7 @@ public class PromiseHelper {
      */
     public <T, U, V> Thenable<V> tryCatchReject2(BiFunction<T, U, ? extends Thenable<V>> f, T x, U y) {
         try {
-            return f.apply(x, y);
+            return resolve0(f.apply(x, y));
         } catch (Throwable e) {
             return reject(e);
         }
