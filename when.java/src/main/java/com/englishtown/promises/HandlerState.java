@@ -10,7 +10,7 @@ public enum HandlerState {
 
     private final int value;
 
-    private HandlerState(int value) {
+    HandlerState(int value) {
         this.value = value;
     }
 

@@ -28,7 +28,7 @@ public interface Promise<T> extends Thenable<T> {
      * @param onResult function called when fulfilled
      * @param <U>      onResult thenable return type
      */
-    default public <U> void done(Function<T, ? extends Thenable<U>> onResult) {
+    default <U> void done(Function<T, ? extends Thenable<U>> onResult) {
         done(onResult, null);
     }
 
@@ -42,7 +42,7 @@ public interface Promise<T> extends Thenable<T> {
      * @param onError  function called when rejected
      * @param <U>      onResult thenable return type
      */
-    public <U> void done(Function<T, ? extends Thenable<U>> onResult, Function<Throwable, ? extends Thenable<U>> onError);
+    <U> void done(Function<T, ? extends Thenable<U>> onResult, Function<Throwable, ? extends Thenable<U>> onError);
 
     /**
      * Add Error-type and predicate matching to catch.  Examples:

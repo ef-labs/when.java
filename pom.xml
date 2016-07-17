@@ -28,6 +28,7 @@
         <groovy.version>2.4.7</groovy.version>
         <gmavenplus.version>1.5</gmavenplus.version>
         <maven.source.plugin.version>2.4</maven.source.plugin.version>
+        <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
     </properties>
 
     <dependencies>
@@ -102,10 +103,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <!-- if including source jars, use the no-fork goals
                      otherwise both the Groovy sources and Java stub sources
                      will get included in your jar -->
@@ -123,6 +120,16 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <issueManagement>

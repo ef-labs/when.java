@@ -51,7 +51,7 @@ public class MapTest extends AbstractIntegrationTest {
         when.map(input, mapper)
                 .then(
                         results -> {
-                            assertThat(results, is(Arrays.<Integer>asList(2, 4, 6)));
+                            assertThat(results, is(Arrays.asList(2, 4, 6)));
                             return null;
                         },
                         fail.onRejected
@@ -69,7 +69,7 @@ public class MapTest extends AbstractIntegrationTest {
         when.map(input, mapper)
                 .then(
                         results -> {
-                            assertThat(results, is(Arrays.<Integer>asList(2, 4, 6)));
+                            assertThat(results, is(Arrays.asList(2, 4, 6)));
                             return null;
                         },
                         fail.onRejected

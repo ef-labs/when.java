@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,7 +41,7 @@ public class RaceTest extends AbstractIntegrationTest {
     @Test
     public void testRace_should_be_identity_for_length_1_when_fulfilled_via_promise() throws Exception {
 
-        when.race(Arrays.asList(fulfilled))
+        when.race(Collections.singletonList(fulfilled))
                 .<Sentinel>then(x -> {
                     assertEquals(sentinel, x);
                     return null;
@@ -53,7 +54,7 @@ public class RaceTest extends AbstractIntegrationTest {
     @Test
     public void testRace_should_be_identity_for_length_1_when_rejected() throws Exception {
 
-        when.race(Arrays.asList(rejected))
+        when.race(Collections.singletonList(rejected))
                 .then(fail.onFulfilled, x -> {
                     assertEquals(reason, x);
                     return null;
