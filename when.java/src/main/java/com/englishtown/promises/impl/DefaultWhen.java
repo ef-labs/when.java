@@ -254,7 +254,7 @@ public class DefaultWhen implements When {
         };
 
         return resolve(arg).then(argResult -> {
-            return this.<Function<T, Thenable<U>>, List<U>>reduce(promises, (results1, task) -> {
+            return this.reduce(promises, (results1, task) -> {
                 return when(task.apply(argResult), addResult);
             }, resolve(results));
         });

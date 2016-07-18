@@ -69,7 +69,7 @@ public class AnyTest extends AbstractIntegrationTest {
 
         when.any(input).then(
                 result -> {
-                    assertTrue(contains(Arrays.<Integer>asList(1, 2, 3), result));
+                    assertTrue(contains(Arrays.asList(1, 2, 3), result));
                     return null;
                 },
                 fail.onRejected
@@ -81,7 +81,7 @@ public class AnyTest extends AbstractIntegrationTest {
     @Test
     public void testAny_should_resolve_with_some_rejected_promise_input_values() throws Exception {
 
-        List<Promise<Integer>> input = Arrays.<Promise<Integer>>asList(rejected(null), rejected(null), resolved(3));
+        List<Promise<Integer>> input = Arrays.asList(rejected(null), rejected(null), resolved(3));
 
         when.any(input).then(
                 result -> {
@@ -101,7 +101,7 @@ public class AnyTest extends AbstractIntegrationTest {
         Throwable t2 = new RuntimeException();
         Throwable t3 = new RuntimeException();
 
-        List<Promise<Integer>> input = Arrays.<Promise<Integer>>asList(rejected(t1), rejected(t2), rejected(t3));
+        List<Promise<Integer>> input = Arrays.asList(rejected(t1), rejected(t2), rejected(t3));
 
         when.any(input).then(
                 fail.onFulfilled,

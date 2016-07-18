@@ -5,6 +5,7 @@ import com.englishtown.promises.Done;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -25,7 +26,7 @@ public class JoinTest extends AbstractIntegrationTest {
 
         when.<Integer>join().<Integer>then(
                 result -> {
-                    assertThat(result, is(Arrays.<Integer>asList()));
+                    assertThat(result, is(Collections.emptyList()));
                     return null;
                 }
         ).then(done.onFulfilled, done.onRejected);
@@ -71,7 +72,7 @@ public class JoinTest extends AbstractIntegrationTest {
 
         Throwable t = new RuntimeException();
 
-        when.join(resolved(1), rejected(t), resolved(3)).<Integer>then(
+        when.join(resolved(1), rejected(t), resolved(3)).then(
                 fail.onFulfilled,
                 failed -> {
                     assertEquals(failed, t);

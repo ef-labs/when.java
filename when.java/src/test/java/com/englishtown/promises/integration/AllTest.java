@@ -77,7 +77,7 @@ public class AllTest extends AbstractIntegrationTest {
                 .then(
                         results -> {
                             assertNotNull(results);
-                            assertThat(results, is(Arrays.<Integer>asList(null, 1, null, 1, 1)));
+                            assertThat(results, is(Arrays.asList(null, 1, null, 1, 1)));
                             return (Promise<Integer>) null;
                         })
                 .then(done.onFulfilled, done.onRejected);
@@ -112,7 +112,7 @@ public class AllTest extends AbstractIntegrationTest {
         when.all(input).then(
                 results -> {
                     assertNotNull(results);
-                    assertThat(results, is(Arrays.<Integer>asList(1, 4, 3)));
+                    assertThat(results, is(Arrays.asList(1, 4, 3)));
                     return (Promise<Integer>) null;
                 }
         ).then(done.onFulfilled, done.onRejected);

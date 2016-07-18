@@ -135,7 +135,7 @@ public class InspectTest extends AbstractIntegrationTest {
             }
         });
 
-        p.<Sentinel>then(fail.onFulfilled, x -> {
+        p.then(fail.onFulfilled, x -> {
             assertRejected(p.inspect(), t);
             return null;
         }).then(done.onFulfilled, done.onRejected);

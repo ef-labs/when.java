@@ -39,7 +39,7 @@ public class SequenceTest extends AbstractIntegrationTest {
 
         when.sequence(input, null).<Integer>then(
                 result -> {
-                    assertThat(result, is(Arrays.<Integer>asList(1, 2, 3)));
+                    assertThat(result, is(Arrays.asList(1, 2, 3)));
                     return null;
                 }
         ).then(done.onFulfilled, done.onRejected);
