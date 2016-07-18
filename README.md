@@ -16,7 +16,7 @@ Add a maven dependency to when.java
     <dependency>
       <groupId>com.englishtown</groupId>
       <artifactId>when.java</artifactId>
-      <version>3.0.0-SNAPSHOT</version>
+      <version>3.1.1</version>
     </dependency>
 ```
 
